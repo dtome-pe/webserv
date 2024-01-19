@@ -12,7 +12,7 @@ Server::Server()
 	port = 8888;
 }
 
-in_addr_t Server::ip_to_net_byte_order(const std::string& ip_str) 
+/* in_addr_t Server::ip_to_net_byte_order(const std::string& ip_str) 
 {
     // Split the IP address into octets
     std::istringstream iss(ip_str);
@@ -30,39 +30,56 @@ in_addr_t Server::ip_to_net_byte_order(const std::string& ip_str)
     }
 
     return (in_addr_t) htonl(ip); // Convert to network byte order
-}
+} */
 
 sockaddr_in *Server::set_sock_addr(sockaddr_in *addr)
 {
 	memset(addr, 0, sizeof(*addr));
 	addr->sin_family = AF_INET;
 	addr->sin_port = htons(port);
-	addr->sin_addr.s_addr = ip_to_net_byte_order(ip);
+	addr->sin_addr.s_addr = htonl(INADDR_ANY);
 	return (addr);
 }
 
 void Server::start()
 {
-	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (sock_fd == -1)
+	int server_fd, new_socket;
+	struct sockaddr_in addr;
+	int	addr_len = sizeof(addr);
+	char buff[1024];
+
+	server_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (server_fd < 0)
 	{
-		perror("Error binding socket");
-        close(sock_fd);
+		perror("Socket failed");
+        close(server_fd);
         exit(EXIT_FAILURE);
 	}
-	sockaddr_in addr;
 	set_sock_addr(&addr);
-	if (bind(sock_fd, (const sockaddr *) &addr, (socklen_t) sizeof(addr)) == -1)
+	if (bind(server_fd, (const sockaddr *) &addr, addr_len) < 0)
 	{
-		perror("Error binding socket");
-        close(sock_fd);
+		perror("Bind failed");
+        close(server_fd);
         exit(EXIT_FAILURE);
 	}
-	if (listen(sock_fd, 5) == -1)
+	if (listen(server_fd, 10) < 0)
 	{
-		perror("Error listening");
-        close(sock_fd);
+		perror("Listen failed");
+        close(server_fd);
         exit(EXIT_FAILURE);
-	}	
-	std::cout << "Listening at " << getsockname(sock_fd, (sockaddr *) &addr, (socklen_t *) sizeof(addr)) << std::endl;
+	}
+	while (true)
+	{	
+		new_socket = accept(server_fd, (struct sockaddr *) &addr, (socklen_t *) &addr_len);
+		if (new_socket < 0)
+		{
+            perror("In accept");
+            exit(EXIT_FAILURE);
+        }
+		if (recv(new_socket, buff, 1024, 0) < 0)
+			printf("No bytes there to read\n");
+		printf("%s\n", buff);
+		send(new_socket, buff, 1024, 0);
+		close(new_socket);
+	}
 }
