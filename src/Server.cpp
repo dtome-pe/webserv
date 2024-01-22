@@ -9,7 +9,7 @@
 
 Server::Server()
 {
-	ip = "127.0.0.2";
+	ip = "127.0.0.1";
 	port = 8888;
 }
 
@@ -48,8 +48,7 @@ static int listen_socket(int server_fd)
 }
 
 static void server_loop(int server_fd, sockaddr_in *addr, int *addr_len)
-{	
-//	char	buff[2048];
+{
 	int	new_socket;
 
 	while (true)
@@ -63,12 +62,6 @@ static void server_loop(int server_fd, sockaddr_in *addr, int *addr_len)
 		pthread_t	thread_id;
 		pthread_create(&thread_id, NULL, &handle_client, &new_socket);
 		pthread_detach(thread_id);
-
-/* 		if (recv(new_socket, buff, 2048, 0) < 0)
-			printf("No bytes there to read\n");
-		printf("%s\n", buff);
-		send(new_socket, buff, 2048, 0);
-		close(new_socket); */
 	}	
 }
 
