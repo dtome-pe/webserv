@@ -88,7 +88,7 @@ void Server::start()
 	struct sockaddr_in addr;
 	int	addr_len = sizeof(addr);
 
-	server_fd = create_socket(server_fd); //creamos socket
+	server_fd = create_socket(server_fd); //creamos socket y lo ponemos a non blocking
 	set_sock_addr(&addr, port, ip); // inicializamos estructura de socket
 	bind_socket(server_fd, addr, addr_len);  // hacemos bind
 	listen_socket(server_fd);  // hacemos listen
