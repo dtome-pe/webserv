@@ -3,9 +3,12 @@
 #define _XOPEN_SOURCE_EXTENDED 1
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
 #include <string>
 #include <cstring>
+
+#include <unistd.h>
+#include <sstream>
 
 Server::Server()
 {
