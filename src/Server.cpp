@@ -6,7 +6,7 @@
 //#include <bits/stdc++.h>
 #include <string>
 #include <cstring>
-
+#include <fcntl.h>
 #include <unistd.h>
 #include <sstream>
 
@@ -17,11 +17,26 @@ Server::Server()
 }
 
 static int create_socket(int server_fd)
-{
+{	
+	int	flags;
+
 	server_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (server_fd < 0)
 	{
 		perror("Socket failed");
+        close(server_fd);
+        exit(EXIT_FAILURE);
+	}
+	flags = fcntl(server_fd, F_GETFD, 0);
+	if (flags == -1)
+	{
+		perror("Error getting socket flags");
+        close(server_fd);
+        exit(EXIT_FAILURE);
+	}
+	if (fcntl(server_fd, F_SETFD, flags | O_NONBLOCK) == -1)
+	{
+		perror("Error setting socket to non blocking");
         close(server_fd);
         exit(EXIT_FAILURE);
 	}
@@ -62,9 +77,7 @@ static void server_loop(int server_fd, sockaddr_in *addr, int *addr_len)
             perror("Accept Failed");
             exit(EXIT_FAILURE);
         }
-		pthread_t	thread_id;
-		pthread_create(&thread_id, NULL, &handle_client, &new_socket);
-		pthread_detach(thread_id);
+		handle_client(new_socket);
 	}	
 }
 

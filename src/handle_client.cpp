@@ -25,12 +25,10 @@ static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 		return (1);
 }
 
-void	*handle_client(void *arg)
+int	handle_client(int new_socket)
 {
-	int	*new_socket;
 	std::vector<unsigned char> buff(5000);
-	new_socket = (int *) arg;
-	receive_response(*new_socket, &buff);
+	receive_response(new_socket, &buff);
 	print_request(buff);
 
 	std::string	status_line = "HTTP/1.1 200 OK\r\n";
@@ -39,7 +37,7 @@ void	*handle_client(void *arg)
 	
 	std::string response = status_line + "Content-Length: 2\r\n" + "\r\n" + body;
 
-	send(*new_socket, response.c_str(), response.length(), 0);
+	send(new_socket, response.c_str(), response.length(), 0);
 
-	return (NULL);
+	return (0);
 }
