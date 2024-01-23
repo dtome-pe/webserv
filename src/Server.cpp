@@ -27,6 +27,7 @@ static int create_socket(int server_fd)
         close(server_fd);
         exit(EXIT_FAILURE);
 	}
+	/*seteamos el socket como non blocking, es decir, el server no esperará a recibir informacion del cliente*/
 	flags = fcntl(server_fd, F_GETFD, 0);
 	if (flags == -1)
 	{
@@ -87,9 +88,9 @@ void Server::start()
 	struct sockaddr_in addr;
 	int	addr_len = sizeof(addr);
 
-	server_fd = create_socket(server_fd);
-	set_sock_addr(&addr, port, ip);
-	bind_socket(server_fd, addr, addr_len);
-	listen_socket(server_fd);
-	server_loop(server_fd, &addr, &addr_len);
+	server_fd = create_socket(server_fd); //creamos socket
+	set_sock_addr(&addr, port, ip); // inicializamos estructura de socket
+	bind_socket(server_fd, addr, addr_len);  // hacemos bind
+	listen_socket(server_fd);  // hacemos listen
+	server_loop(server_fd, &addr, &addr_len);  //loop server en el que gestiona peticiones de clientes, pero sin bloquearse, actuando inmediatamente.
 }
