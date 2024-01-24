@@ -103,7 +103,14 @@ static void server_loop(int server_fd)
             perror("Accept Failed");
             exit(EXIT_FAILURE);
         }
-		handle_client(new_socket);
+		if (!fork())
+		{	
+			close(server_fd);
+			handle_client(new_socket);
+			close(new_socket);
+			exit(0);
+		}
+		close(new_socket);
 	}	
 }
 
