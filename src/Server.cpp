@@ -92,8 +92,8 @@ static int listen_s(int server_fd)
 static void server_loop(int server_fd)
 {
 	int	new_socket;
-	struct sockaddr_storage c_addr;
-    socklen_t c_addr_size;
+	struct sockaddr_in c_addr;
+    socklen_t c_addr_size = sizeof (c_addr);
 
 	while (true)
 	{	
