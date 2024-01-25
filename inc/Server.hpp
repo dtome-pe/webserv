@@ -19,7 +19,6 @@ class Server
 
 		Server();
 
-		void	parse_config();
 		void	start();
 		void	loop();
 };

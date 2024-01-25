@@ -1,14 +1,22 @@
 #include <iostream>
+#include <stdlib.h>
 #include "../inc/Server.hpp"
+#include "../inc/webserv.hpp"
 
 using namespace std;
 
-int	main()
+int	main(int argc, char *argv[])
 {
-	cout << "webserv!" << endl;
-	Server s;
+	cout << "webserv! argc es " << argc << endl;
+	if (argc != 2)
+	{
+		print_error("Wrong number of arguments.");
+		exit(EXIT_SUCCESS);
+	}
+	t_data	data;
+	parse_config(argv[1], &data);
 
-	s.parse_config();
-	s.start();
-	s.loop();
+	//Server s;
+	//s.start();
+	//s.loop();
 }

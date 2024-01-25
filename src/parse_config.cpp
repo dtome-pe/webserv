@@ -3,19 +3,32 @@
 #include <string.h>
 #include <errno.h>
 #include <stdlib.h>
+#include <fstream>
 
-int	parse_config_aux(int argc, char *argv[])
+static void	add_server(t_data *data)
 {
-	if (argc != 1 || argc != 2)
+	data->s_list = s_new();
+}
+
+int	parse_config(const std::string& file, t_data *data)
+{
+	std::ifstream in;
+	std::string line;
+	(void)		data;
+
+	in.open(file.c_str(), std::ios::in);
+	if (!in.is_open())
 	{
-		print_error("wrong number of arguments\n");
-	}
-	int	fd;
-	fd = open(argv[1], O_RDONLY);
-	if (fd == -1)
-	{
-		print_error(strerror(errno));
+		print_error("File could not be found or opened.\n");
 		exit(EXIT_FAILURE);
 	}
-	return (0);
+	while (in.good())
+	{
+		getline(in, line);
+		if (line.compare("server:"))
+			add_server(data);
+		std::cout << line << std::endl;
+	}
+
+	return (0);	
 }
