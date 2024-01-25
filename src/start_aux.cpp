@@ -1,4 +1,5 @@
 #include "../inc/webserv.hpp"
+#include "../inc/Server.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/types.h>
@@ -9,7 +10,7 @@
 #include <fcntl.h>
 #include <string.h>
 
-void	get_addr_info(struct addrinfo **s_addr)
+void	get_addr_info(struct addrinfo **s_addr, const char *port)
 {	
 	int				status;
 	struct addrinfo hints;
@@ -18,7 +19,7 @@ void	get_addr_info(struct addrinfo **s_addr)
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	status = getaddrinfo(NULL, "8888", &hints, s_addr);
+	status = getaddrinfo(NULL, port, &hints, s_addr);
 	if (status != 0)
 	{
 		print_error(gai_strerror(status));

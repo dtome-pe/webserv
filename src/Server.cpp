@@ -13,12 +13,17 @@
 Server::Server()
 {
 	ip = "127.0.0.1";
-	port = 8888;
+	port = "8888";
+}
+
+void	Server::parse_config()
+{
+
 }
 
 void	Server::start()
 {
-	get_addr_info(&s_addr);
+	get_addr_info(&s_addr, port.c_str());
 	s_fd = create_s(s_fd, s_addr);
 	bind_s(s_fd, s_addr);
 	listen_s(s_fd);

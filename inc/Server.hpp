@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <netinet/in.h>
+# include "Request.hpp"
 
 class Server
 {
@@ -10,12 +11,15 @@ class Server
 	public:
 
 		std::string		ip;
-		unsigned int	port;
+		std::string		port;
 		int				s_fd;
 		struct addrinfo *s_addr;
+		Request			*request_ptr;
+
 
 		Server();
 
+		void	parse_config();
 		void	start();
 		void	loop();
 };

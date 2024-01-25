@@ -4,7 +4,7 @@
 # include <netinet/in.h>
 
 	/*start server*/
-	void	get_addr_info(struct addrinfo **s_addr);
+	void	get_addr_info(struct addrinfo **s_addr, const char *port);
 	int 	create_s(int server_fd, struct addrinfo *s_addr);
 	int 	bind_s(int server_fd, struct addrinfo *s_addr);
 	int 	listen_s(int server_fd);
