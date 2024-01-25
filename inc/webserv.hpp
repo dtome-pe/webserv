@@ -3,9 +3,15 @@
 
 # include <netinet/in.h>
 
-	sockaddr_in *set_sock_addr(sockaddr_in *addr, unsigned int port, std::string &ip);
-	in_addr_t ip_to_net_byte_order(const std::string& ip_str);
+	/*start server*/
+	void	get_addr_info(struct addrinfo **s_addr);
+	int 	create_s(int server_fd, struct addrinfo *s_addr);
+	int 	bind_s(int server_fd, struct addrinfo *s_addr);
+	int 	listen_s(int server_fd);
 
-	int	handle_client(int new_socket);
+	int		handle_client(int new_socket);
+
+	/*utils*/
+	void	print_error(const char *str);
 
 #endif

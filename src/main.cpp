@@ -7,5 +7,7 @@ int	main()
 {
 	cout << "webserv!" << endl;
 	Server s;
+
 	s.start();
+	s.loop();
 }

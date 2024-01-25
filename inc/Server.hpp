@@ -11,10 +11,13 @@ class Server
 
 		std::string		ip;
 		unsigned int	port;
+		int				s_fd;
+		struct addrinfo *s_addr;
 
 		Server();
 
 		void	start();
+		void	loop();
 };
 
 #endif
