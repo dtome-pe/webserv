@@ -7,7 +7,7 @@
 
 static void	add_server(t_data *data)
 {
-	data->s_list = s_new();
+	s_back(&data->s_list, s_new());
 }
 
 int	parse_config(const std::string& file, t_data *data)
@@ -25,7 +25,7 @@ int	parse_config(const std::string& file, t_data *data)
 	while (in.good())
 	{
 		getline(in, line);
-		if (line.compare("server:"))
+		if (!line.compare("server:"))
 			add_server(data);
 		std::cout << line << std::endl;
 	}

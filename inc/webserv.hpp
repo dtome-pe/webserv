@@ -3,6 +3,8 @@
 
 # include "Server.hpp"
 # include <netinet/in.h>
+using namespace std;
+
 
 	struct pollfd 
 	{
@@ -35,6 +37,7 @@
 
 	/*print utils*/
 	void	print_error(const char *str);
+	void	print_servers(t_data *data);
 
 	/*server list utils*/
 	t_s		*s_new();

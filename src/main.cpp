@@ -3,11 +3,9 @@
 #include "../inc/Server.hpp"
 #include "../inc/webserv.hpp"
 
-using namespace std;
-
 int	main(int argc, char *argv[])
 {
-	cout << "webserv! argc es " << argc << endl;
+	//cout << "webserv! argc es " << argc << endl;
 	if (argc != 2)
 	{
 		print_error("Wrong number of arguments.");
@@ -15,7 +13,7 @@ int	main(int argc, char *argv[])
 	}
 	t_data	data;
 	parse_config(argv[1], &data);
-
+	print_servers(&data);
 	//Server s;
 	//s.start();
 	//s.loop();
