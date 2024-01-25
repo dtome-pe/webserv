@@ -3,6 +3,17 @@
 #include "../inc/Server.hpp"
 #include "../inc/webserv.hpp"
 
+static void start_servers(t_s *list)
+{
+	t_s	*ptr;
+
+	while (ptr != NULL)
+	{
+		ptr->s->start();
+		ptr = ptr->next;
+	}
+}
+
 int	main(int argc, char *argv[])
 {
 	//cout << "webserv! argc es " << argc << endl;
@@ -14,7 +25,6 @@ int	main(int argc, char *argv[])
 	t_data	data;
 	parse_config(argv[1], &data);
 	print_servers(&data);
-	//Server s;
-	//s.start();
+	start_servers(data.s_list);
 	//s.loop();
 }

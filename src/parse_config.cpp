@@ -5,10 +5,11 @@
 #include <stdlib.h>
 #include <fstream>
 
-static void	add_server(t_data *data)
+/* static int	check_element(t_s *list, std::string &line)
 {
-	s_back(&data->s_list, s_new());
-}
+	if (!line.compare(0, 4, "\tip:"))
+
+} */
 
 int	parse_config(const std::string& file, t_data *data)
 {
@@ -26,8 +27,15 @@ int	parse_config(const std::string& file, t_data *data)
 	{
 		getline(in, line);
 		if (!line.compare("server:"))
-			add_server(data);
-		std::cout << line << std::endl;
+			s_back(&data->s_list, s_new());
+/* 		if (line.at(0) == '\t')
+		{
+			if (check_element(s_last(data->s_list), line))
+			{
+				print_error("Wrong config file format.\n");
+				exit(EXIT_FAILURE);
+			}	
+		} */
 	}
 
 	return (0);	
