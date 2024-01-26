@@ -26,6 +26,8 @@ using namespace std;
 
 	/*parse config*/
 	int		parse_config(const std::string& file, t_data *data);
+
+	int		parse_listen(t_s *list, std::string &line);
 	
 	/*start server*/
 	void	get_addr_info(struct addrinfo **s_addr, const char *port);

@@ -5,11 +5,17 @@
 #include <stdlib.h>
 #include <fstream>
 
-/* static int	check_element(t_s *list, std::string &line)
-{
-	if (!line.compare(0, 4, "\tip:"))
+static int	parse_element(t_s *list, std::string &line)
+{	
+	(void) list;
 
-} */
+	if (!line.compare(0, 8, "\tlisten:"))
+	{
+		if (parse_listen(list, line))
+			return (1);
+	}
+	return (0);
+}
 
 int	parse_config(const std::string& file, t_data *data)
 {
@@ -28,15 +34,14 @@ int	parse_config(const std::string& file, t_data *data)
 		getline(in, line);
 		if (!line.compare("server:"))
 			s_back(&data->s_list, s_new());
-/* 		if (line.at(0) == '\t')
+		if (line.at(0) == '\t')
 		{
-			if (check_element(s_last(data->s_list), line))
+			if (parse_element(s_last(data->s_list), line))
 			{
 				print_error("Wrong config file format.\n");
 				exit(EXIT_FAILURE);
 			}	
-		} */
+		}
 	}
-
 	return (0);	
 }

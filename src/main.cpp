@@ -7,6 +7,7 @@ static void start_servers(t_s *list)
 {
 	t_s	*ptr;
 
+	ptr = list;
 	while (ptr != NULL)
 	{
 		ptr->s->start();

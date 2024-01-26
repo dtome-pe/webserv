@@ -13,7 +13,7 @@
 Server::Server()
 {
 	ip = "127.0.0.1";
-	port = "80";
+	port = "8888";
 }
 
 void	Server::start()
