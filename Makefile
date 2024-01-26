@@ -1,6 +1,6 @@
 NAME = webserv
 SRC = $(addprefix $(DIR_SRC), main.cpp Server.cpp handle_client.cpp start_aux.cpp print_utils.cpp parse_config.cpp \
-								utils_list_server.cpp parse_aux.cpp)
+								utils_list_server.cpp parse_aux.cpp poll.cpp)
 FLAGS = -std=c++98 -Wall -Wextra -Werror
 DEPFLAGS = -MMD -MP
 DIR_OBJ = tmp/

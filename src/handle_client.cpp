@@ -3,6 +3,7 @@
 #include <sys/socket.h>
 #include <sstream>
 #include <vector>
+#include "../inc/webserv.hpp"
 
 static	void print_request(std::vector<unsigned char> buff)
 {
@@ -19,16 +20,26 @@ static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 	if (result != -1)
 	{
 		(*buff).resize(result);
-		return (0);
+		return (result);
 	}
 	else
-		return (1);
+		return (result);
 }
 
 int	handle_client(int new_socket)
-{
+{	
+	int	nbytes;
 	std::vector<unsigned char> buff(5000);
-	receive_response(new_socket, &buff);
+	nbytes = receive_response(new_socket, &buff);
+	if (nbytes <= 0)
+	{
+		/*error o conexion cerrada*/
+		if (nbytes == 0)
+			cout << "connexion was closed with client" << endl;
+		if (nbytes == -1)
+			print_error("recv error");
+		return (1);
+	}
 	print_request(buff);
 
 	std::string	status_line = "HTTP/1.1 200 OK\r\n";

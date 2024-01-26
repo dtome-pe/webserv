@@ -13,10 +13,10 @@ class Server
 
 		std::string		ip;
 		std::string		port;
+		int				s_fd;
 		struct addrinfo *s_addr;
 		Request			*request_ptr;
 
-		struct pollfd	poll;
 
 
 		Server();

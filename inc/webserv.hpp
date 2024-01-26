@@ -13,7 +13,10 @@ using namespace std;
 
 	typedef struct data
 	{
-		t_s	*s_list;
+		t_s		*s_list;
+		pollfd 	*poll;
+		int		fd_size;
+		int		fd_count;
 	} t_data;
 
 	/*parse config*/
@@ -28,6 +31,9 @@ using namespace std;
 	int 	listen_s(int server_fd);
 
 	int		handle_client(int new_socket);
+
+	/*poll*/
+	void	poll_loop(t_data *data, t_s *list);
 
 	/*print utils*/
 	void	print_error(const char *str);

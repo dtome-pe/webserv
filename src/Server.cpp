@@ -19,13 +19,13 @@ Server::Server()
 void	Server::start()
 {
 	get_addr_info(&s_addr, port.c_str());
-	poll.fd = create_s(poll.fd, s_addr);
-	bind_s(poll.fd, s_addr);
-	listen_s(poll.fd);
+	s_fd = create_s(s_fd, s_addr);
+	bind_s(s_fd, s_addr);
+	listen_s(s_fd);
 	freeaddrinfo(s_addr);
 }
 
-void Server::loop()
+/* void Server::loop()
 {
 	int	new_socket;
 	struct sockaddr_in c_addr;
@@ -33,7 +33,7 @@ void Server::loop()
 
 	while (true)
 	{	
-		new_socket = accept(poll.fd, (struct sockaddr *) &c_addr, &c_addr_size);
+		new_socket = accept(s_fd, (struct sockaddr *) &c_addr, &c_addr_size);
 		if (new_socket < 0)
 		{
             print_error(strerror(errno));
@@ -41,11 +41,11 @@ void Server::loop()
         }
 		if (!fork())
 		{	
-			close(poll.fd);
+			close(s_fd);
 			handle_client(new_socket);
 			close(new_socket);
 			exit(0);
 		}
 		close(new_socket);
 	}	
-}
+} */
