@@ -5,14 +5,6 @@
 # include <netinet/in.h>
 using namespace std;
 
-
-	struct pollfd 
-	{
-    int   fd;         /* file descriptor */
-    short events;     /* requested events */
-    short revents;    /* returned events */
-	};
-
 	typedef struct server_list
 	{
 		Server					*s;

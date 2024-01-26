@@ -28,9 +28,7 @@ void	get_addr_info(struct addrinfo **s_addr, const char *port)
 }
 
 int create_s(int server_fd, struct addrinfo *s_addr)
-{	
-	int flags;
-	
+{
 	server_fd = socket(s_addr->ai_family, s_addr->ai_socktype, s_addr->ai_protocol);
 	if (server_fd < 0)
 	{
@@ -38,14 +36,7 @@ int create_s(int server_fd, struct addrinfo *s_addr)
         close(server_fd);
         exit(EXIT_FAILURE);
 	}
-	flags = fcntl(server_fd, F_GETFD, 0);
-	if (flags == -1)
-	{
-		print_error(strerror(errno));
-        close(server_fd);
-        exit(EXIT_FAILURE);
-	}
-	if (fcntl(server_fd, F_SETFD, flags | O_NONBLOCK) == -1)
+	if (fcntl(server_fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
 	{
 		print_error(strerror(errno));
         close(server_fd);
