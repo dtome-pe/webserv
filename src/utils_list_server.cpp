@@ -6,38 +6,39 @@
 /*   By: theonewhoknew <theonewhoknew@student.42    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 11:56:04 by theonewhokn       #+#    #+#             */
-/*   Updated: 2024/01/25 14:50:21 by theonewhokn      ###   ########.fr       */
+/*   Updated: 2024/01/27 12:30:30 by theonewhokn      ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../inc/webserv.hpp"
+#include "../inc/Server.hpp"
 
-t_s	*s_new()
+t_serv	*serv_new()
 {
-	t_s	*node = new t_s;
+	t_serv	*node = new t_serv;
 
-	node->s = new Server();
+	node->serv = new Server();
 	node->next = NULL;
 	return (node);
 }
 
-int	s_back(t_s **lst, t_s *new_s)
+int	serv_back(t_serv **lst, t_serv *new_sock)
 {
-	t_s	*curr;
+	t_serv	*curr;
 
-	if (!new_s | !lst)
+	if (!new_sock | !lst)
 		return (1);
 	if (*lst == NULL)
 	{
-		*lst = new_s;
+		*lst = new_sock;
 		return (0);
 	}
-	curr = s_last(*lst);
-	curr->next = new_s;
+	curr = serv_last(*lst);
+	curr->next = new_sock;
 	return (0);
 }
 
-t_s	*s_last(t_s *lst)
+t_serv	*serv_last(t_serv *lst)
 {
 	if (!lst)
 		return (NULL);

@@ -2,12 +2,15 @@
 #include <cstdlib>
 #include "unistd.h"
 
-static bool	check_if_listener(int poll_fd, t_s *list)
+static bool	check_if_listener(int poll_fd, t_serv *list)
 {
-	for (t_s *ptr = list; ptr != NULL; ptr = ptr->next)
+	for (t_serv *ptr = list; ptr != NULL; ptr = ptr->next)
 	{
-		if (poll_fd == ptr->s->s_fd)
-			return (true);
+		for (t_sock *sock_ptr = ptr->serv->sock_list; sock_ptr != NULL; sock_ptr = sock_ptr->next)
+		{
+			if (poll_fd == sock_ptr->sock->s_fd)
+				return (true);
+		}
 	}
 	return (false);
 }
@@ -30,7 +33,7 @@ static void	remove_pollfd(struct pollfd *poll[], int i, int *fd_count)
     (*fd_count)--;
 }
 
-void	poll_loop(t_data *data, t_s *list)
+void	poll_loop(t_data *data, t_serv *list)
 {	
 	/*datos para nueva conexion*/
 	int c_fd;

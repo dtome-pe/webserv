@@ -2,18 +2,28 @@
 # define WEBSERV_HPP
 
 # include "Server.hpp"
+# include "Socket.hpp"
 # include <netinet/in.h>
 using namespace std;
 
-	typedef struct server_list
+class Server;
+
+	typedef struct socket_list
 	{
-		Server					*s;
+		Socket					*sock;
+		struct socket_list		*next;
+	}			t_sock;
+
+
+	typedef struct	server_list
+	{
+		Server					*serv;
 		struct server_list		*next;
-	}			t_s;
+	}			t_serv;
 
 	typedef struct data
 	{
-		t_s		*s_list;
+		t_serv	*serv_list;
 		pollfd 	*poll;
 		int		fd_size;
 		int		fd_count;
@@ -22,7 +32,7 @@ using namespace std;
 	/*parse config*/
 	int		parse_config(const std::string& file, t_data *data);
 
-	int		parse_listen(t_s *list, std::string &line);
+	int		parse_listen(t_sock **list, std::string &line);
 	
 	/*start server*/
 	void	get_addr_info(struct addrinfo **s_addr, const char *port);
@@ -33,15 +43,21 @@ using namespace std;
 	int		handle_client(int new_socket);
 
 	/*poll*/
-	void	poll_loop(t_data *data, t_s *list);
+	void	poll_loop(t_data *data, t_serv *list);
 
 	/*print utils*/
 	void	print_error(const char *str);
-	void	print_servers(t_data *data);
+	void	print_servers(t_serv *list);
+
+	/*socket list utils*/
+	t_sock		*sock_new(std::string &port);
+	int			sock_back(t_sock **lst, t_sock *new_s);
+	t_sock		*sock_last(t_sock *lst);
 
 	/*server list utils*/
-	t_s		*s_new();
-	int		s_back(t_s **lst, t_s *new_s);
-	t_s		*s_last(t_s *lst);
+
+	t_serv		*serv_new();
+	int			serv_back(t_serv **lst, t_serv *new_s);
+	t_serv		*serv_last(t_serv *lst);
 
 #endif

@@ -1,5 +1,5 @@
 #include "../inc/webserv.hpp"
-#include "../inc/Server.hpp"
+#include "../inc/Socket.hpp"
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/types.h>

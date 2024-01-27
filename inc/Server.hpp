@@ -1,9 +1,11 @@
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
+# include "webserv.hpp"
 # include <iostream>
 # include <netinet/in.h>
 # include "Request.hpp"
+# include "Socket.hpp"
 # include <poll.h>
 
 class Server
@@ -11,18 +13,12 @@ class Server
 
 	public:
 
-		std::string		ip;
-		std::string		port;
-		int				s_fd;
-		struct addrinfo *s_addr;
-		Request			*request_ptr;
 
-
+		struct socket_list	*sock_list;
 
 		Server();
 
 		void	start();
-		void	loop();
 };
 
 #endif

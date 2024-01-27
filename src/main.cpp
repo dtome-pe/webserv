@@ -1,21 +1,22 @@
 #include <iostream>
 #include <stdlib.h>
-#include "../inc/Server.hpp"
 #include "../inc/webserv.hpp"
+#include "../inc/Socket.hpp"
 
-static void start_servers(t_data *data, t_s *list)
+static void start_servers(t_data *data, t_serv *list)
 {
-	t_s	*ptr;
+	t_serv	*ptr;
 	int	i = 0;
+	(void) data;
 
 	ptr = list;
 	while (ptr != NULL)
 	{
-		ptr->s->start();
+		ptr->serv->start();
 		i++;
 		ptr = ptr->next;
 	}
-	data->poll = new struct pollfd[i];
+/* 	data->poll = new struct pollfd[i];
 	ptr = list;
 	i = 0;
 	while (ptr != NULL)
@@ -26,7 +27,7 @@ static void start_servers(t_data *data, t_s *list)
 		i++;
 	}
 	data->fd_size = i;
-	data->fd_count = i;
+	data->fd_count = i; */
 }
 
 int	main(int argc, char *argv[])
@@ -38,7 +39,7 @@ int	main(int argc, char *argv[])
 	}
 	t_data	data;
 	parse_config(argv[1], &data);
-	print_servers(&data);
-	start_servers(&data, data.s_list);
-	poll_loop(&data, data.s_list);
+	print_servers(data.serv_list);
+	start_servers(&data, data.serv_list);
+	//poll_loop(&data, data.serv_list);
 }
