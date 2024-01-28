@@ -43,7 +43,7 @@ class Server;
 	int		handle_client(int new_socket);
 
 	/*poll*/
-	void	poll_loop(t_data *data, t_serv *list);
+	void	poll_loop(t_data *data);
 
 	/*print utils*/
 	void	print_error(const char *str);
@@ -53,6 +53,7 @@ class Server;
 	t_sock		*sock_new(std::string &port);
 	int			sock_back(t_sock **lst, t_sock *new_s);
 	t_sock		*sock_last(t_sock *lst);
+	int			sock_count(t_sock *lst);
 
 	/*server list utils*/
 

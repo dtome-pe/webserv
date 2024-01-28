@@ -39,3 +39,14 @@ t_sock	*sock_last(t_sock *lst)
 	}
 	return (lst);
 }
+
+int		sock_count(t_sock *lst)
+{
+	int i = 0;
+
+	for (t_sock *ptr = lst; ptr != NULL; ptr = ptr->next)
+	{
+		i++;
+	}
+	return (i);
+}

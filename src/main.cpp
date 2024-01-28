@@ -3,31 +3,47 @@
 #include "../inc/webserv.hpp"
 #include "../inc/Socket.hpp"
 
-static void start_servers(t_data *data, t_serv *list)
+static void init_servers(t_data *data, t_serv *lst)
 {
 	t_serv	*ptr;
 	int	i = 0;
 	(void) data;
 
-	ptr = list;
+	ptr = lst;
 	while (ptr != NULL)
 	{
 		ptr->serv->start();
 		i++;
 		ptr = ptr->next;
 	}
-/* 	data->poll = new struct pollfd[i];
-	ptr = list;
-	i = 0;
-	while (ptr != NULL)
+}
+
+static void	init_poll(t_data *data, t_serv *lst)
+{	
+	int i = 0;
+	for (t_serv *ptr = lst; ptr != NULL; ptr = ptr->next)
 	{
-		data->poll[i].fd = ptr->s->s_fd;
-		data->poll[i].events = POLLIN;
-		ptr = ptr->next;
-		i++;
+		i += sock_count(ptr->serv->sock_list);
+	}
+ 	data->poll = new struct pollfd[i];
+	i = 0;
+	for (t_serv *ptr = lst; ptr != NULL; ptr = ptr->next)
+	{
+		for (t_sock *sock_ptr = ptr->serv->sock_list; sock_ptr != NULL; sock_ptr = sock_ptr->next)
+		{
+			data->poll[i].fd =sock_ptr->sock->s_fd;
+			data->poll[i].events = POLLIN;
+			i++;
+		}
 	}
 	data->fd_size = i;
-	data->fd_count = i; */
+	data->fd_count = i;
+}
+
+static void	init_data(t_data *data)
+{
+	data->poll = NULL;
+	data->serv_list = NULL;
 }
 
 int	main(int argc, char *argv[])
@@ -38,8 +54,11 @@ int	main(int argc, char *argv[])
 		exit(EXIT_SUCCESS);
 	}
 	t_data	data;
+
+	init_data(&data);
 	parse_config(argv[1], &data);
 	print_servers(data.serv_list);
-	start_servers(&data, data.serv_list);
-	//poll_loop(&data, data.serv_list);
+	init_servers(&data, data.serv_list);
+	init_poll(&data, data.serv_list);
+	poll_loop(&data);
 }
