@@ -17,8 +17,6 @@ class Socket
 		struct addrinfo *s_addr;
 		Request			*request_ptr;
 
-
-
 		Socket();
 
 		void	start();

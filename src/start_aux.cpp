@@ -4,7 +4,8 @@
 #include <netinet/in.h>
 #include <sys/types.h>
 #include <netdb.h>
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
+#include <unistd.h>
 #include <string>
 #include <cstring>
 #include <fcntl.h>
@@ -15,7 +16,7 @@ void	get_addr_info(struct addrinfo **s_addr, const char *port)
 	int				status;
 	struct addrinfo hints;
 
-	memset(&hints, 0, sizeof (hints));
+	memset(&hints, 0, sizeof (hints)); // damos valor NULL a todo para luego inicializar
 	hints.ai_family = AF_UNSPEC;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
@@ -49,7 +50,7 @@ int bind_s(int server_fd, struct addrinfo *s_addr)
 {	
 	int	yes = 1;
 
-	if (bind(server_fd, s_addr->ai_addr, s_addr->ai_addrlen) < 0)
+	if (bind(server_fd, s_addr->ai_addr, s_addr->ai_addrlen) < 0) // hacemos bind
 	{
 		print_error(strerror(errno));
         close(server_fd);
@@ -59,7 +60,7 @@ int bind_s(int server_fd, struct addrinfo *s_addr)
 	{
     	print_error(strerror(errno));
    		exit(1);
-	} 
+	}
 	return (server_fd);
 }
 

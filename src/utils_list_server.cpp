@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils_list_server.cpp                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: theonewhoknew <theonewhoknew@student.42    +#+  +:+       +#+        */
+/*   By: jgravalo <jgravalo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 11:56:04 by theonewhokn       #+#    #+#             */
-/*   Updated: 2024/01/27 12:30:30 by theonewhokn      ###   ########.fr       */
+/*   Updated: 2024/02/05 14:55:45 by jgravalo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,19 +22,19 @@ t_serv	*serv_new()
 	return (node);
 }
 
-int	serv_back(t_serv **lst, t_serv *new_sock)
+int	serv_back(t_serv **lst, t_serv *new_serv)
 {
 	t_serv	*curr;
 
-	if (!new_sock | !lst)
+	if (!new_serv | !lst)
 		return (1);
 	if (*lst == NULL)
 	{
-		*lst = new_sock;
+		*lst = new_serv;
 		return (0);
 	}
 	curr = serv_last(*lst);
-	curr->next = new_sock;
+	curr->next = new_serv;
 	return (0);
 }
 

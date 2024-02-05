@@ -3,7 +3,7 @@
 #include "../inc/webserv.hpp"
 #include "../inc/Socket.hpp"
 
-static void init_servers(t_data *data, t_serv *lst)
+static void init_servers(t_data *data, t_serv *lst) // inicializamos los servers de la lista y los sockets de sus respectivas listas
 {
 	t_serv	*ptr;
 	int	i = 0;
@@ -12,7 +12,7 @@ static void init_servers(t_data *data, t_serv *lst)
 	ptr = lst;
 	while (ptr != NULL)
 	{
-		ptr->serv->start();
+		ptr->serv->start(); //inicializamos los sockets de la lista de cada server
 		i++;
 		ptr = ptr->next;
 	}
@@ -55,10 +55,10 @@ int	main(int argc, char *argv[])
 	}
 	t_data	data;
 
-	init_data(&data);
-	parse_config(argv[1], &data);
-	print_servers(data.serv_list);
-	init_servers(&data, data.serv_list);
-	init_poll(&data, data.serv_list);
+	init_data(&data); // iniciamos lista de servidores y poll
+	parse_config(argv[1], &data); //
+	print_servers(data.serv_list); // printamos la info de los servers
+	init_servers(&data, data.serv_list); // inicializamos los servers de la lista y los sockets de sus respectivas listas
+	init_poll(&data, data.serv_list); // 
 	poll_loop(&data);
 }

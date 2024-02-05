@@ -17,8 +17,8 @@ Socket::Socket()
 
 void	Socket::start()
 {
-	get_addr_info(&s_addr, port.c_str());
-	s_fd = create_s(s_fd, s_addr);
+	get_addr_info(&s_addr, port.c_str()); // obtenemos datos
+	s_fd = create_s(s_fd, s_addr); //creamos el fd del socket
 	bind_s(s_fd, s_addr);
 	listen_s(s_fd);
 	freeaddrinfo(s_addr);
