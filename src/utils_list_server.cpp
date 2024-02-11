@@ -6,12 +6,12 @@
 /*   By: jgravalo <jgravalo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/09/15 11:56:04 by theonewhokn       #+#    #+#             */
-/*   Updated: 2024/02/05 14:55:45 by jgravalo         ###   ########.fr       */
+/*   Updated: 2024/02/11 21:47:01 by jgravalo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../inc/webserv.hpp"
-#include "../inc/Server.hpp"
+#include<webserv.hpp>
+
 
 t_serv	*serv_new()
 {

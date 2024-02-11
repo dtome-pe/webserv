@@ -1,5 +1,4 @@
-#include "../inc/webserv.hpp"
-#include <string>
+#include<webserv.hpp>
 
 int	parse_listen(t_sock **list, std::string &line) // extraemos el puerto, que debe estar en el archivo precedido de un espacio de separación con la instrucción y seguido de un punto y coma que delimite la instrucción
 {

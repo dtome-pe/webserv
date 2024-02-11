@@ -1,9 +1,4 @@
-#include <cstddef>
-#include <iostream>
-#include <sys/socket.h>
-#include <sstream>
-#include <vector>
-#include "../inc/webserv.hpp"
+#include<webserv.hpp>
 
 static	void print_request(std::vector<unsigned char> buff)
 {
@@ -30,7 +25,7 @@ int	handle_client(int new_socket)
 {	
 	int	nbytes;
 	std::vector<unsigned char> buff(5000);
-	nbytes = receive_response(new_socket, &buff);
+	nbytes = receive_response(new_socket, &buff); // recibimos respuesta (recv)
 	if (nbytes <= 0)
 	{
 		/*error o conexion cerrada*/
@@ -41,12 +36,20 @@ int	handle_client(int new_socket)
 		return (1);
 	}
 	print_request(buff);
-
+/* 
 	std::string	status_line = "HTTP/1.1 200 OK\r\n";
 	std::string headers;
 	std::string body = "Hi";
 	
 	std::string response = status_line + "Content-Length: 2\r\n" + "\r\n" + body;
+ */
+ 	Response	msg;
+
+	msg.setStatusLine("HTTP/1.1 200 OK");
+	msg.setHeader("Server: apache");
+	msg.setHeader("Content-Length: 2");
+	msg.setBody("Hi");
+	std::string response = msg.makeResponse(); // hacemos respuesta con los valores del clase Response
 
 	send(new_socket, response.c_str(), response.length(), 0);
 

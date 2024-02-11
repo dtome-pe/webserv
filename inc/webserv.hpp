@@ -1,9 +1,8 @@
 #ifndef WEBSERV_HPP
 # define WEBSERV_HPP
 
-# include "Server.hpp"
-# include "Socket.hpp"
-# include <netinet/in.h>
+#include<lib.hpp>
+
 using namespace std;
 
 class Server;

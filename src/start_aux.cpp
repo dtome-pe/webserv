@@ -1,15 +1,4 @@
-#include "../inc/webserv.hpp"
-#include "../inc/Socket.hpp"
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <sys/types.h>
-#include <netdb.h>
-//#include <bits/stdc++.h>
-#include <unistd.h>
-#include <string>
-#include <cstring>
-#include <fcntl.h>
-#include <string.h>
+#include<webserv.hpp>
 
 void	get_addr_info(struct addrinfo **s_addr, const char *port)
 {	

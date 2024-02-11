@@ -1,6 +1,4 @@
-#include "../inc/webserv.hpp"
-#include <cstdlib>
-#include "unistd.h"
+#include<webserv.hpp>
 /* 
 static bool	check_if_listener(int poll_fd, t_serv *list)
 {
@@ -43,7 +41,7 @@ void	poll_loop(t_data *data) //, t_serv *list)
 	
 	while (1)
 	{
-		int poll_count = poll(data->poll, data->fd_size, -1);
+		int poll_count = poll(data->poll, data->fd_size, -1); // ?
 		if (poll_count == -1)
 		{
 			print_error("poll error");
@@ -58,11 +56,12 @@ void	poll_loop(t_data *data) //, t_serv *list)
 					/*aceptamos nueva conexion, y gestionamos inmediatamente peticion cliente, ya que subject
 					especifica solo UN POLL, para I/O entre cliente y servidor*/
 				addrlen = sizeof (c_addr);
-				c_fd = accept(data->poll[i].fd, (struct sockaddr *) &c_addr, &addrlen);
+				c_fd = accept(data->poll[i].fd, (struct sockaddr *) &c_addr, &addrlen); // el cliente acepta el socket
+				
 				if (c_fd == -1)
 					print_error("client accept error");
 				else
-				{	
+				{
 					handle_client(c_fd); // gestionamos cliente inmediatamente, efectuando I/O entre cliente y servidor en un poll
 					close(c_fd);
 				//	add_pollfd(&data->poll, c_fd, &data->fd_count, &data->fd_size);

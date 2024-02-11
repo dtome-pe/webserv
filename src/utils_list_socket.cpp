@@ -1,6 +1,4 @@
-#include "../inc/webserv.hpp"
-#include "../inc/Server.hpp"
-
+#include<webserv.hpp>
 t_sock	*sock_new(std::string &port)
 {
 	t_sock	*node = new t_sock;

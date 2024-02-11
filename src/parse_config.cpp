@@ -1,9 +1,4 @@
-#include "../inc/webserv.hpp"
-#include <fcntl.h>
-#include <string.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <fstream>
+#include<webserv.hpp>
 
 static int	parse_element(t_serv *list, std::string &line)
 {

@@ -1,14 +1,5 @@
-#include "../inc/Socket.hpp"
-#include "../inc/webserv.hpp"
-#define _XOPEN_SOURCE_EXTENDED 1
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <unistd.h>
-#include <string.h>
-#include <errno.h>
-#include <stdlib.h>
-#include <cstdio>
+#include<webserv.hpp>
+
 
 Socket::Socket()
 {

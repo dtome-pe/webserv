@@ -1,6 +1,4 @@
-#include <errno.h>
-#include <cstdio>
-#include "../inc/webserv.hpp"
+#include<webserv.hpp>
 
 void	print_error(const char *str)
 {	
