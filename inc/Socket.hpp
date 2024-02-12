@@ -8,7 +8,6 @@
 
 class Socket
 {
-
 	public:
 
 		std::string		ip;
@@ -20,6 +19,7 @@ class Socket
 		Socket();
 
 		void	start();
+		void	setPort(std::string port);
 };
 
 #endif
