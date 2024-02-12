@@ -14,7 +14,7 @@ void	print_servers(t_serv *list)
 		for(t_sock	*sock_ptr = ptr->serv->sock_list; sock_ptr != NULL; sock_ptr = sock_ptr->next)
 		{
 			cout << "socket: " << endl;
-			cout << sock_ptr->sock->port << endl;
+			cout << sock_ptr->sock->getPort() << endl;
 		}
 		i++;
 	}
