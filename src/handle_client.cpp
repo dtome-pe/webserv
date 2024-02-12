@@ -36,6 +36,10 @@ int	handle_client(int new_socket)
 		return (1);
 	}
 	print_request(buff);
+	std::string	text;
+	for (size_t i = 0; i < buff.size(); i++)
+		text += buff[i];
+	Request	req(text);
 /* 
 	std::string	status_line = "HTTP/1.1 200 OK\r\n";
 	std::string headers;

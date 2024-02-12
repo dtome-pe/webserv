@@ -7,7 +7,7 @@
 class Request
 {
 	public:
-		Request();
+		Request(std::string buff);
 		~Request();
 
 		std::string	status_line;
