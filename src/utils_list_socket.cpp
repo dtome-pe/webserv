@@ -4,7 +4,7 @@ t_sock	*sock_new(std::string &port)
 	t_sock	*node = new t_sock;
 
 	node->sock = new Socket();
-	node->sock->port = port;
+	node->sock->setPort(port);
 	node->next = NULL;
 	return (node);
 }

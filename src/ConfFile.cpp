@@ -62,9 +62,9 @@ int		ConfFile::parse_element(std::string &line)
 		firstNonSpace = ip.find_first_not_of(" \t\n\r");
 		lastNonSpace = ip.find_last_not_of(" \t\n\r;");
 		ip = ip.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
-		if (port.find_first_not_of("0123456789.") != std::string::npos)
+		if (ip.find_first_not_of("0123456789.") != std::string::npos)
 			return (1);
-		S.ip = ip;
+		S.setIp(ip);
 	}
 	if (ipfound == -1)
 		port = line.substr(listenPos + 6, semicolonPos);
@@ -75,7 +75,7 @@ int		ConfFile::parse_element(std::string &line)
 	port = port.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
 	if (port.find_first_not_of("0123456789") != std::string::npos)
 		return (1);
-	S.port = port;
+	S.setPort(port);
 	this->serv_vec.back().sock_vec.push_back(S);
 	return (0);
 }
@@ -88,10 +88,10 @@ void	ConfFile::print_servers()
 		for (size_t j = 0; j < this->serv_vec[i].sock_vec.size(); j++)
 		{
 			std::cout << "Socket info:" << std::endl;
-			std::cout << "Port: " << this->serv_vec[i].sock_vec[j].port << std::endl;
+			std::cout << "Port: " << this->serv_vec[i].sock_vec[j].getPort() << std::endl;
 			std::cout << "IP: ";
-			if (!this->serv_vec[i].sock_vec[j].ip.empty())
-			   std::cout << this->serv_vec[i].sock_vec[j].ip << std::endl;
+			if (!this->serv_vec[i].sock_vec[j].getIp().empty())
+			   std::cout << this->serv_vec[i].sock_vec[j].getIp() << std::endl;
 			else
 				std::cout << "empty" << std::endl;
 		}

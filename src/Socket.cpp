@@ -39,3 +39,23 @@ void	Socket::start()
 		close(new_socket);
 	}	
 } */
+
+std::string Socket::getPort()
+{
+	return (this->port);
+}
+
+std::string Socket::getIp()
+{
+	return (this->ip);
+}
+
+void	Socket::setPort(std::string port)
+{
+	this->port = port;
+}
+
+void	Socket::setIp(std::string ip)
+{
+	this->ip = ip;
+}
