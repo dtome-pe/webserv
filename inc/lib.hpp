@@ -10,6 +10,7 @@
 # include <Request.hpp>
 # include <Response.hpp>
 # include <HeaderHTTP.hpp>
+# include <ConfFile.hpp>
 
 // Standard class
 #include <iostream>

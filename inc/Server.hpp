@@ -12,10 +12,9 @@ class Server
 {
 
 	public:
-
-
+		int		active;
 		struct socket_list	*sock_list;
-
+		std::vector<class Socket>	sock_vec;
 		Server();
 
 		void	start();

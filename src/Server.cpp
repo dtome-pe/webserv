@@ -3,6 +3,7 @@
 Server::Server()
 {
 	sock_list	= NULL;
+	active = 1;
 }
 
 void	Server::start()

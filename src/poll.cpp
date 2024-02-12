@@ -31,7 +31,17 @@ static void	remove_pollfd(struct pollfd *poll[], int i, int *fd_count)
     (*fd_count)--;
 } */
 
-void	poll_loop(t_data *data) //, t_serv *list)
+void	print_poll(pollfd *poll, int size)
+{
+	for (int i = 0; i < size; i++)
+	{
+		std::cout << i << " fd is " << poll[i].fd << std::endl;
+		std::cout << i << " ev is " << poll[i].events << std::endl;
+		std::cout << i << " rev is " << poll[i].revents << std::endl;
+	}
+}
+
+void	poll_loop(pollfd *poll_ptr, int fd_size)
 {	
 	/*datos para nueva conexion*/
 	int c_fd;
@@ -41,22 +51,23 @@ void	poll_loop(t_data *data) //, t_serv *list)
 	
 	while (1)
 	{
-		int poll_count = poll(data->poll, data->fd_size, -1); // ?
+		//print_poll(poll_ptr, fd_size);
+		int poll_count = poll(poll_ptr, fd_size, -1); // ?
 		if (poll_count == -1)
 		{
 			print_error("poll error");
 			exit(EXIT_FAILURE);
 		}
-		for (int i = 0; i < data->fd_size; i++) // buscamos que socket esta listo para recibir cliente
+		for (int i = 0; i < fd_size; i++) // buscamos que socket esta listo para recibir cliente
 		{
-			if (data->poll[i].revents & POLLIN) // hay alguien listo para leer = hay un intento de conexion
+			if (poll_ptr[i].revents & POLLIN) // hay alguien listo para leer = hay un intento de conexion
 			{
 				//if (check_if_listener(data->poll[i].fd, list)) // comentamos de momento
 				//{
 					/*aceptamos nueva conexion, y gestionamos inmediatamente peticion cliente, ya que subject
 					especifica solo UN POLL, para I/O entre cliente y servidor*/
 				addrlen = sizeof (c_addr);
-				c_fd = accept(data->poll[i].fd, (struct sockaddr *) &c_addr, &addrlen); // el cliente acepta el socket
+				c_fd = accept(poll_ptr[i].fd, (struct sockaddr *) &c_addr, &addrlen); // el cliente acepta el socket
 				
 				if (c_fd == -1)
 					print_error("client accept error");
