@@ -14,7 +14,9 @@ void	ConfFile::parse_config()
 {
 	std::ifstream in;
 	std::string line;
-
+	int find;
+	
+	find = 0;
 	in.open(file.c_str(), std::ios::in); //abrimos archivo de configuración (nginx)
 	if (!in.is_open())
 	{
@@ -23,14 +25,16 @@ void	ConfFile::parse_config()
 	}
 	while (in.good()) // leemos por lineas el archivo de configuración
 	{
-		getline(in, line);
-		if (!line.compare("server:")) // si leemos el indicador "server:", creamos nuevo server
+		if (!getline(in, line))
+			return ;
+		if (!line.find("server"))
 		{
-			std::cout << "new server!!" << std::endl;
 			Server	S;
 			this->serv_vec.push_back(S); // añadimos nuevo server creado
+			find = 1;
 		}
-		if (line.at(0) == '\t') // si leemos un tab, significa que viene una instrucción para el server
+		int pos = line.find("listen");
+		if (pos != -1 && find == 1)
 		{
 			if (parse_element(line)) //parseamos la instrucción
 			{
@@ -41,19 +45,38 @@ void	ConfFile::parse_config()
 	}
 }
 
+//Encuentra ip y server
 int		ConfFile::parse_element(std::string &line)
 {
-	if (!line.compare(0, 7, "\tlisten")) // si recibimos petición
+	int listenPos = line.find("listen");
+	int	semicolonPos = line.find(";");
+	int	ipfound = line.find(":");
+	std::size_t firstNonSpace;
+	std::size_t lastNonSpace;
+	std::string port;
+	Socket S;
+
+	if (ipfound > -1)
 	{
-		size_t space_pos = line.find(' ');
-		size_t semicolon_pos = line.find(';');
-		std::string port = line.substr(space_pos + 1, semicolon_pos - space_pos - 1);
-		if (port.find_first_not_of("0123456789") != std::string::npos)
+		std::string ip = line.substr(listenPos + 6, ipfound - (listenPos + 6));
+		firstNonSpace = ip.find_first_not_of(" \t\n\r");
+		lastNonSpace = ip.find_last_not_of(" \t\n\r;");
+		ip = ip.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
+		if (port.find_first_not_of("0123456789.") != std::string::npos)
 			return (1);
-		Socket S;
-		S.port = port;
-		this->serv_vec.back().sock_vec.push_back(S); // añadimos nuevo server creado
+		S.ip = ip;
 	}
+	if (ipfound == -1)
+		port = line.substr(listenPos + 6, semicolonPos);
+	else
+		port = line.substr(ipfound + 1, semicolonPos);
+	firstNonSpace = port.find_first_not_of(" \t\n\r");
+    lastNonSpace = port.find_last_not_of(" \t\n\r;");
+	port = port.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
+	if (port.find_first_not_of("0123456789") != std::string::npos)
+		return (1);
+	S.port = port;
+	this->serv_vec.back().sock_vec.push_back(S);
 	return (0);
 }
 
@@ -61,9 +84,18 @@ void	ConfFile::print_servers()
 {
 	for (size_t i = 0; i < this->serv_vec.size(); i++)
 	{
-		std::cout << "server " << std::endl;
+		std::cout << "server " << i + 1 << ":" << std::endl;
 		for (size_t j = 0; j < this->serv_vec[i].sock_vec.size(); j++)
-			std::cout << "socket: \n" << this->serv_vec[i].sock_vec[j].port << std::endl;
+		{
+			std::cout << "Socket info:" << std::endl;
+			std::cout << "Port: " << this->serv_vec[i].sock_vec[j].port << std::endl;
+			std::cout << "IP: ";
+			if (!this->serv_vec[i].sock_vec[j].ip.empty())
+			   std::cout << this->serv_vec[i].sock_vec[j].ip << std::endl;
+			else
+				std::cout << "empty" << std::endl;
+		}
+		std::cout << std::endl;
 	}
 }
 
