@@ -44,7 +44,7 @@ int	handle_client(int new_socket)
 			print_error("recv error");
 		return (1);
 	}
-	print_request(buff);
+	//print_request(buff);
 	std::string	text;
 	for (size_t i = 0; i < buff.size(); i++)
 		text += buff[i];
