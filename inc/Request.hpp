@@ -17,6 +17,7 @@ class Request
 		void	setStatusLine(std::string _status_line);
 		void	setHeader(std::string _header);
 		void	setBody(std::string _body);
+		void	printLine(std::string line);
 };
 
 #endif

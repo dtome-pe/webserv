@@ -8,19 +8,35 @@ Request::Request(std::string buff)
 
 	//parse_Request(); //parsear antes de esto
 	int start = 0;
-	int finish = buff.find("\n");
-	this->body = buff.substr(start, finish + 1);
-	buff = buff.substr(finish + 1, buff.length());
-	//std::cout << "body = <" << body << ">";// << std::endl;
-	std::cout << this->body;// << std::endl;
-	while (buff == "\r\n")
+	int finish = buff.find("\r");
+	//std::cout << "status_line len = " << finish << std::endl;
+	this->status_line = buff.substr(start, finish + 2);
+	//std::cout << this->status_line << std::endl;
+	buff = buff.substr(finish +2, buff.length());
+	while (buff != "\r\n")
 	{
-		start = finish;
-		finish = buff.find("\n");
-		this->headers.setHeader(buff.substr(start, finish));
-		buff = buff.substr(finish + 1, buff.length());
-		std::cout << this->headers.header.back();// << std::endl;
+		try
+		{
+			finish = buff.find("\r");
+			this->headers.setHeader(buff.substr(start, finish));
+			buff = buff.substr(finish + 2, buff.length());
+			//std::cout << this->headers.header.back() << std::endl;
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
 	}
+	try
+	{
+		this->body = buff.substr(finish + 2, buff.length());
+	}
+	catch(const std::exception& e)
+	{
+		//std::cerr << e.what() << '\n';
+	}
+	//std::cout << "aqui" << std::endl;
+	std::cout << this->makeRequest() << std::endl;
 }
 
 Request::~Request()
