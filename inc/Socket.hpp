@@ -11,6 +11,7 @@ class Socket
 	private:
 		std::string ip;
 		std::string port;
+		std::string server_name;
 	public:
 
 //		std::string		ip;
@@ -25,8 +26,10 @@ class Socket
 		void	start();
 		std::string	getPort();
 		std::string	getIp();
+		std::string getServerName();
 		void	setPort(std::string port);
 		void	setIp(std::string ip);
+		void	setServerName(std::string serverName);
 };
 
 #endif
