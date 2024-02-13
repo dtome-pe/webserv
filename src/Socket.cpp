@@ -50,6 +50,11 @@ std::string Socket::getIp()
 	return (this->ip);
 }
 
+std::string Socket::getServerName()
+{
+	return (this->server_name);
+}
+
 void	Socket::setPort(std::string port)
 {
 	this->port = port;
@@ -58,4 +63,9 @@ void	Socket::setPort(std::string port)
 void	Socket::setIp(std::string ip)
 {
 	this->ip = ip;
+}
+
+void	Socket::setServerName(std::string serverName)
+{
+	this->server_name = serverName;
 }
