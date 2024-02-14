@@ -41,6 +41,11 @@ void	ConfFile::parse_config()
 	while (std::getline(in, line))
 		content += line + "\n";
 	servers = countServers(content);
+	if (servers == 0)
+	{
+		std::cout << "Error in configuration file" << std::endl;
+		exit(1);
+	}
 	std::istringstream iss(content);
 	int i = 0;
 	while (i < servers)
@@ -97,8 +102,6 @@ void	ConfFile::findIp(Socket& S, std::string newserv)
 		firstNonSpace = res.find_first_not_of(" \t\n\r");
 		lastNonSpace = res.find_last_not_of(" \t\n\r;");
 		res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
-//		if (ip.find_first_not_of("0123456789.") != std::string::npos)
-//			return (1);
 		S.setIp(res);
 	}
 	if (hasip == -1)
@@ -108,8 +111,6 @@ void	ConfFile::findIp(Socket& S, std::string newserv)
 	firstNonSpace = res.find_first_not_of(" \t\n\r");
  	lastNonSpace = res.find_last_not_of(" \t\n\r;");
 	res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
-//	if (port.find_first_not_of("0123456789") != std::string::npos)
-//		return (1);
 	S.setPort(res);
 }
 
@@ -118,9 +119,6 @@ int		ConfFile::parse_element(std::string &content, int i)
 	int servpos = content.find("server ");
 	std::string newserv;
 	Socket S;
-	std::string ip = "";
-	std::string port = "";
-	std::string error_page = "";
 	std::string line;
 
 	while (i > 0)
@@ -132,7 +130,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 	std::istringstream iss(newserv);
 	while (std::getline(iss, line, '\n'))
 	{
-		if (line.find("server ") > -1)
+		if (line.find("server ") > std::string::npos)
 			break ;
 		S.setErrorPage(findInfo(line, "error_page ", S.getErrorPage()));
 		S.setServerName(findInfo(line, "server_name ", S.getServerName()));
@@ -140,7 +138,21 @@ int		ConfFile::parse_element(std::string &content, int i)
 		S.setIp(findInfo(line, "host ", S.getIp()));
 	}
 	findIp(S, newserv);
+	if (check_info(S))
+	{
+		std::cout << "Error in configuration file" << std::endl;
+		exit(1);
+	}
 	this->serv_vec.back().sock_vec.push_back(S);
+	return (0);
+}
+
+int		ConfFile::check_info(Socket S)
+{
+	if (S.getPort().find_first_not_of("0123456789") != std::string::npos)
+		return (1);
+	else if (S.getIp().find_first_not_of("0123456789.") != std::string::npos)
+		return (1);
 	return (0);
 }
 
