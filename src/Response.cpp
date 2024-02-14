@@ -29,6 +29,18 @@ std::string Response::makeResponse()
 void	Response::setStatusLine(std::string _status_line)
 {
 	this->status_line.whole_line = _status_line + "\r\n";
+	std::vector<std::string> split = HeaderHTTP::split(_status_line, " ");
+//	for (size_t i = 0; i < split.size(); i++)
+//		std::cout << split[i] << std::endl;
+
+	this->status_line.protocl = split[0];
+	this->status_line.code = split[1];
+	this->status_line.text = split[2];
+
+/* 	std::cout << "Response line elements:" << std::endl;
+	std::cout << this->status_line.protocl << std::endl;
+	std::cout << this->status_line.code << std::endl;
+	std::cout << this->status_line.text << std::endl; */
 }
 
 void	Response::setHeader(std::string _header)
