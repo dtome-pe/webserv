@@ -32,7 +32,7 @@ void	ConfFile::parse_config()
 	int servers;
 
 
-	in.open(file.c_str(), std::ios::in); 
+	in.open(file.c_str(), std::ios::in);
  	if (!in.is_open())
 	{
 		print_error("File could not be found or opened.\n");
@@ -211,7 +211,7 @@ void	ConfFile::init_poll()
 }
 
 
-/* 
+/*
 void	ConfFile::poll_loop()
 {
 	//datos para nueva conexion//
@@ -240,7 +240,7 @@ void	ConfFile::poll_loop()
 					//especifica solo UN POLL, para I/O entre cliente y servidor
 				addrlen = sizeof (c_addr);
 				c_fd = accept(this->poll_ptr[i].fd, (struct sockaddr *) &c_addr, &addrlen); // el cliente acepta el socket
-				
+
 				if (c_fd == -1)
 					print_error("client accept error");
 				else
@@ -256,7 +256,7 @@ void	ConfFile::poll_loop()
 				//	if (handle_client(this->poll_ptr[i].fd))
 				//	{	//devuelve uno, conexion terminada o error en recv
 				//		close(this->poll_ptr[i].fd);   //cerramos fd y eliminamos de array pollfd
-				//		remove_pollfd(&this->poll_ptr, i, &this->fd_count); 
+				//		remove_pollfd(&this->poll_ptr, i, &this->fd_count);
 				//	}
 					//si ha devuelto cero, peticion ha sido resuelta y la conexion sigue abierta
 				//}

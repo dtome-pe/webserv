@@ -21,6 +21,7 @@ class Socket
 		Socket();
 		~Socket();
 		void	start();
+
 		//getters
 		std::string	getPort();
 		std::string	getIp();
