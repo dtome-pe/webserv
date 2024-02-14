@@ -21,7 +21,7 @@ class ConfFile
 		int		countServers(std::string content);
 		std::string findInfo(std::string line, std::string tofind, std::string found);
 		void	findIp(Socket& S, std::string newserv);
-		void	check_info();
+		int		check_info(Socket S);
 		void	print_servers();
 		void	init_serv();
 		void	init_poll();
