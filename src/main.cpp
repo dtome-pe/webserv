@@ -18,10 +18,11 @@ void	main_vec(char *argv[])
 	ConfFile	F(argv[1]);
 
 	F.parse_config(); //
-//	F.print_servers(); // printamos la info de los servers
-//	F.init_serv(); // inicializamos los servers de la lista y los sockets de sus respectivas listas
-//	F.init_poll(); //
-//	poll_loop(F.poll_ptr, F.fd_size);
+//	F.check_info();
+	F.print_servers(); // printamos la info de los servers
+	F.init_serv(); // inicializamos los servers de la lista y los sockets de sus respectivas listas
+	F.init_poll(); //
+	poll_loop(F.poll_ptr, F.fd_size);
 }
 
 int	main(int argc, char *argv[])

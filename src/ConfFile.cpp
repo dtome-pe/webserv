@@ -6,136 +6,9 @@ ConfFile::ConfFile(std::string _file)
 	file = _file;
 }
 
-ConfFile::ConfFile()
-{
-	_ip = "";
-	_port = "";
-	_server_name = "";
-}
-
 ConfFile::~ConfFile()
 {
 }
-/*
-void ConfFile::parse_config() {
-    std::ifstream in;
-    std::string content;
-    std::string line;
-    in.open(file.c_str(), std::ios::in);
-    if (!in.is_open()) {
-        print_error("File could not be found or opened.\n");
-        exit(EXIT_FAILURE);
-    }
-    while (std::getline(in, line)) {
-        content += line + "\n";
-    }
-    in.close(); // Don't forget to close the file after reading
-
-    int servers = countServers(content);
-    std::vector<ConfFile> info(servers); // Use vector instead of array
-    std::istringstream iss(content);
-    int i = 0;
-    while (std::getline(iss, line, '\n') && i < servers) {
-        if (line.find("server ") != std::string::npos) {
-            i++;
-        }
-        if (info[i]._port.empty()) {
-            info[i].parse_element(line);
-        }
-        if (info[i]._server_name.empty()) {
-            info[i]._server_name = findInfo(line, "server_name");
-        }
-    }
-    for (i = 0; i < servers; ++i) {
-        std::cout << "Server name: " << info[i]._server_name << std::endl;
-        std::cout << "IP: " << info[i]._ip << std::endl;
-        std::cout << "Port: " << info[i]._port << std::endl;
-    }
-}
-
-int ConfFile::countServers(std::string content) {
-    int i = 0;
-    size_t pos = content.find("server ");
-    while (pos != std::string::npos) {
-        i++;
-        pos = content.find("server ", pos + 1);
-    }
-    return i;
-}
-
-std::string ConfFile::findInfo(std::string line, std::string tofind) {
-    size_t tofindpos = line.find(tofind);
-    size_t semicolonpos = line.find(";");
-    std::string result;
-    if (tofindpos != std::string::npos && semicolonpos != std::string::npos) {
-        result = line.substr(tofindpos + tofind.length(), semicolonpos - (tofindpos + tofind.length()));
-        // Trim whitespace
-        result.erase(0, result.find_first_not_of(" \t\n\r"));
-        result.erase(result.find_last_not_of(" \t\n\r") + 1);
-    }
-    return result;
-}
-
-int ConfFile::parse_element(std::string &line) {
-    size_t pos = line.find("listen");
-    if (pos != std::string::npos) {
-        size_t hasip = line.find(":");
-        if (hasip != std::string::npos) {
-            _ip = line.substr(pos + 6, hasip - (pos + 6));
-        } else {
-            _ip = ""; // Set to empty if no IP is specified
-        }
-        // Extract port
-        size_t semicolonPos = line.find(";");
-        if (semicolonPos != std::string::npos) {
-            _port = line.substr(hasip + 1, semicolonPos - (hasip + 1));
-            // Trim whitespace
-            _port.erase(0, _port.find_first_not_of(" \t\n\r"));
-            _port.erase(_port.find_last_not_of(" \t\n\r") + 1);
-        }
-        return 0;
-    }
-    return 1;
-}
-
-
-*//*
-void ConfFile::parse_config()
-{
-	std::ifstream in;
-	int servers;
-	std::string content;
-	std::string line;
-	in.open(file.c_str(), std::ios::in);
-	if (!in.is_open())
-	{
-		print_error("File could not be found or opened.\n");
-		exit(EXIT_FAILURE);
-	}
-	while (std::getline(in, line))
-		content += line + "\n";
-	servers = countServers(content);
-	ConfFile info[servers];
-	int i = 0;
-	std::istringstream iss(content);
-	while (std::getline(iss, line, '\n') && i < servers)
-	{
-		if (line.find("server ") >= 0)
-			i++;
-		if (info[i]._port.empty())
-			info[i].parse_element(line);
-		if (info[i]._server_name.empty())
-			info[i]._server_name = findInfo(line, "server_name");
-	}
-	i = 0;
-	while (i < servers)
-	{
-		std::cout << "Server name: " << info[i]._server_name << std::endl;
-		std::cout << "IP: " << info[i]._ip << std::endl;
-		std::cout << "Port: " << info[i]._port << std::endl;
-		i++;
-	}
-}*/
 
 int ConfFile::countServers(std::string content)
 {
@@ -155,6 +28,8 @@ void	ConfFile::parse_config()
 	std::ifstream in;
 	std::string line;
 	std::string content;
+	std::string result;
+	int servers;
 
 
 	in.open(file.c_str(), std::ios::in); 
@@ -162,24 +37,28 @@ void	ConfFile::parse_config()
 	{
 		print_error("File could not be found or opened.\n");
 		exit(EXIT_FAILURE);
-	}	
+	}
 	while (std::getline(in, line))
 		content += line + "\n";
+	servers = countServers(content);
 	std::istringstream iss(content);
 	int i = 0;
-	while (std::getline(iss, line, '\n'))
+	while (i < servers)
 	{
-		if (line.find("server ") == 0)
+		while (std::getline(iss, line, '\n'))
 		{
-			Server S;
-			this->serv_vec.push_back(S);
-			i++;
+			if (line.find("server ") == 0)
+			{
+				Server S;
+				this->serv_vec.push_back(S);
+				parse_element(content, i);
+				i++;
+			}
 		}
-		parse_element(line);
 	}
 }
 
-std::string ConfFile::findInfo(std::string line, std::string tofind)
+std::string ConfFile::findInfo(std::string line, std::string tofind, std::string found)
 {
 	int tofindpos = line.find(tofind);
 	int semicolonpos = line.find(";");
@@ -187,6 +66,8 @@ std::string ConfFile::findInfo(std::string line, std::string tofind)
 	std::size_t firstNS;
 	std::size_t lastNS;
 
+	if (!found.empty())
+		return (found);
 	if (tofindpos < 0 || semicolonpos < 0)
 		return ("");
 	result = line.substr(tofindpos + tofind.length(), semicolonpos);
@@ -196,62 +77,86 @@ std::string ConfFile::findInfo(std::string line, std::string tofind)
 	return (result);
 }
 
-//Encuentra ip y server
-int		ConfFile::parse_element(std::string &line)
+void	ConfFile::findIp(Socket& S, std::string newserv)
 {
-	int pos = line.find("listen");
-	int	semicolonPos = line.find(";");
 	std::size_t firstNonSpace;
 	std::size_t lastNonSpace;
-	std::string port;
-	Socket S;
-	
-	if (pos < 0 || semicolonPos < 0)
-		return (1);
-	int hasip = line.find(":");
+	std::string line;
+	std::string res;
+	std::istringstream iss(newserv);
+	int hasip;
+	int pos;
+
+	std::getline(iss, line, '\n');
+	std::getline(iss, line, '\n');
+	hasip = line.find(":");
+	pos = line.find("listen ");
 	if (hasip > -1)
 	{
-		std::string ip = line.substr(pos + 6, hasip - (pos + 6));
-		firstNonSpace = ip.find_first_not_of(" \t\n\r");
-		lastNonSpace = ip.find_last_not_of(" \t\n\r;");
-		ip = ip.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
-		if (ip.find_first_not_of("0123456789.") != std::string::npos)
-			return (1);
-		this->_ip = ip;
-		S.setIp(ip);
+		res = line.substr(pos + 6, hasip - (pos + 6));
+		firstNonSpace = res.find_first_not_of(" \t\n\r");
+		lastNonSpace = res.find_last_not_of(" \t\n\r;");
+		res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
+//		if (ip.find_first_not_of("0123456789.") != std::string::npos)
+//			return (1);
+		S.setIp(res);
 	}
 	if (hasip == -1)
-		port = line.substr(pos + 6, semicolonPos);
+		res = line.substr(pos + 6, line.find(";"));
 	else
-		port = line.substr(hasip + 1, semicolonPos);
-	firstNonSpace = port.find_first_not_of(" \t\n\r");
-   	lastNonSpace = port.find_last_not_of(" \t\n\r;");
-	port = port.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
-	if (port.find_first_not_of("0123456789") != std::string::npos)
-		return (1);
-	this->_port = port;
-	S.setPort(port);
+		res = line.substr(hasip + 1, line.find(";"));
+	firstNonSpace = res.find_first_not_of(" \t\n\r");
+ 	lastNonSpace = res.find_last_not_of(" \t\n\r;");
+	res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
+//	if (port.find_first_not_of("0123456789") != std::string::npos)
+//		return (1);
+	S.setPort(res);
+}
+
+int		ConfFile::parse_element(std::string &content, int i)
+{
+	int servpos = content.find("server ");
+	std::string newserv;
+	Socket S;
+	std::string ip = "";
+	std::string port = "";
+	std::string error_page = "";
+	std::string line;
+
+	while (i > 0)
+	{
+		servpos = content.find("server ", servpos + 1);
+		i--;
+	}
+	newserv = content.substr(servpos, content.length());
+	std::istringstream iss(newserv);
+	while (std::getline(iss, line, '\n'))
+	{
+		if (line.find("server ") > -1)
+			break ;
+		S.setErrorPage(findInfo(line, "error_page ", S.getErrorPage()));
+		S.setServerName(findInfo(line, "server_name ", S.getServerName()));
+		S.setAllowMethods(findInfo(line, "allow_methods ", S.getAllowMethods()));
+		S.setIp(findInfo(line, "host ", S.getIp()));
+	}
+	findIp(S, newserv);
 	this->serv_vec.back().sock_vec.push_back(S);
-//	S.setServerName(findInfo(line, "server_name"));
-	//	this->serv_vec.back().sock_vec.push_back(S);
 	return (0);
 }
-/*
+
 void	ConfFile::print_servers()
 {
 	for (size_t i = 0; i < this->serv_vec.size(); i++)
 	{
-		std::cout << "server " << i + 1 << ":" << std::endl;
+		std::cout << BGRED "Server " << i + 1 << ":" RESET<< std::endl;
 		for (size_t j = 0; j < this->serv_vec[i].sock_vec.size(); j++)
 		{
 			std::cout << "Socket info:" << std::endl;
 			std::cout << "Port: " << this->serv_vec[i].sock_vec[j].getPort() << std::endl;
-			std::cout << "IP: ";
-			if (!this->serv_vec[i].sock_vec[j].getIp().empty())
-			   std::cout << this->serv_vec[i].sock_vec[j].getIp() << std::endl;
-			else
-				std::cout << "empty" << std::endl;
+			std::cout << "IP: "	<< this->serv_vec[i].sock_vec[j].getIp() << std::endl;
 			std::cout << "Server name: " << this->serv_vec[i].sock_vec[j].getServerName() << std::endl;
+			std::cout << "Error page: " << this->serv_vec[i].sock_vec[j].getErrorPage() << std::endl;
+			std::cout << "Allow methods: " << this->serv_vec[i].sock_vec[j].getAllowMethods() << std::endl;
 		}
 		std::cout << std::endl;
 	}
@@ -291,7 +196,7 @@ void	ConfFile::init_poll()
 	}
 }
 
-*/
+
 /* 
 void	ConfFile::poll_loop()
 {
