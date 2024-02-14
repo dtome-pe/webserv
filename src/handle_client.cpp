@@ -1,6 +1,6 @@
 #include<webserv.hpp>
 
-static	void print_request(std::vector<unsigned char> buff)
+/*static	void print_request(std::vector<unsigned char> buff)
 {
 	for (std::vector<unsigned char>::const_iterator i = buff.begin(); i != buff.end(); ++i)
     {
@@ -14,7 +14,7 @@ static	void print_request(std::vector<unsigned char> buff)
 		std::cout << *i;
 	}
 	std::cout << std::endl;
-}
+}*/
 
 static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 {
