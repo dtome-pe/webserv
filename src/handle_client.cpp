@@ -3,7 +3,16 @@
 static	void print_request(std::vector<unsigned char> buff)
 {
 	for (std::vector<unsigned char>::const_iterator i = buff.begin(); i != buff.end(); ++i)
-    std::cout << *i;
+    {
+		if (*i == '\r')
+		{
+			std::cout << "\\r";
+			continue;
+		}
+		if (*i == '\n')
+			std::cout << "\\n";
+		std::cout << *i;
+	}
 	std::cout << std::endl;
 }
 
@@ -35,7 +44,7 @@ int	handle_client(int new_socket)
 			print_error("recv error");
 		return (1);
 	}
-	print_request(buff);
+	//print_request(buff);
 	std::string	text;
 	for (size_t i = 0; i < buff.size(); i++)
 		text += buff[i];
@@ -49,10 +58,10 @@ int	handle_client(int new_socket)
  */
  	Response	msg;
 
-	msg.setStatusLine("HTTP/1.1 200 OK");
 	msg.setHeader("Server: apache");
-	msg.setHeader("Content-Length: 2");
+	msg.setStatusLine("HTTP/1.1 200 OK");
 	msg.setBody("Hi");
+	msg.setHeader("Content-Length: 2");
 	std::string response = msg.makeResponse(); // hacemos respuesta con los valores del clase Response
 
 	send(new_socket, response.c_str(), response.length(), 0);
