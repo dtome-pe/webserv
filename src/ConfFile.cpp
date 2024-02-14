@@ -130,7 +130,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 	std::istringstream iss(newserv);
 	while (std::getline(iss, line, '\n'))
 	{
-		if (line.find("server ") > -1)
+		if (line.find("server ") > std::string::npos)
 			break ;
 		S.setErrorPage(findInfo(line, "error_page ", S.getErrorPage()));
 		S.setServerName(findInfo(line, "server_name ", S.getServerName()));
@@ -149,8 +149,6 @@ int		ConfFile::parse_element(std::string &content, int i)
 
 int		ConfFile::check_info(Socket S)
 {
-	if (S.getPort().empty() || S.getIp().empty() || S.getServerName().empty() || S.getAllowMethods().empty())
-		return (1);
 	if (S.getPort().find_first_not_of("0123456789") != std::string::npos)
 		return (1);
 	else if (S.getIp().find_first_not_of("0123456789.") != std::string::npos)
