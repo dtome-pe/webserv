@@ -6,8 +6,9 @@
 
 typedef struct
 {
-	std::string	instruction;
-	std::string	model;
+	std::string	method;
+	std::string	protocl;
+	std::string	whole_line;
 }	Request_line;
 
 class Request
@@ -16,7 +17,6 @@ class Request
 		Request(std::string buff);
 		~Request();
 		Request_line	request_line;
-		std::string	status_line;
 		HeaderHTTP	headers;
 		std::string body;
 		std::string makeRequest(); // devuelve el texto con el formato completo
