@@ -1,6 +1,28 @@
 #include <webserv.hpp>
 #include <string.h>
 
+#include <iostream>
+#include <string>
+#include <vector>
+
+
+
+/* 
+int main() {
+    std::string input = "Hola,este;es.un|ejemplo";
+    std::string delimiters = ",;.|";
+
+    std::vector<std::string> tokens = split(input, delimiters);
+
+    // Imprimir los tokens
+    for (const auto& t : tokens) {
+        std::cout << t << std::endl;
+    }
+
+    return 0;
+}
+ */
+
 void	print_str(std::string str)
 {
 	for (size_t i = 0; i < str.length(); i++)
@@ -62,18 +84,21 @@ void	Request::splitRequest(std::string buff)
 
 std::string Request::makeRequest()
 {
-	return (this->status_line + this->headers.makeHeader()
+	return (this->request_line.whole_line + this->headers.makeHeader()
 			+ "\r\n" + this->body);
 }
 
 void	Request::setStatusLine(std::string _status_line)
 {
-	this->status_line = _status_line + "\r\n";
-	//char *s = 
-	//std::cout << strtok(_status_line.c_str(), " /") << std::endl;
-	//std::cout << strtok(NULL, " /") << std::endl;
-	//for (size_t i = 0; s[i]; i++)
-	//	std::cout << s[i] << std::endl;
+	this->request_line.whole_line = _status_line + "\r\n";
+	std::vector<std::string> split = HeaderHTTP::split(_status_line, " ");
+//	for (size_t i = 0; i < split.size(); i++)
+//		std::cout << split[i] << std::endl;
+	this->request_line.method = split[0];
+	this->request_line.protocl = split[2];
+/* 	std::cout << "Request line elements:" << std::endl;
+	std::cout << "ins = " << this->request_line.method << std::endl;
+	std::cout << "model = " << this->request_line.protocl << std::endl; */
 }
 
 void	Request::setHeader(std::string _header)
