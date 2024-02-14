@@ -18,6 +18,7 @@ void	main_vec(char *argv[])
 	ConfFile	F(argv[1]);
 
 	F.parse_config(); //
+//	F.check_info();
 	F.print_servers(); // printamos la info de los servers
 	F.init_serv(); // inicializamos los servers de la lista y los sockets de sus respectivas listas
 	F.init_poll(); //
