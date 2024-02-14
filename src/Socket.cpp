@@ -93,3 +93,4 @@ void	Socket::setAllowMethods(std::string allow)
 {
 	this->methods = allow;
 }
+
