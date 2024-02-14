@@ -22,7 +22,7 @@ std::string	HeaderHTTP::getHeader(std::string name)
 			return (this->header[i]);
 	return (NULL);
 }
-
+/* 
 std::string	HeaderHTTP::getHeaderValue(std::string name)
 {
 	for (size_t i = 0; i < this->header.size(); i++)
@@ -31,7 +31,7 @@ std::string	HeaderHTTP::getHeaderValue(std::string name)
 				, this->header[i].length()));
 	return (NULL);
 }
-
+ */
 std::string	HeaderHTTP::makeHeader()
 {
 	std::string text;
