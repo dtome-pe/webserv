@@ -1,6 +1,6 @@
 #include<webserv.hpp>
 
-static	void print_request(std::vector<unsigned char> buff)
+/* static	void print_request(std::vector<unsigned char> buff)
 {
 	for (std::vector<unsigned char>::const_iterator i = buff.begin(); i != buff.end(); ++i)
     {
@@ -14,7 +14,7 @@ static	void print_request(std::vector<unsigned char> buff)
 		std::cout << *i;
 	}
 	std::cout << std::endl;
-}
+} */
 
 static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 {
@@ -56,12 +56,8 @@ int	handle_client(int new_socket)
 	
 	std::string response = status_line + "Content-Length: 2\r\n" + "\r\n" + body;
  */
- 	Response	msg;
+ 	Response	msg(req);
 
-	msg.setHeader("Server: apache");
-	msg.setStatusLine("HTTP/1.1 200 OK");
-	msg.setBody("Hi");
-	msg.setHeader("Content-Length: 2");
 	std::string response = msg.makeResponse(); // hacemos respuesta con los valores del clase Response
 
 	send(new_socket, response.c_str(), response.length(), 0);

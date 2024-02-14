@@ -15,7 +15,7 @@ class Request
 	public:
 		Request(std::string buff);
 		~Request();
-		Request_line	Request_line;
+		Request_line	request_line;
 		std::string	status_line;
 		HeaderHTTP	headers;
 		std::string body;

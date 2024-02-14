@@ -7,7 +7,7 @@
 class Response
 {
 	public:
-		Response();
+		Response(Request &request);
 		~Response();
 
 		std::string	status_line;

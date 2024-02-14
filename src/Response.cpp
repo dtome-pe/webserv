@@ -1,10 +1,13 @@
 #include <webserv.hpp>
 
-Response::Response()
-{
-	//status_line = "HTTP/1.1 200 OK\r\n";
-	//headers.setHeader("Content-Length: 2");//\r\n");
-	//body = "Hi";
+Response::Response(Request &request)
+{	
+	(void) request;
+	
+	this->setStatusLine("HTTP/1.1 200 OK");
+	this->setHeader("Server: apache");
+	this->setBody("Hi");
+	this->setHeader("Content-Length: 2");
 }
 
 Response::~Response()
