@@ -23,9 +23,17 @@ void		HeaderHTTP::setHeader(std::string _header)
 
 std::string	HeaderHTTP::getHeader(std::string name)
 {
-	for (size_t i = 0; i < this->header_vec.size(); i++)
+	std::map<std::string, std::string>::iterator it = header_map.begin();
+	
+	while (it != header_map.end())
+	{
+		if (it->first == name)
+			return it->second;
+		it++;
+	}
+	/* for (size_t i = 0; i < this->header_vec.size(); i++)
 		if (this->header_vec[i].substr(0, this->header_vec[i].find(':') - 1) == name)
-			return (this->header_vec[i]);
+			return (this->header_vec[i]); */
 	return (NULL);
 }
 /* 
