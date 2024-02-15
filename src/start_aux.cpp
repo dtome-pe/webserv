@@ -39,16 +39,16 @@ int bind_s(int server_fd, struct addrinfo *s_addr)
 {	
 	int	yes = 1;
 
+	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof (yes)) == -1) 
+	{
+    	print_error(strerror(errno));
+   		exit(1);
+	}
 	if (bind(server_fd, s_addr->ai_addr, s_addr->ai_addrlen) < 0) // hacemos bind
 	{
 		print_error(strerror(errno));
         close(server_fd);
         exit(EXIT_FAILURE);
-	}
-	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof (yes)) == -1) 
-	{
-    	print_error(strerror(errno));
-   		exit(1);
 	}
 	return (server_fd);
 }
