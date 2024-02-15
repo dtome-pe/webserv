@@ -14,7 +14,7 @@ static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 		return (result);
 }
 
-int	handle_client(int new_socket, ConfFile &conf)
+int	handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr)
 {	
 	(void) conf;
 
@@ -34,7 +34,7 @@ int	handle_client(int new_socket, ConfFile &conf)
 	std::string	text;
 	for (size_t i = 0; i < buff.size(); i++)
 		text += buff[i];
-	Request	req(text);
+	Request	req(text, c_addr);
 
 	//Server *serv = find_serv_block(conf, req);
 
