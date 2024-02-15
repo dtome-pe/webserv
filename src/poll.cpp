@@ -68,12 +68,11 @@ void	poll_loop(pollfd *poll_ptr, int fd_size, ConfFile &conf)
 					especifica solo UN POLL, para I/O entre cliente y servidor*/
 				addrlen = sizeof (c_addr);
 				c_fd = accept(poll_ptr[i].fd, (struct sockaddr *) &c_addr, &addrlen); // el cliente acepta el socket
-				
 				if (c_fd == -1)
 					print_error("client accept error");
 				else
 				{
-					handle_client(c_fd, conf); // gestionamos cliente inmediatamente, efectuando I/O entre cliente y servidor en un poll
+					handle_client(c_fd, conf, c_addr); // gestionamos cliente inmediatamente, efectuando I/O entre cliente y servidor en un poll
 					close(c_fd);
 				//	add_pollfd(&data->poll, c_fd, &data->fd_count, &data->fd_size);
 				//	cout << "pollserver: new connection" << endl;
