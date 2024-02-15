@@ -28,6 +28,13 @@ class ConfFile
 		void	init_serv();
 		void	init_poll();
 		void	poll_loop();
+		const std::vector<class Server>& getServerVector() const {
+			return (serv_vec);
+		}
 };
+/*
+const std::vector<class Server>& ConfFile::getServerVector() const {
+    return (serv_vec);
+}*/
 
 #endif

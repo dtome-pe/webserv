@@ -54,8 +54,7 @@ void	ConfFile::parse_config()
 		{
 			if (line.find("server ") == 0)
 			{
-				Server S;
-				this->serv_vec.push_back(S);
+			//	this->serv_vec.push_back(S);
 				parse_element(content, i);
 				i++;
 			}
@@ -120,6 +119,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 	std::string newserv;
 	Socket S;
 	std::string line;
+	Server Serv;
 
 	while (i > 0)
 	{
@@ -136,13 +136,26 @@ int		ConfFile::parse_element(std::string &content, int i)
 		S.setServerName(findInfo(line, "server_name ", S.getServerName()));
 		S.setAllowMethods(findInfo(line, "allow_methods ", S.getAllowMethods()));
 		S.setIp(findInfo(line, "host ", S.getIp()));
+		Serv.setIp(findInfo(line, "host ", Serv.getIp()));
+		Serv.setErrorPage(findInfo(line, "error_page ", S.getErrorPage()));
+		Serv.setServerName(findInfo(line, "server_name ", S.getServerName()));
+	//	Serv.addVServerName(Serv.getServerName());
+		Serv.setAllowMethods(findInfo(line, "allow_methods ", S.getAllowMethods()));
+		Serv.setIp(findInfo(line, "host ", S.getIp()));
 	}
 	findIp(S, newserv);
+	Serv.setIp(Serv.getIp());
+	
+	std::vector<std::string>stringsObtenidos = Serv.getVServerName();
+	for (std::vector<std::string>::const_iterator it = stringsObtenidos.begin(); it != stringsObtenidos.end(); ++it) {
+    std::cout << *it << std::endl;
+	}
 	if (check_info(S))
 	{
 		std::cout << "Error in configuration file" << std::endl;
 		exit(1);
 	}
+	this->serv_vec.push_back(Serv);
 	this->serv_vec.back().sock_vec.push_back(S);
 	return (0);
 }
@@ -207,7 +220,6 @@ void	ConfFile::init_poll()
 		}
 	}
 }
-
 
 /*
 void	ConfFile::poll_loop()
