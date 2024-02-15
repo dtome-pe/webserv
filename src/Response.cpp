@@ -4,6 +4,7 @@ Response::Response(Request &request)
 {	
 	(void) request;
 	
+	std::cout << "response: " <<  request.getMethod() << std::endl;
 	/*if (request.method == "GET")
 		this->do_get();
 	else if (request.method == "POST")
@@ -22,18 +23,18 @@ Response::~Response()
 
 std::string Response::makeResponse()
 {
-	return (this->status_line.whole_line + this->headers.makeHeader()
+	return (this->status_line.line + this->headers.makeHeader()
 			+ "\r\n" + this->body);
 }
 
 void	Response::setStatusLine(std::string _status_line)
 {
-	this->status_line.whole_line = _status_line + "\r\n";
+	this->status_line.line = _status_line + "\r\n";
 	std::vector<std::string> split = HeaderHTTP::split(_status_line, " ");
 //	for (size_t i = 0; i < split.size(); i++)
 //		std::cout << split[i] << std::endl;
 
-	this->status_line.protocl = split[0];
+	this->status_line.protocol = split[0];
 	this->status_line.code = split[1];
 	this->status_line.text = split[2];
 
