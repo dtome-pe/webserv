@@ -56,8 +56,8 @@ void	Request::splitRequest(std::string buff)
 	int finish = buff.find("\n");
 	if (buff[finish - 1] == '\r')
 		rec = 1;
-	setStatusLine(buff.substr(0, finish - rec));
-	//print_str(this->status_line);
+	setRequestLine(buff.substr(0, finish - rec));
+	print_str(this->request_line.line);
 	buff = buff.substr(finish + 1, buff.length());
 	while (buff != "\r\n")
 	{
@@ -84,18 +84,19 @@ void	Request::splitRequest(std::string buff)
 
 std::string Request::makeRequest()
 {
-	return (this->request_line.whole_line + this->headers.makeHeader()
+	return (this->request_line.line + this->headers.makeHeader()
 			+ "\r\n" + this->body);
 }
 
-void	Request::setStatusLine(std::string _status_line)
+void	Request::setRequestLine(std::string _status_line)
 {
-	this->request_line.whole_line = _status_line + "\r\n";
+	this->request_line.line = _status_line + "\r\n";
 	std::vector<std::string> split = HeaderHTTP::split(_status_line, " ");
 //	for (size_t i = 0; i < split.size(); i++)
 //		std::cout << split[i] << std::endl;
 	this->request_line.method = split[0];
-	this->request_line.protocl = split[2];
+	this->request_line.target = split[1];
+	this->request_line.version = split[2];
 /* 	std::cout << "Request line elements:" << std::endl;
 	std::cout << "ins = " << this->request_line.method << std::endl;
 	std::cout << "model = " << this->request_line.protocl << std::endl; */
@@ -111,3 +112,17 @@ void	Request::setBody(std::string _body)
 	this->body = _body;
 }
 
+std::string Request::getMethod()
+{
+	return (request_line.method);
+}
+
+std::string Request::getTarget()
+{
+	return (request_line.target);
+}
+
+std::string Request::getVersion()
+{
+	return (request_line.version);
+}

@@ -6,10 +6,10 @@
 
 typedef struct
 {
-	std::string	protocl;
+	std::string	protocol;
 	std::string code;
 	std::string	text;
-	std::string	whole_line;
+	std::string	line;
 }	Status_line;
 
 class Response
