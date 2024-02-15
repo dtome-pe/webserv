@@ -1,28 +1,5 @@
 #include<webserv.hpp>
 
-/* static	void print_request(std::vector<unsigned char> buff)
-{
-	for (std::vector<unsigned char>::const_iterator i = buff.begin(); i != buff.end(); ++i)
-    {
-		if (*i == '\r')
-		{
-			std::cout << "\\r";
-			continue;
-		}
-		if (*i == '\n')
-			std::cout << "\\n";
-		std::cout << *i;
-	}
-	std::cout << std::endl;
-} */
-
-/* static Server *find_serv_block(ConfFile &conf, Request &request)
-{
-	std::string request.
-	std::vector<class Server> vec = conf.getServVec();
-
-} */
-
 static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 {
 	int	result;

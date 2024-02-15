@@ -5,7 +5,7 @@ NAME = webserv
 
 FILES = main  Socket  handle_client  start_aux  utils_print  parse_config \
 		utils_list_socket  parse_aux  utils_list_server  Server  poll  \
-		Response  Request  HeaderHTTP  ConfFile  init
+		Response  Request  HeaderHTTP  ConfFile  init find_serv_block
 SRC = $(addprefix $(DIR_SRC), $(addsuffix .cpp, $(FILES)))
 FLAGS = -std=c++98 -Wall -Wextra -Werror -Iinc/
 DEPFLAGS = -MMD -MP
