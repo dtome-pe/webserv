@@ -11,9 +11,7 @@
 class Server
 {
 	private:
-		std::string _ip;
-		std::string _port;
-		std::string _server_name;
+
 	public:
 		int		active;
 		struct socket_list	*sock_list;
