@@ -7,8 +7,9 @@
 typedef struct
 {
 	std::string	method;
-	std::string	protocl;
-	std::string	whole_line;
+	std::string target;
+	std::string	version;
+	std::string	line;
 }	Request_line;
 
 class Request
@@ -20,12 +21,14 @@ class Request
 		HeaderHTTP	headers;
 		std::string body;
 		std::string makeRequest(); // devuelve el texto con el formato completo
-		void	setStatusLine(std::string _status_line);
-		void	setHeader(std::string _header);
-		void	setBody(std::string _body);
-		void	printLine(std::string line);
-		void	splitRequest(std::string buff);
-
+		void		setRequestLine(std::string _request_line);
+		void		setHeader(std::string _header);
+		void		setBody(std::string _body);
+		void		printLine(std::string line);
+		void		splitRequest(std::string buff);
+		std::string getMethod();
+		std::string getTarget();
+		std::string getVersion();
 };
 
 #endif
