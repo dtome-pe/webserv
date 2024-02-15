@@ -42,8 +42,8 @@ void	print_str(std::string str)
 Request::Request(std::string buff)
 {
 	splitRequest(buff);
-	headers.printHeaders();
-	setIpPort();
+	//headers.printHeaders();
+	//setIpPort();
 }
 
 Request::~Request()
