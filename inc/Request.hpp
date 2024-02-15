@@ -29,6 +29,10 @@ class Request
 		std::string getMethod();
 		std::string getTarget();
 		std::string getVersion();
+
+		void setIpPort();
+		std::string ip;
+		std::string port;
 };
 
 #endif
