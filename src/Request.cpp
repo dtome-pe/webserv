@@ -43,7 +43,7 @@ Request::Request(std::string buff)
 {
 	splitRequest(buff);
 	headers.printHeaders();
-	setIpPort();
+	setHostPort();
 }
 
 Request::~Request()
@@ -114,11 +114,11 @@ void	Request::setBody(std::string _body)
 	this->body = _body;
 }
 
-void	Request::setIpPort()
+void	Request::setHostPort()
 {
 	std::string value = headers.getHeader("Host"); 
 
-	ip = value.substr(0, value.find(":"));
+	host = value.substr(0, value.find(":"));
 	port = value.substr(value.find(":") + 1, value.length() - (value.find(":") + 1));
 	//cout << "ip es " << ip << "port es " << port << std::endl;
 }

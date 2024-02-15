@@ -30,8 +30,8 @@ class Request
 		std::string getTarget();
 		std::string getVersion();
 
-		void setIpPort();
-		std::string ip;
+		void setHostPort();
+		std::string host;
 		std::string port;
 };
 
