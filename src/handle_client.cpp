@@ -1,6 +1,6 @@
 #include<webserv.hpp>
 
-static	void print_request(std::vector<unsigned char> buff)
+/* static	void print_request(std::vector<unsigned char> buff)
 {
 	for (std::vector<unsigned char>::const_iterator i = buff.begin(); i != buff.end(); ++i)
     {
@@ -14,14 +14,15 @@ static	void print_request(std::vector<unsigned char> buff)
 		std::cout << *i;
 	}
 	std::cout << std::endl;
-}
+} */
 
-/*
-static Server *find_serv_block(ConfFile &conf, Request &request)
+/* static Server *find_serv_block(ConfFile &conf, Request &request)
 {
-	get
-}
-*/
+	std::string request.
+	std::vector<class Server> vec = conf.getServVec();
+
+} */
+
 static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 {
 	int	result;
@@ -38,6 +39,8 @@ static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 
 int	handle_client(int new_socket, ConfFile &conf)
 {	
+	(void) conf;
+
 	int	nbytes;
 	std::vector<unsigned char> buff(5000);
 	nbytes = receive_response(new_socket, &buff); // recibimos respuesta (recv)
@@ -50,14 +53,13 @@ int	handle_client(int new_socket, ConfFile &conf)
 			print_error("recv error");
 		return (1);
 	}
-	print_request(buff);
+	//print_request(buff);
 	std::string	text;
 	for (size_t i = 0; i < buff.size(); i++)
 		text += buff[i];
 	Request	req(text);
-/* 
-	Server *serv = find_serv_block(conf, req);
- */
+
+	//Server *serv = find_serv_block(conf, req);
 
  	Response	msg(req);
 
