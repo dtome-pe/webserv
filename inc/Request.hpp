@@ -15,7 +15,7 @@ typedef struct
 class Request
 {
 	public:
-		Request(std::string buff);
+		Request(std::string buff, sockaddr_in &c_addr);
 		~Request();
 		Request_line	request_line;
 		HeaderHTTP	headers;
@@ -32,6 +32,7 @@ class Request
 
 		void setHostPort();
 		std::string host;
+		std::string ip;
 		std::string port;
 };
 

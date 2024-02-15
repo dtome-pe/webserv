@@ -39,8 +39,10 @@ void	print_str(std::string str)
 		std::cout << std::endl;
 }
 
-Request::Request(std::string buff)
+Request::Request(std::string buff, sockaddr_in &c_addr)
 {
+	(void) c_addr;
+	
 	splitRequest(buff);
 	headers.printHeaders();
 	setHostPort();
