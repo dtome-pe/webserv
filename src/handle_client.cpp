@@ -36,7 +36,7 @@ int	handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr)
 		text += buff[i];
 	Request	req(text, c_addr);
 
-	//Server *serv = find_serv_block(conf, req);
+	//Server *serv = find_serv_block(conf.getSerVec(), req);
 
  	Response	msg(req);
 
