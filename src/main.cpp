@@ -1,6 +1,6 @@
 #include<webserv.hpp>
 
-void	main_list(char *argv[])
+/* void	main_list(char *argv[])
 {
 	t_data	data;
 
@@ -11,7 +11,7 @@ void	main_list(char *argv[])
 	init_poll(&data, data.serv_list); // 
 
 	poll_loop(data.poll, data.fd_size);
-}
+} */
 
 void	main_vec(char *argv[])
 {
@@ -22,7 +22,7 @@ void	main_vec(char *argv[])
 	F.print_servers(); // printamos la info de los servers
 	F.init_serv(); // inicializamos los servers de la lista y los sockets de sus respectivas listas
 	F.init_poll(); //
-	poll_loop(F.poll_ptr, F.fd_size);
+	poll_loop(F.poll_ptr, F.fd_size, F);
 }
 
 int	main(int argc, char *argv[])

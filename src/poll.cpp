@@ -41,7 +41,7 @@ void	print_poll(pollfd *poll, int size)
 	}
 }
 
-void	poll_loop(pollfd *poll_ptr, int fd_size)
+void	poll_loop(pollfd *poll_ptr, int fd_size, ConfFile &conf)
 {	
 	/*datos para nueva conexion*/
 	int c_fd;
@@ -73,7 +73,7 @@ void	poll_loop(pollfd *poll_ptr, int fd_size)
 					print_error("client accept error");
 				else
 				{
-					handle_client(c_fd); // gestionamos cliente inmediatamente, efectuando I/O entre cliente y servidor en un poll
+					handle_client(c_fd, conf); // gestionamos cliente inmediatamente, efectuando I/O entre cliente y servidor en un poll
 					close(c_fd);
 				//	add_pollfd(&data->poll, c_fd, &data->fd_count, &data->fd_size);
 				//	cout << "pollserver: new connection" << endl;

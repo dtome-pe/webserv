@@ -1,6 +1,6 @@
 #include<webserv.hpp>
 
-/*static	void print_request(std::vector<unsigned char> buff)
+static	void print_request(std::vector<unsigned char> buff)
 {
 	for (std::vector<unsigned char>::const_iterator i = buff.begin(); i != buff.end(); ++i)
     {
@@ -14,8 +14,14 @@
 		std::cout << *i;
 	}
 	std::cout << std::endl;
-} */
+}
 
+/*
+static Server *find_serv_block(ConfFile &conf, Request &request)
+{
+	get
+}
+*/
 static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 {
 	int	result;
@@ -30,7 +36,7 @@ static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 		return (result);
 }
 
-int	handle_client(int new_socket)
+int	handle_client(int new_socket, ConfFile &conf)
 {	
 	int	nbytes;
 	std::vector<unsigned char> buff(5000);
@@ -44,18 +50,15 @@ int	handle_client(int new_socket)
 			print_error("recv error");
 		return (1);
 	}
-	//print_request(buff);
+	print_request(buff);
 	std::string	text;
 	for (size_t i = 0; i < buff.size(); i++)
 		text += buff[i];
 	Request	req(text);
 /* 
-	std::string	status_line = "HTTP/1.1 200 OK\r\n";
-	std::string headers;
-	std::string body = "Hi";
-	
-	std::string response = status_line + "Content-Length: 2\r\n" + "\r\n" + body;
+	Server *serv = find_serv_block(conf, req);
  */
+
  	Response	msg(req);
 
 	std::string response = msg.makeResponse(); // hacemos respuesta con los valores del clase Response
