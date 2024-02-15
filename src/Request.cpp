@@ -42,6 +42,8 @@ void	print_str(std::string str)
 Request::Request(std::string buff)
 {
 	splitRequest(buff);
+	headers.printHeaders();
+	setIpPort();
 }
 
 Request::~Request()
@@ -79,7 +81,7 @@ void	Request::splitRequest(std::string buff)
 	}
 	catch(const std::exception& e)
 	{}
-	print_str(this->makeRequest());
+	//print_str(this->makeRequest());
 }
 
 std::string Request::makeRequest()
@@ -110,6 +112,11 @@ void	Request::setHeader(std::string _header)
 void	Request::setBody(std::string _body)
 {
 	this->body = _body;
+}
+
+void	Request::setIpPort()
+{
+	std::cout << headers.getHeader("Host") << std::endl;
 }
 
 std::string Request::getMethod()
