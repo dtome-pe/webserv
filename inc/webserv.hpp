@@ -46,11 +46,11 @@ class Server;
 	int 	bind_s(int server_fd, struct addrinfo *s_addr);
 	int 	listen_s(int server_fd);
 
-	int		handle_client(int new_socket);
+	int		handle_client(int new_socket, ConfFile &conf);
 
 	/*poll*/
 	//void	poll_loop(t_data *data);
-	void	poll_loop(pollfd *poll, int size);
+	void	poll_loop(pollfd *poll, int size, ConfFile &conf);
 
 	/*print utils*/
 	void	print_error(const char *str);
