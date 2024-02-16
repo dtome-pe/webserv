@@ -24,6 +24,7 @@ class Server
 		struct socket_list	*sock_list;
 		std::vector<class Socket>	sock_vec;
 		Server();
+		int id;
 		void	start();
 		//getters
 		std::string	getPort();
