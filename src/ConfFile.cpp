@@ -128,33 +128,25 @@ int		ConfFile::parse_element(std::string &content, int i)
 	}
 	newserv = content.substr(servpos, content.length());
 	std::istringstream iss(newserv);
+	std::getline(iss, line, '\n');
 	while (std::getline(iss, line, '\n'))
 	{
-		if (line.find("server ") > std::string::npos)
+		if (line.find("server ") == 0)
 			break ;
-		S.setErrorPage(findInfo(line, "error_page ", S.getErrorPage()));
-		S.setServerName(findInfo(line, "server_name ", S.getServerName()));
-		S.setAllowMethods(findInfo(line, "allow_methods ", S.getAllowMethods()));
-		S.setIp(findInfo(line, "host ", S.getIp()));
-		Serv.setIp(findInfo(line, "host ", Serv.getIp()));
-		Serv.setErrorPage(findInfo(line, "error_page ", S.getErrorPage()));
-		Serv.setServerName(findInfo(line, "server_name ", S.getServerName()));
-	//	Serv.addVServerName(Serv.getServerName());
-		Serv.setAllowMethods(findInfo(line, "allow_methods ", S.getAllowMethods()));
-		Serv.setIp(findInfo(line, "host ", S.getIp()));
+		S.setIp(findInfo(line, "host ", S.getIp())); //quitar cuando se coja de server
+		S.setPort(findInfo(line, "listen ", S.getPort())); //quitar cuando se coja de server
+		if (line.find("host ") != std::string::npos)
+			Serv.setIp(findInfo(line, "host ", Serv.getIp()));
+		if (line.find("server_name ") != std::string::npos)
+			Serv.addVServerName(findInfo(line, "server_name", ""));
+		if (line.find("error_page ") != std::string::npos)
+			Serv.setErrorPage(findInfo(line, "error_page ", Serv.getErrorPage()));
+		if (line.find("listen ") != std::string::npos)
+			Serv.addVPort(findInfo(line, "listen ", ""));
+		if (line.find("allow_methods ") != std::string::npos)
+			Serv.setAllowMethods(findInfo(line, "allow_methods ", Serv.getAllowMethods()));
 	}
-	findIp(S, newserv);
-	Serv.setIp(Serv.getIp());
-	
-	std::vector<std::string>stringsObtenidos = Serv.getVServerName();
-	for (std::vector<std::string>::const_iterator it = stringsObtenidos.begin(); it != stringsObtenidos.end(); ++it) {
-    std::cout << *it << std::endl;
-	}
-	if (check_info(S))
-	{
-		std::cout << "Error in configuration file" << std::endl;
-		exit(1);
-	}
+//	findIp(S, newserv); casos como 127.0.0.1:8001, falta gestionar para server	
 	this->serv_vec.push_back(Serv);
 	this->serv_vec.back().sock_vec.push_back(S);
 	return (0);
@@ -173,17 +165,19 @@ void	ConfFile::print_servers()
 {
 	for (size_t i = 0; i < this->serv_vec.size(); i++)
 	{
-		std::cout << BGRED "Server " << i + 1 << ":" RESET<< std::endl;
-		for (size_t j = 0; j < this->serv_vec[i].sock_vec.size(); j++)
-		{
-			std::cout << "Socket info:" << std::endl;
-			std::cout << "Port: " << this->serv_vec[i].sock_vec[j].getPort() << std::endl;
-			std::cout << "IP: "	<< this->serv_vec[i].sock_vec[j].getIp() << std::endl;
-			std::cout << "Server name: " << this->serv_vec[i].sock_vec[j].getServerName() << std::endl;
-			std::cout << "Error page: " << this->serv_vec[i].sock_vec[j].getErrorPage() << std::endl;
-			std::cout << "Allow methods: " << this->serv_vec[i].sock_vec[j].getAllowMethods() << std::endl;
-		}
-		std::cout << std::endl;
+		std::cout << BGRED "Server" << i + 1 << ":" RESET << std::endl;
+		std::cout << "Port: ";
+		std::vector<std::string>str = this->serv_vec[i].getVPort();
+		for (std::vector<std::string>::iterator it = str.begin(); it != str.end(); it++)
+			std::cout << *it << std::endl;
+		std::cout << "Server name: ";
+		str = this->serv_vec[i].getVServerName();
+		for (std::vector<std::string>::iterator it = str.begin(); it != str.end(); it++)
+			std::cout << *it << std::endl;
+		std::cout << "IP: " << this->serv_vec[i].getIp() << std::endl;
+	
+		std::cout << "Error page: " << this->serv_vec[i].getErrorPage() << std::endl;
+		std::cout << "Allow methods: " << this->serv_vec[i].getAllowMethods() << std::endl;
 	}
 }
 

@@ -4,6 +4,10 @@ Server::Server()
 {
 	sock_list	= NULL;
 	active = 1;
+	ip = "";
+	server_name = "";
+	error_page = "";
+	methods = "";
 }
 
 void	Server::start()
