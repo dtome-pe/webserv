@@ -39,13 +39,11 @@ void	print_str(std::string str)
 		std::cout << std::endl;
 }
 
-Request::Request(std::string buff, sockaddr_in &c_addr)
-{
-	(void) c_addr;
-	
+Request::Request(std::string buff, sockaddr_in &c_addr, sockaddr_in &sock_addr)
+{	
 	splitRequest(buff);
 	headers.printHeaders();
-	setHostPort();
+	setIpPort(c_addr, sock_addr);
 }
 
 Request::~Request()
@@ -116,13 +114,24 @@ void	Request::setBody(std::string _body)
 	this->body = _body;
 }
 
-void	Request::setHostPort()
+void	Request::setIpPort(sockaddr_in &c_addr, sockaddr_in &sock_addr)
 {
-	std::string value = headers.getHeader("Host"); 
 
-	host = value.substr(0, value.find(":"));
-	port = value.substr(value.find(":") + 1, value.length() - (value.find(":") + 1));
-	//cout << "ip es " << ip << "port es " << port << std::endl;
+	std::ostringstream ipStream;
+
+	uint32_t ipAddress = ntohl(c_addr.sin_addr.s_addr);
+
+	ipStream << ((ipAddress >> 24) & 0xFF) << "."
+             << ((ipAddress >> 16) & 0xFF) << "."
+             << ((ipAddress >> 8) & 0xFF) << "."
+             << (ipAddress & 0xFF);
+	ip = ipStream.str();						 
+
+	std::ostringstream portStream;
+                    portStream << ntohs(sock_addr.sin_port);
+    port = portStream.str();
+
+	std::cout << "client ip: " << ip << "server port: " << port << std::endl;
 }
 
 std::string Request::getMethod()
