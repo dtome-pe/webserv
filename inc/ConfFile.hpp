@@ -32,9 +32,6 @@ class ConfFile
 			return (serv_vec);
 		}
 };
-/*
-const std::vector<class Server>& ConfFile::getServerVector() const {
-    return (serv_vec);
-}*/
+
 
 #endif

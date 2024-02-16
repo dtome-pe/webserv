@@ -54,21 +54,6 @@ std::string Socket::getIp()
 	return (this->ip);
 }
 
-std::string Socket::getServerName()
-{
-	return (this->server_name);
-}
-
-std::string Socket::getErrorPage()
-{
-	return (this->error_page);
-}
-
-std::string Socket::getAllowMethods()
-{
-	return (this->methods);
-}
-
 void	Socket::setPort(std::string port)
 {
 	this->port = port;
@@ -78,19 +63,3 @@ void	Socket::setIp(std::string ip)
 {
 	this->ip = ip;
 }
-
-void	Socket::setServerName(std::string serverName)
-{
-	this->server_name = serverName;
-}
-
-void	Socket::setErrorPage(std::string errorPage)
-{
-	this->error_page = errorPage;
-}
-
-void	Socket::setAllowMethods(std::string allow)
-{
-	this->methods = allow;
-}
-
