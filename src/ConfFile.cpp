@@ -202,7 +202,7 @@ void	ConfFile::init_poll()
 		for (size_t j = 0; j < this->serv_vec[x].sock_vec.size(); j++) // recorremos todos los sockets de cada server
 		{
 			this->poll_ptr[i].fd = this->serv_vec[x].sock_vec[j].s_fd; // asignamos el fd de cada socket a un poll
-			this->poll_ptr[i].events = POLLIN; // ?
+			this->poll_ptr[i].events = POLLIN; // los ponemos a que "nos avisen" al detectar conexiones entrantes
 			i++;
 		}
 	}

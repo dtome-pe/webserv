@@ -46,7 +46,7 @@ class Server;
 	int 	bind_s(int server_fd, struct addrinfo *s_addr);
 	int 	listen_s(int server_fd);
 
-	int		handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr);
+	int		handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_in &sock_addr);
 
 	/*poll*/
 	//void	poll_loop(t_data *data);
