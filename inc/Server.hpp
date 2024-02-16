@@ -39,7 +39,7 @@ class Server
 		void	setAllowMethods(std::string allow);
 		//setter/getter para vector server_name
 		void	addVServerName(std::string str);
-		std::vector<std::string>& getVServerName();
+		const std::vector<std::string>& getVServerName() const;
 		//setter/getter para vector ports
 		void	addVPort(std::string str);
 		std::vector<std::string>& getVPort();

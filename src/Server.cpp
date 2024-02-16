@@ -68,12 +68,12 @@ void	Server::setAllowMethods(std::string allow)
 	this->methods = allow;
 }
 
-void	Server::addVServerName(std::string str)
+void	Server::addVServerName(const std::string str)
 {
 	vserver_name.push_back(str);
 }
 
-std::vector<std::string>& Server::getVServerName()
+const std::vector<std::string>& Server::getVServerName() const
 {
 	return (vserver_name);
 }

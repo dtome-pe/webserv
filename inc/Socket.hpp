@@ -20,8 +20,8 @@ class Socket
 		void	start();
 
 		//getters
-		std::string	getPort();
-		std::string	getIp();
+		std::string	getPort() const;
+		std::string	getIp() const;
 		//setters
 		void	setPort(std::string port);
 		void	setIp(std::string ip);
