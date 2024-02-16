@@ -9,10 +9,12 @@ static const Server *ip_port(const std::vector<class Server> &serv, Request &req
 	for(size_t i = 0; i < serv.size(); i++)  
 	{
 		// comprobamos cada ip y puerto por el que escucha
-		for (size_t i = 0; i < serv[i].sock_vec.size(); i++)
+		for (size_t j = 0; j < serv[i].sock_vec.size(); j++)
 		{	
+			//std::cout << "request ip es " << request.ip << "request port es " << request.port << std::endl;
+			//std::cout << "socket ip es " << serv[i].sock_vec[j].getIp() << "socket port is " << serv[i].sock_vec[j].getPort() << std::endl;
 			//y lo chequeamos con ip y puerto de conexion entrante (ip y puerto) que se ha guardado en objeto Request
-			if ((request.ip == serv[i].sock_vec[i].getIp() || serv[i].sock_vec[i].getIp() == "") && request.port == serv[i].sock_vec[i].getPort())
+			if ((request.ip == serv[i].sock_vec[j].getIp() || serv[i].sock_vec[j].getIp() == "") && request.port == serv[i].sock_vec[j].getPort())
 			{	
 				//si es el primer match, lo guardamos como posible retorno, y salimos del loop de los sockets, ya que
 				// este server block seria candidato igualmente
@@ -38,9 +40,9 @@ static const Server *server_name(const std::vector<class Server> &serv, Request 
 	for(size_t i = 0; i < serv.size(); i++)  
 	{	
 		const std::vector<std::string> &serv_name = serv[i].getVServerName();
-		for (size_t i = 0; i < serv_name.size(); i++)
+		for (size_t j = 0; j < serv_name.size(); j++)
 		{
-			if (serv_name[i] == request.ip)
+			if (serv_name[j] == request.ip)
 			{	
 				ret = &serv[i];
 				return (ret);
@@ -56,10 +58,10 @@ static const Server *get_first_block(const std::vector<class Server> &serv, Requ
 	for(size_t i = 0; i < serv.size(); i++)  
 	{
 		// comprobamos cada ip y puerto por el que escucha
-		for (size_t i = 0; i < serv[i].sock_vec.size(); i++)
+		for (size_t j = 0; j < serv[i].sock_vec.size(); j++)
 		{	
 			//y lo chequeamos con ip y puerto de conexion entrante (ip y puerto) que se ha guardado en objeto Request
-			if ((request.ip == serv[i].sock_vec[i].getIp() || serv[i].sock_vec[i].getIp() == "") && request.port == serv[i].sock_vec[i].getPort())
+			if ((request.ip == serv[i].sock_vec[j].getIp() || serv[i].sock_vec[j].getIp() == "") && request.port == serv[i].sock_vec[j].getPort())
 			{	
 				//si es el primer match, lo retornamos y se acabo
 				return (&serv[i]);
@@ -73,7 +75,6 @@ const Server *find_serv_block(const std::vector<class Server> &serv, Request &re
 {	
 	const Server *block;
 	
-	std::cout << "ip es " << request.ip << "port es " << request.port << std::endl;
 	block = ip_port(serv, request);  //primero buscamos si solo hay un match por direccion y puerto
 	if (!block) // si ha devuelto nulo, es que hay mas de un server block con ip:puerto y hay que buscar ahora por server_name
 	{
