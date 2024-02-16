@@ -73,6 +73,7 @@ const Server *find_serv_block(const std::vector<class Server> &serv, Request &re
 {	
 	const Server *block;
 	
+	std::cout << "ip es " << request.ip << "port es " << request.port << std::endl;
 	block = ip_port(serv, request);  //primero buscamos si solo hay un match por direccion y puerto
 	if (!block) // si ha devuelto nulo, es que hay mas de un server block con ip:puerto y hay que buscar ahora por server_name
 	{
