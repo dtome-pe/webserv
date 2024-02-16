@@ -43,7 +43,7 @@ class Server;
 	/*start server*/
 	void	get_addr_info(struct addrinfo **s_addr, const char *port);
 	int 	create_s(int server_fd, struct addrinfo *s_addr);
-	int 	bind_s(int server_fd, struct addrinfo *s_addr);
+	int 	bind_s(int server_fd, struct addrinfo *s_addr, std::string ip);
 	int 	listen_s(int server_fd);
 
 	int		handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_in &sock_addr);
