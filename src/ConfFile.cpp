@@ -116,10 +116,14 @@ void	ConfFile::findIp(Socket& S, std::string newserv)
 int		ConfFile::parse_element(std::string &content, int i)
 {
 	int servpos = content.find("server ");
+	static int id = 1;
 	std::string newserv;
 	Socket S;
 	std::string line;
 	Server Serv;
+
+	Serv.id = id;
+	id++;
 
 	while (i > 0)
 	{
