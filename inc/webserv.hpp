@@ -48,6 +48,8 @@ class Server;
 
 	int		handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_in &sock_addr);
 
+	const Server *find_serv_block(const std::vector<class Server> &serv, Request &request);
+
 	/*poll*/
 	//void	poll_loop(t_data *data);
 	void	poll_loop(pollfd *poll, int size, ConfFile &conf);

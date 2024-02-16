@@ -1,8 +1,7 @@
 #ifndef RESPONSE_HPP
-#define RESPONSE_HPP
+# define RESPONSE_HPP
 
-#include<iostream>
-#include<HeaderHTTP.hpp>
+# include "webserv.hpp"
 
 typedef struct
 {
@@ -12,10 +11,12 @@ typedef struct
 	std::string	line;
 }	Status_line;
 
+class Server;
+
 class Response
 {
 	public:
-		Response(Request &request);
+		Response(Request &request, const Server *serv);
 		~Response();
 
 		Status_line	status_line;

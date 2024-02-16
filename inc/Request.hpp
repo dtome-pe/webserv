@@ -30,9 +30,10 @@ class Request
 		std::string getTarget();
 		std::string getVersion();
 
-		void setIpPort(sockaddr_in &c_addr, sockaddr_in &sock_addr);
+		void setIpPortHost(sockaddr_in &c_addr, sockaddr_in &sock_addr);
 
 		std::string ip;
+		std::string host;
 		std::string port;
 };
 

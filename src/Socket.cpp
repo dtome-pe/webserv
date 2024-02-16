@@ -44,12 +44,12 @@ void	Socket::start()
 	}	
 } */
 
-std::string Socket::getPort()
+std::string Socket::getPort() const
 {
 	return (this->port);
 }
 
-std::string Socket::getIp()
+std::string Socket::getIp() const
 {
 	return (this->ip);
 }

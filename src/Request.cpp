@@ -43,7 +43,7 @@ Request::Request(std::string buff, sockaddr_in &c_addr, sockaddr_in &sock_addr)
 {	
 	splitRequest(buff);
 	headers.printHeaders();
-	setIpPort(c_addr, sock_addr);
+	setIpPortHost(c_addr, sock_addr);
 }
 
 Request::~Request()
@@ -114,7 +114,7 @@ void	Request::setBody(std::string _body)
 	this->body = _body;
 }
 
-void	Request::setIpPort(sockaddr_in &c_addr, sockaddr_in &sock_addr)
+void	Request::setIpPortHost(sockaddr_in &c_addr, sockaddr_in &sock_addr)
 {
 
 	std::ostringstream ipStream;
@@ -131,7 +131,11 @@ void	Request::setIpPort(sockaddr_in &c_addr, sockaddr_in &sock_addr)
                     portStream << ntohs(sock_addr.sin_port);
     port = portStream.str();
 
-	std::cout << "client ip: " << ip << "server port: " << port << std::endl;
+	std::string host_value = headers.getHeader("Host");
+
+	host = host_value.substr(0, host_value.find(":"));
+
+	std::cout << "client ip: " << ip << "server port: " << port << "host header: " << host << std::endl;
 }
 
 std::string Request::getMethod()

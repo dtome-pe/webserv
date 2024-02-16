@@ -36,9 +36,9 @@ int	handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_
 		text += buff[i];
 	Request	req(text, c_addr, sock_addr);
 
-	//Server *serv = find_serv_block(conf.getSerVec(), req);
+	const Server *serv = find_serv_block(conf.getServerVector(), req);
 
- 	Response	msg(req);
+ 	Response	msg(req, serv);
 
 	std::string response = msg.makeResponse(); // hacemos respuesta con los valores del clase Response
 
