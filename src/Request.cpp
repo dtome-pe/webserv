@@ -116,10 +116,10 @@ void	Request::setBody(std::string _body)
 
 void	Request::setIpPortHost(sockaddr_in &c_addr, sockaddr_in &sock_addr)
 {
-
+	(void) c_addr;
 	std::ostringstream ipStream;
 
-	uint32_t ipAddress = ntohl(c_addr.sin_addr.s_addr);
+	uint32_t ipAddress = ntohl(sock_addr.sin_addr.s_addr);
 
 	ipStream << ((ipAddress >> 24) & 0xFF) << "."
              << ((ipAddress >> 16) & 0xFF) << "."
