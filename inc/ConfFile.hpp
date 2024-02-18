@@ -27,8 +27,9 @@ class ConfFile
 		int		check_info(Socket S);
 
 		void	print_servers();
+		void	print_sockets();
 		void	create_sockets();
-		void	init_serv();
+		void	start_sockets();
 		void	init_poll();
 		void	poll_loop();
 		const std::vector<class Server>& getServerVector() const {
