@@ -21,7 +21,8 @@ void	main_vec(char *argv[])
 //	F.check_info();
 	F.print_servers(); // printamos la info de los servers
 	F.create_sockets();
-	F.init_serv(); // inicializamos los servers de la lista y los sockets de sus respectivas listas
+	//F.print_sockets();
+	F.start_sockets(); // inicializamos los servers de la lista y los sockets de sus respectivas listas
 	F.init_poll(); //
 	poll_loop(F.poll_ptr, F.fd_size, F);
 }

@@ -37,6 +37,7 @@ int	handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_
 	Request	req(text, c_addr, sock_addr);
 
 	const Server *serv = find_serv_block(conf.getServerVector(), req);
+
 	std::cout << "selected server is server " << serv->id << std::endl;
 
  	Response	msg(req, serv);
