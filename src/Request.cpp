@@ -59,7 +59,7 @@ void	Request::splitRequest(std::string buff)
 	if (buff[finish - 1] == '\r')
 		rec = 1;
 	setRequestLine(buff.substr(0, finish - rec));
-	print_str(this->request_line.line);
+//	print_str(this->request_line.line);
 	buff = buff.substr(finish + 1, buff.length());
 	while (buff != "\r\n")
 	{
@@ -135,7 +135,7 @@ void	Request::setIpPortHost(sockaddr_in &c_addr, sockaddr_in &sock_addr)
 
 	host = host_value.substr(0, host_value.find(":"));
 
-	std::cout << "client ip: " << ip << "server port: " << port << "host header: " << host << std::endl;
+	//std::cout << "client ip: " << ip << "server port: " << port << "host header: " << host << std::endl;
 }
 
 std::string Request::getMethod()

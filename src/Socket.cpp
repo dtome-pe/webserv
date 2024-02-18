@@ -22,9 +22,12 @@ Socket::Socket(std::string host_port)
 
 void	Socket::start()
 {
-	cout << "Socket start: ip " << ip << "port " << port << endl;
+	/*en este momento le seteamos en el vector ip_port al server que ha generado este socket, la ip 
+	ya resuelta y puerto, para en find_serv_block poder buscar que server la toca gestionar
+	la conexion recibida*/
+	serv->setIpPort(ip, port); 
 	s_fd = create_s(s_fd, s_addr); //creamos el fd del socket
-	bind_s(s_fd, s_addr, ip);
+	bind_s(s_fd, s_addr, ip); // bindeamos 
 	listen_s(s_fd);
 	freeaddrinfo(s_addr);
 }
