@@ -2,22 +2,14 @@
 
 Socket::Socket(std::string host_port)
 {	
+	/*trocemos host y port para meterlas en funcion get_addr_info*/
 	host = host_port.substr(0, host_port.find(":"));
 	port = host_port.substr(host_port.find(":") + 1, host_port.length());
 
 	get_addr_info(&s_addr, host.c_str(), port.c_str()); // obtenemos datos y se resuelve dominio y se introduce ip y puerto.
-
-	std::ostringstream ipStream;
-	struct sockaddr_in *addr = (sockaddr_in *) s_addr->ai_addr;
-	uint32_t ipAddress = ntohl(addr->sin_addr.s_addr);
-
-	ipStream << ((ipAddress >> 24) & 0xFF) << "."
-             << ((ipAddress >> 16) & 0xFF) << "."
-             << ((ipAddress >> 8) & 0xFF) << "."
-             << (ipAddress & 0xFF);
-	ip = ipStream.str();	// volcamos ip de network byte order a string.
-
-	//cout << "socket host is " << host << " resolved to ip " << ip << " socket port is " << port << endl;
+	struct sockaddr_in *addr = (sockaddr_in *) s_addr->ai_addr; // se castea para poder obtener ip
+	ip = ip_to_str(addr);	// volcamos ip de network byte order a string, para luego chequear sockets duplicados
+					// y posteriormente pasar informacion a server correspondiente
 }
 
 void	Socket::start()

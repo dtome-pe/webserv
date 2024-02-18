@@ -8,8 +8,7 @@ static const Server *ip_port(const std::vector<class Server> &serv, Request &req
 	for(size_t i = 0; i < serv.size(); i++)  
 	{	
 		for (size_t j = 0; j < serv[i].ip_port.size(); j++)
-		{	
-			cout << serv[i].getIp(serv[i].ip_port[j]) << serv[i].getPort(serv[i].ip_port[j]) << endl;
+		{
 			if ((request.ip == serv[i].getIp(serv[i].ip_port[j]) ||
 					serv[i].getIp(serv[i].ip_port[j]) == "") && request.port == serv[i].getPort(serv[i].ip_port[j]))
 			{
