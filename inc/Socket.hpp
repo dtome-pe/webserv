@@ -16,7 +16,7 @@ class Socket
 	public:
 
 		class Server 			*serv;
-		Socket(std::string host_port);
+		Socket(std::string host_port, Server *s_ptr);
 
 		int				s_fd;
 		struct addrinfo *s_addr;
