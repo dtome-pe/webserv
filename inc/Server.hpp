@@ -19,10 +19,19 @@ class Server
 		//vectores
 		std::vector<std::string> vserver_name;
 		std::vector<std::string> vports;
+
+		
 	public:
 		int		active;
 		struct socket_list	*sock_list;
 		std::vector<class Socket>	sock_vec;
+
+		//vector host:puerto, (listen previo getaddrinfo resuelva dominio, si lo hay)
+		std::vector<std::string> host_port;
+
+		//vector ip:puerto (ip ya resuelta)
+		std::vector<std::string> ip_port;
+
 		Server();
 		int id;
 		void	start();
@@ -44,6 +53,11 @@ class Server
 		//setter/getter para vector ports
 		void	addVPort(std::string str);
 		std::vector<std::string>& getVPort();
+
+		void	setHostPort(std::string host, std::string port); // funcion que actualice el map de ip:puertos
+
+		void 	printHostPort();
+		void	printServer_Names();
 
 };
 

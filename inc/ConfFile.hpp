@@ -10,7 +10,9 @@ class ConfFile
 	private:
 		std::string file;
 		std::vector<class Server>	serv_vec;
+		std::vector<class Socket>	sock_vec;
 		int		fd_count;
+
 	public:
 		pollfd 	*poll_ptr;
 		int		fd_size;
@@ -20,11 +22,12 @@ class ConfFile
 		int		parse_element(std::string& content, int i);
 		int		countServers(std::string content);
 		std::string findInfo(std::string line, std::string tofind, std::string found);
-		void	findIp(Socket& S, std::string newserv);
+		void	findIp(Server& Serv, std::string newserv); // primero parseamos informacion en servers
 
 		int		check_info(Socket S);
 
 		void	print_servers();
+		void	create_sockets();
 		void	init_serv();
 		void	init_poll();
 		void	poll_loop();
