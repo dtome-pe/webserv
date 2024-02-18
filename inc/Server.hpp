@@ -28,16 +28,20 @@ class Server
 
 		//vector host:puerto, (listen previo getaddrinfo resuelva dominio, si lo hay)
 		std::vector<std::string> host_port;
+		void	setHostPort(std::string host, std::string port); // funcion que anada un elemento en el vector de ip:puertos
+		void 	printHostPort();
 
 		//vector ip:puerto (ip ya resuelta)
 		std::vector<std::string> ip_port;
+		void	setIpPort(std::string ip, std::string port);
+		void 	printIpPort();
 
 		Server();
 		int id;
 		void	start();
 		//getters
-		std::string	getPort();
-		std::string	getIp();
+		std::string	getPort(const std::string &ip_port) const;
+		std::string	getIp(const std::string &ip_port) const;
 		std::string getServerName();
 		std::string getErrorPage();
 		std::string getAllowMethods();
@@ -54,9 +58,7 @@ class Server
 		void	addVPort(std::string str);
 		std::vector<std::string>& getVPort();
 
-		void	setHostPort(std::string host, std::string port); // funcion que actualice el map de ip:puertos
 
-		void 	printHostPort();
 		void	printServer_Names();
 
 };

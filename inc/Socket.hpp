@@ -15,6 +15,7 @@ class Socket
 	
 	public:
 
+		class Server 			*serv;
 		Socket(std::string host_port);
 
 		int				s_fd;
