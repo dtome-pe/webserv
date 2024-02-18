@@ -18,14 +18,14 @@ void	Server::start()
 	}
 }
 
-std::string Server::getPort()
+std::string Server::getPort(const std::string &ip_port) const
 {
-	return (this->port);
+	return (ip_port.substr(ip_port.find(":") + 1, ip_port.length()));
 }
 
-std::string Server::getIp()
+std::string Server::getIp(const std::string &ip_port) const
 {
-	return (this->ip);
+	return (ip_port.substr(0, ip_port.find(":")));
 }
 
 std::string Server::getServerName()
@@ -56,6 +56,11 @@ void	Server::setIp(std::string ip)
 void	Server::setHostPort(std::string host, std::string port)
 {
 	host_port.push_back(host + ":" + port);
+}
+
+void	Server::setIpPort(std::string ip, std::string port)
+{
+	ip_port.push_back(ip + ":" + port);
 }
 
 void	Server::setServerName(std::string serverName)
@@ -99,6 +104,15 @@ void	Server::printHostPort()
 	for (size_t i = 0; i < host_port.size(); i++)
 	{
 		cout << host_port[i] << endl;
+	}
+}
+
+void	Server::printIpPort()
+{
+	cout << "Ip:Ports: " << endl;
+	for (size_t i = 0; i < host_port.size(); i++)
+	{
+		cout << ip_port[i] << endl;
 	}
 }
 

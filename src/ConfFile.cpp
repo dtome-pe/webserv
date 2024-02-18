@@ -117,7 +117,8 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
 	res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
 	port = res;
 	Serv.setHostPort(host, port);  // indicamos host y puerto en nuevo vector de server host_port, 
-		// porque direccion y puerto van unidos
+		// porque direccion y puerto van unidos, host es direccion previa resolucion por parte de 
+		// funcion getaddrinfo que ponemos en constructor de socket.
 }
 
 int		ConfFile::parse_element(std::string &content, int i)
@@ -266,8 +267,11 @@ void	ConfFile::create_sockets()
 		{
 			Socket s(serv_vec[i].host_port[j]); // se crea socket, con host y puerto, se resuelve host a direccion ip 
 												// con getaddr info en constructor de socket.
+			s.serv = &serv_vec[i];				//apuntamos a server correspondiente para mas facil acceso posterior				
 			if (!look_for_same(s, sock_vec))	// buscamos socket creado con misma direccion:puerto
-				sock_vec.push_back(s); // si devuelve falso, introducimos socket en vector para posterior bind.
+			{
+				sock_vec.push_back(s); // si devuelve falso, introducimos socket en vector para posterior bind.	
+			}
 		}
 	}
 }
