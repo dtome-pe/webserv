@@ -1,48 +1,21 @@
 #include<webserv.hpp>
 
+Socket::Socket(std::string host_port)
+{	
+	host = host_port.substr(0, host_port.find(":"));
+	port = host_port.substr(host_port.find(":") + 1, host_port.length());
 
-Socket::Socket()
-{
-//	port = "8888";
-}
-
-Socket::~Socket()
-{
+	cout << "socket host is " << host << "socket port is " << port << endl;
+	get_addr_info(&s_addr, host.c_str(), port.c_str()); // obtenemos datos y se resuelve dominio y se introduce ip y puerto.
 }
 
 void	Socket::start()
 {
-	get_addr_info(&s_addr, port.c_str()); // obtenemos datos
 	s_fd = create_s(s_fd, s_addr); //creamos el fd del socket
 	bind_s(s_fd, s_addr, ip);
 	listen_s(s_fd);
 	freeaddrinfo(s_addr);
 }
-
-/* void Socket::loop()
-{
-	int	new_socket;
-	struct sockaddr_in c_addr;
-    socklen_t c_addr_size = sizeof (c_addr);
-
-	while (true)
-	{	
-		new_socket = accept(s_fd, (struct sockaddr *) &c_addr, &c_addr_size);
-		if (new_socket < 0)
-		{
-            print_error(strerror(errno));
-            exit(EXIT_FAILURE);
-        }
-		if (!fork())
-		{	
-			close(s_fd);
-			handle_client(new_socket);
-			close(new_socket);
-			exit(0);
-		}
-		close(new_socket);
-	}	
-} */
 
 std::string Socket::getPort() const
 {
@@ -52,6 +25,11 @@ std::string Socket::getPort() const
 std::string Socket::getIp() const
 {
 	return (this->ip);
+}
+
+void	Socket::setHost(std::string host)
+{
+	this->host = host;
 }
 
 void	Socket::setPort(std::string port)
