@@ -117,15 +117,8 @@ void	Request::setBody(std::string _body)
 void	Request::setIpPortHost(sockaddr_in &c_addr, sockaddr_in &sock_addr)
 {
 	(void) c_addr;
-	std::ostringstream ipStream;
 
-	uint32_t ipAddress = ntohl(sock_addr.sin_addr.s_addr);
-
-	ipStream << ((ipAddress >> 24) & 0xFF) << "."
-             << ((ipAddress >> 16) & 0xFF) << "."
-             << ((ipAddress >> 8) & 0xFF) << "."
-             << (ipAddress & 0xFF);
-	ip = ipStream.str();						 
+	ip = ip_to_str(&sock_addr);						 
 
 	std::ostringstream portStream;
                     portStream << ntohs(sock_addr.sin_port);
