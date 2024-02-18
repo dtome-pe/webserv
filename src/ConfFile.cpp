@@ -196,14 +196,19 @@ void	ConfFile::print_servers()
 	}
 }
 
-void	ConfFile::init_serv()
+void ConfFile::print_sockets()
 {
-	for (size_t i = 0; i < this->serv_vec.size(); i++)
+	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
-		for (size_t j = 0; j < this->serv_vec[i].sock_vec.size(); j++)
-		{
-			this->serv_vec[i].sock_vec[j].start();
-		}
+		cout << "Socket " << i + 1 << endl << "IP: " << sock_vec[i].getIp() << "Port: " << sock_vec[i].getPort() << endl;  
+	}
+}
+
+void	ConfFile::start_sockets()
+{
+	for (std::vector<Socket>::iterator it = sock_vec.begin(); it != sock_vec.end(); it++)
+	{
+		it->start();
 	}
 }
 
@@ -211,22 +216,19 @@ void	ConfFile::init_poll()
 {
 	size_t x = 0;
 	int i = 0;
-	for (x = 0; x < this->serv_vec.size(); x++) // recorremos todos los servers
+	for (x = 0; x < this->sock_vec.size(); x++) // recorremos todos los sockets
 	{
-		i += (int)this->serv_vec[x].sock_vec.size(); // contamos todos los sockets de todos los servers
+		i ++; // y los contamos 
 	}
  	this->poll_ptr = new struct pollfd[i]; // reservamos tantos polls como sockets haya
 	this->fd_size = i;
 	this->fd_count = i;
 	i = 0;
-	for (x = 0; x < this->serv_vec.size(); x++) // recorremos todos los servers
+	for (x = 0; x < this->sock_vec.size(); x++) // recorremos todos los servers
 	{
-		for (size_t j = 0; j < this->serv_vec[x].sock_vec.size(); j++) // recorremos todos los sockets de cada server
-		{
-			this->poll_ptr[i].fd = this->serv_vec[x].sock_vec[j].s_fd; // asignamos el fd de cada socket a un poll
-			this->poll_ptr[i].events = POLLIN; // los ponemos a que "nos avisen" al detectar conexiones entrantes
-			i++;
-		}
+		this->poll_ptr[i].fd = this->sock_vec[x].s_fd; // asignamos el fd de cada socket a un poll
+		this->poll_ptr[i].events = POLLIN; // los ponemos a que "nos avisen" al detectar conexiones entrantes
+		i++;
 	}
 }
 
@@ -234,7 +236,27 @@ void	ConfFile::init_poll()
 bindearse al mismo puerto. Entonces, nginx debe primero resolver ip y puerto de cada listen directive uno a uno, y
 en el momento que encuentra otro listen con la misma direccion exacta, se lo debe saltar. Ya que al final, solo
 un server block va a gestionar peticion, nginx simplemente abre un puerto, y luego lo redirige al server que toca. Por
-eso esta funcion va comprobando los Host:Port de cada server.... ACABAR*/
+eso esta funcion va comprobando los Host:Port de cada server, si encuentra uno identico, no lo anade al vector y
+lo ignoraremos, para que no haya un socket duplicado y que no de error. si encuentra un socket que va a apuntar a 0.0.0.0
+y uno que va a apuntar a una direccion concreta y ambos al mismo puerto, el 0.0.0.0 tiene prioridad*/
+
+static bool look_for_same(Socket &sock, std::vector<Socket>&sock_vec)
+{
+	for (std::vector<Socket>::iterator it = sock_vec.begin(); it != sock_vec.end(); it++)
+	{
+		/*si encontramos un socket creado con misma direccion:puerto, retornamos true y no se anade al vector*/
+		if (it->getIp() == sock.getIp() && it->getPort() == sock.getPort())
+			return (true);
+		if (it->getPort() == sock.getPort() && it->getIp() == "0.0.0.0")
+			return (true);
+		if (it->getPort() == sock.getPort() && sock.getIp() == "0.0.0.0" && it->getIp() != "0.0.0.0")
+		{
+			sock_vec.erase(it);
+			return (false);
+		}
+	}
+	return (false);
+}
 
 void	ConfFile::create_sockets()
 {	
@@ -242,7 +264,10 @@ void	ConfFile::create_sockets()
 	{
 		for (size_t j = 0; j < serv_vec[i].host_port.size(); j++)
 		{
-			Socket s(serv_vec[i].host_port[j]);
+			Socket s(serv_vec[i].host_port[j]); // se crea socket, con host y puerto, se resuelve host a direccion ip 
+												// con getaddr info en constructor de socket.
+			if (!look_for_same(s, sock_vec))	// buscamos socket creado con misma direccion:puerto
+				sock_vec.push_back(s); // si devuelve falso, introducimos socket en vector para posterior bind.
 		}
 	}
 }
