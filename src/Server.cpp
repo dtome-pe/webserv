@@ -110,7 +110,7 @@ void	Server::printHostPort()
 void	Server::printIpPort()
 {
 	cout << "Ip:Ports: " << endl;
-	for (size_t i = 0; i < host_port.size(); i++)
+	for (size_t i = 0; i < ip_port.size(); i++)
 	{
 		cout << ip_port[i] << endl;
 	}
