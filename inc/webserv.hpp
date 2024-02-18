@@ -57,4 +57,7 @@ class Server;
 	/*print utils*/
 	void	print_error(const char *str);
 
+	/*ip utils*/
+	std::string ip_to_str(sockaddr_in *addr);
+
 #endif
