@@ -9,14 +9,17 @@
 class Socket
 {
 	private:
+		std::string host;
 		std::string ip;
 		std::string port;
+	
 	public:
+
+		Socket(std::string host_port);
+
 		int				s_fd;
 		struct addrinfo *s_addr;
 		Request			*request_ptr;
-		Socket();
-		~Socket();
 		void	start();
 
 		//getters
@@ -25,6 +28,7 @@ class Socket
 		//setters
 		void	setPort(std::string port);
 		void	setIp(std::string ip);
+		void	setHost(std::string host);
 };
 
 #endif

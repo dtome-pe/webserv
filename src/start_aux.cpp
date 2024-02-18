@@ -3,7 +3,12 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-void	get_addr_info(struct addrinfo **s_addr, const char *port)
+void print_error(const char *str)
+{
+	cerr << str << endl;
+}
+
+void	get_addr_info(struct addrinfo **s_addr, const char *host, const char *port)
 {	
 	int				status;
 	struct addrinfo hints;
@@ -12,7 +17,7 @@ void	get_addr_info(struct addrinfo **s_addr, const char *port)
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	status = getaddrinfo(NULL, port, &hints, s_addr);
+	status = getaddrinfo(host, port, &hints, s_addr);
 	if (status != 0)
 	{
 		print_error(gai_strerror(status));
@@ -40,11 +45,13 @@ int create_s(int server_fd, struct addrinfo *s_addr)
 
 int bind_s(int server_fd, struct addrinfo *s_addr, std::string ip)
 {	
+	(void) ip;
+	
 	int	yes = 1;
 
 	struct sockaddr_in *addr = (sockaddr_in *) s_addr->ai_addr;
 
-	addr->sin_addr.s_addr = inet_addr(ip.c_str());
+	//addr->sin_addr.s_addr = inet_addr(ip.c_str());
 
 	if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof (yes)) == -1) 
 	{

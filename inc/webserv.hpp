@@ -41,7 +41,7 @@ class Server;
 	int		parse_listen(t_sock **list, std::string &line);
 	
 	/*start server*/
-	void	get_addr_info(struct addrinfo **s_addr, const char *port);
+	void	get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
 	int 	create_s(int server_fd, struct addrinfo *s_addr);
 	int 	bind_s(int server_fd, struct addrinfo *s_addr, std::string ip);
 	int 	listen_s(int server_fd);
@@ -56,19 +56,5 @@ class Server;
 
 	/*print utils*/
 	void	print_error(const char *str);
-	void	print_servers(t_serv *list);
-	void	print_poll(pollfd *poll, int size);
-
-	/*socket list utils*/
-	t_sock		*sock_new(std::string &port);
-	int			sock_back(t_sock **lst, t_sock *new_s);
-	t_sock		*sock_last(t_sock *lst);
-	int			sock_count(t_sock *lst);
-
-	/*server list utils*/
-
-	t_serv		*serv_new();
-	int			serv_back(t_serv **lst, t_serv *new_s);
-	t_serv		*serv_last(t_serv *lst);
 
 #endif

@@ -3,9 +3,8 @@ NAME = webserv
 #FILES = main.cpp Socket.cpp handle_client.cpp start_aux.cpp utils_print.cpp parse_config.cpp \
 		utils_list_socket.cpp parse_aux.cpp utils_list_server.cpp Server.cpp poll.cpp Response.cpp
 
-FILES = main  Socket  handle_client  start_aux  utils_print  parse_config \
-		utils_list_socket  parse_aux  utils_list_server  Server  poll  \
-		Response  Request  HeaderHTTP  ConfFile  init find_serv_block
+FILES = main  Socket  handle_client  start_aux  Server  poll  \
+		Response  Request  HeaderHTTP  ConfFile find_serv_block
 SRC = $(addprefix $(DIR_SRC), $(addsuffix .cpp, $(FILES)))
 FLAGS = -std=c++98 -Wall -Wextra -Werror -Iinc/
 DEPFLAGS = -MMD -MP

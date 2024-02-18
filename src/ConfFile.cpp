@@ -81,36 +81,43 @@ std::string ConfFile::findInfo(std::string line, std::string tofind, std::string
 	return (result);
 }
 
-void	ConfFile::findIp(Socket& S, std::string newserv)
+void	ConfFile::findIp(Server& Serv, std::string newserv)
 {
 	std::size_t firstNonSpace;
 	std::size_t lastNonSpace;
 	std::string line;
 	std::string res;
+	std::string host;
+	std::string port;
 	std::istringstream iss(newserv);
-	int hasip;
+	size_t hasip;
 	int pos;
 
 	std::getline(iss, line, '\n');
 	std::getline(iss, line, '\n');
 	hasip = line.find(":");
 	pos = line.find("listen ");
-	if (hasip > -1)
+	if (hasip != std::string::npos)
 	{
 		res = line.substr(pos + 6, hasip - (pos + 6));
 		firstNonSpace = res.find_first_not_of(" \t\n\r");
 		lastNonSpace = res.find_last_not_of(" \t\n\r;");
 		res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
-		S.setIp(res);
+		host = res;
 	}
-	if (hasip == -1)
+	if (hasip == std::string::npos)
+	{	
+		host = "0.0.0.0"; // si no hay ip, escucha en todas direcciones
 		res = line.substr(pos + 6, line.find(";"));
+	}
 	else
 		res = line.substr(hasip + 1, line.find(";"));
 	firstNonSpace = res.find_first_not_of(" \t\n\r");
  	lastNonSpace = res.find_last_not_of(" \t\n\r;");
 	res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
-	S.setPort(res);
+	port = res;
+	Serv.setHostPort(host, port);  // indicamos host y puerto en nuevo vector de server host_port, 
+		// porque direccion y puerto van unidos
 }
 
 int		ConfFile::parse_element(std::string &content, int i)
@@ -118,7 +125,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 	int servpos = content.find("server ");
 	static int id = 1;
 	std::string newserv;
-	Socket S;
+	//Socket S;
 	std::string line;
 	Server Serv;
 
@@ -133,26 +140,27 @@ int		ConfFile::parse_element(std::string &content, int i)
 	newserv = content.substr(servpos, content.length());
 	std::istringstream iss(newserv);
 	std::getline(iss, line, '\n');
+	/*hemos eliminado que busque Host, ya que en el host viene indicado en el listen directive*/
 	while (std::getline(iss, line, '\n'))
-	{
+	{ 
 		if (line.find("server ") == 0)
 			break ;
-		S.setIp(findInfo(line, "host ", S.getIp())); //quitar cuando se coja de server
-		S.setPort(findInfo(line, "listen ", S.getPort())); //quitar cuando se coja de server
-		if (line.find("host ") != std::string::npos)
-			Serv.setIp(findInfo(line, "host ", Serv.getIp()));
+		if (line.find("listen ") != std::string::npos)
+			findIp(Serv, &line[line.find("listen ")]);  // pasamos direccion del texto donde ha encontrado el listen.
+		//S.setIp(findInfo(line, "host ", S.getIp())); //quitar cuando se coja de server
+		//S.setPort(findInfo(line, "listen ", S.getPort())); //quitar cuando se coja de server
 		if (line.find("server_name ") != std::string::npos)
 			Serv.addVServerName(findInfo(line, "server_name", ""));
 		if (line.find("error_page ") != std::string::npos)
 			Serv.setErrorPage(findInfo(line, "error_page ", Serv.getErrorPage()));
-		if (line.find("listen ") != std::string::npos)
-			Serv.addVPort(findInfo(line, "listen ", ""));
 		if (line.find("allow_methods ") != std::string::npos)
 			Serv.setAllowMethods(findInfo(line, "allow_methods ", Serv.getAllowMethods()));
 	}
-//	findIp(S, newserv); casos como 127.0.0.1:8001, falta gestionar para server	
+//	findIp(S, newserv); casos como 127.0.0.1:8001, falta gestionar para server
+	if (!Serv.host_port.size())
+		Serv.setHostPort("0.0.0.0", "8080");  // si no hay listen directive, escucha en todas direcciones en puerto 8080
 	this->serv_vec.push_back(Serv);
-	this->serv_vec.back().sock_vec.push_back(S);
+	//this->serv_vec.back().sock_vec.push_back(S);
 	return (0);
 }
 
@@ -169,17 +177,20 @@ void	ConfFile::print_servers()
 {
 	for (size_t i = 0; i < this->serv_vec.size(); i++)
 	{
-		std::cout << BGRED "Server" << i + 1 << ":" RESET << std::endl;
-		std::cout << "Port: ";
-		std::vector<std::string>str = this->serv_vec[i].getVPort();
+		std::cout << BGRED "Server " << i + 1 << ":" RESET << std::endl;
+		this->serv_vec[i].printHostPort();
+		//std::cout << "Port: ";
+		/* std::vector<std::string>str = this->serv_vec[i].getVPort();
 		for (std::vector<std::string>::iterator it = str.begin(); it != str.end(); it++)
 			std::cout << *it << std::endl;
-		std::cout << "Server name: ";
+		std::cout << "Server name: " << endl;
 		str = this->serv_vec[i].getVServerName();
 		for (std::vector<std::string>::iterator it = str.begin(); it != str.end(); it++)
 			std::cout << *it << std::endl;
-		std::cout << "IP: " << this->serv_vec[i].getIp() << std::endl;
+		std::cout << "IP: " << this->serv_vec[i].getIp() << std::endl; */
 	
+		this->serv_vec[i].printServer_Names();
+
 		std::cout << "Error page: " << this->serv_vec[i].getErrorPage() << std::endl;
 		std::cout << "Allow methods: " << this->serv_vec[i].getAllowMethods() << std::endl;
 	}
@@ -215,6 +226,23 @@ void	ConfFile::init_poll()
 			this->poll_ptr[i].fd = this->serv_vec[x].sock_vec[j].s_fd; // asignamos el fd de cada socket a un poll
 			this->poll_ptr[i].events = POLLIN; // los ponemos a que "nos avisen" al detectar conexiones entrantes
 			i++;
+		}
+	}
+}
+
+/*nginx puede tener varios server blocks escuchando en la misma direccion:puerto, pero dos sockets no pueden
+bindearse al mismo puerto. Entonces, nginx debe primero resolver ip y puerto de cada listen directive uno a uno, y
+en el momento que encuentra otro listen con la misma direccion exacta, se lo debe saltar. Ya que al final, solo
+un server block va a gestionar peticion, nginx simplemente abre un puerto, y luego lo redirige al server que toca. Por
+eso esta funcion va comprobando los Host:Port de cada server.... ACABAR*/
+
+void	ConfFile::create_sockets()
+{	
+	for (size_t i = 0; i < serv_vec.size(); i++)
+	{
+		for (size_t j = 0; j < serv_vec[i].host_port.size(); j++)
+		{
+			Socket s(serv_vec[i].host_port[j]);
 		}
 	}
 }

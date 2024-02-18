@@ -53,6 +53,11 @@ void	Server::setIp(std::string ip)
 	this->ip = ip;
 }
 
+void	Server::setHostPort(std::string host, std::string port)
+{
+	host_port.push_back(host + ":" + port);
+}
+
 void	Server::setServerName(std::string serverName)
 {
 	this->server_name = serverName;
@@ -86,4 +91,22 @@ void	Server::addVPort(std::string str)
 std::vector<std::string>& Server::getVPort()
 {
 	return (vports);
+}
+
+void	Server::printHostPort()
+{
+	cout << "Host:Ports: " << endl;
+	for (size_t i = 0; i < host_port.size(); i++)
+	{
+		cout << host_port[i] << endl;
+	}
+}
+
+void	Server::printServer_Names()
+{
+	cout << "Server Names: " << endl;
+	for (size_t i = 0; i < vserver_name.size(); i++)
+	{
+		cout << vserver_name[i] << endl;
+	}
 }
