@@ -1,6 +1,6 @@
 #include<webserv.hpp>
 
-Socket::Socket(std::string host_port)
+Socket::Socket(std::string host_port, Server *s_ptr)
 {	
 	/*trocemos host y port para meterlas en funcion get_addr_info*/
 	host = host_port.substr(0, host_port.find(":"));
@@ -10,14 +10,15 @@ Socket::Socket(std::string host_port)
 	struct sockaddr_in *addr = (sockaddr_in *) s_addr->ai_addr; // se castea para poder obtener ip
 	ip = ip_to_str(addr);	// volcamos ip de network byte order a string, para luego chequear sockets duplicados
 					// y posteriormente pasar informacion a server correspondiente
-}
-
-void	Socket::start()
-{
+	serv = s_ptr;				//apuntamos a server correspondiente
 	/*en este momento le seteamos en el vector ip_port al server que ha generado este socket, la ip 
 	ya resuelta y puerto, para en find_serv_block poder buscar que server la toca gestionar
 	la conexion recibida*/
 	serv->setIpPort(ip, port); 
+}
+
+void	Socket::start()
+{
 	s_fd = create_s(s_fd, s_addr); //creamos el fd del socket
 	bind_s(s_fd, s_addr, ip); // bindeamos 
 	listen_s(s_fd);

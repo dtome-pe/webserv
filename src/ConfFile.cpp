@@ -180,6 +180,7 @@ void	ConfFile::print_servers()
 	{
 		std::cout << BGRED "Server " << i + 1 << ":" RESET << std::endl;
 		this->serv_vec[i].printHostPort();
+		this->serv_vec[i].printIpPort();
 		//std::cout << "Port: ";
 		/* std::vector<std::string>str = this->serv_vec[i].getVPort();
 		for (std::vector<std::string>::iterator it = str.begin(); it != str.end(); it++)
@@ -265,9 +266,9 @@ void	ConfFile::create_sockets()
 	{
 		for (size_t j = 0; j < serv_vec[i].host_port.size(); j++)
 		{
-			Socket s(serv_vec[i].host_port[j]); // se crea socket, con host y puerto, se resuelve host a direccion ip 
+			Socket s(serv_vec[i].host_port[j], &serv_vec[i]); // se crea socket, con host y puerto, se resuelve host a direccion ip 
 												// con getaddr info en constructor de socket.
-			s.serv = &serv_vec[i];				//apuntamos a server correspondiente para mas facil acceso posterior				
+				
 			if (!look_for_same(s, sock_vec))	// buscamos socket creado con misma direccion:puerto
 			{
 				sock_vec.push_back(s); // si devuelve falso, introducimos socket en vector para posterior bind.	

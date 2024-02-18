@@ -25,6 +25,7 @@ void	main_vec(char *argv[])
 	//F.print_sockets();
 	F.start_sockets(); // inicializamos los sockets y le pasamos ip y puerto a su server mediante puntero, como nuevo elemento
 						// de vector ip_port (ip ya resuelta del host)
+	F.print_servers();
 	F.init_poll(); //
 	poll_loop(F.poll_ptr, F.fd_size, F);
 }
