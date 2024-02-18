@@ -34,7 +34,8 @@ static const Server *server_name(const std::vector<class Server> &serv, Request 
 		const std::vector<std::string> &serv_name = serv[i].getVServerName();
 		for (size_t j = 0; j < serv_name.size(); j++)
 		{
-			if (serv_name[j] == request.ip)
+			if (serv_name[j] == request.host) // comparamos con lo que hemos cogido del Host header para determinar
+											// por server_name
 			{	
 				ret = &serv[i];
 				return (ret);
@@ -71,8 +72,7 @@ const Server *find_serv_block(const std::vector<class Server> &serv, Request &re
 
 	block = ip_port(serv, request);  //primero buscamos si solo hay un match por direccion y puerto
 	if (!block) // si ha devuelto nulo, es que hay mas de un server block con ip:puerto y hay que buscar ahora por server_name
-	{	
-		cout << "entra en null" << endl;
+	{
 		block = server_name(serv, request);
 		if (!block) // si ha devuelto nulo, es que no ha encontrado match con server_name
 			return (get_first_block(serv, request)); // asi que hay que devolver primer server que encaje con ip:puerto
