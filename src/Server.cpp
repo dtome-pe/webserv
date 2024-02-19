@@ -124,3 +124,8 @@ void	Server::printServer_Names()
 		cout << vserver_name[i] << endl;
 	}
 }
+
+void	Server::setLocation(Locations& loc)
+{
+	locations.push_back(loc);
+}

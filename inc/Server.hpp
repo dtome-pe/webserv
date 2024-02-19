@@ -6,6 +6,7 @@
 # include <netinet/in.h>
 # include "Request.hpp"
 # include "Socket.hpp"
+# include "Locations.hpp"
 # include <poll.h>
 
 class Server
@@ -19,13 +20,11 @@ class Server
 		//vectores
 		std::vector<std::string> vserver_name;
 		std::vector<std::string> vports;
-
-		
+		std::vector<class Locations> locations;
 	public:
 		int		active;
 		struct socket_list	*sock_list;
 		std::vector<class Socket>	sock_vec;
-
 		//vector host:puerto, (listen previo getaddrinfo resuelva dominio, si lo hay)
 		std::vector<std::string> host_port;
 		void	setHostPort(std::string host, std::string port); // funcion que anada un elemento en el vector de ip:puertos
@@ -57,6 +56,7 @@ class Server
 		//setter/getter para vector ports
 		void	addVPort(std::string str);
 		std::vector<std::string>& getVPort();
+		void	setLocation(Locations &loc);
 
 
 		void	printServer_Names();
