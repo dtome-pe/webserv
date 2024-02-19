@@ -6,6 +6,7 @@ NAME = webserv
 FILES = main  Socket  handle_client  start_aux  Server  poll  \
 		Response  Request  HeaderHTTP  ConfFile find_serv_block utils_ip \
 		Locations
+
 SRC = $(addprefix $(DIR_SRC), $(addsuffix .cpp, $(FILES)))
 FLAGS = -std=c++98 -Wall -Wextra -Werror -Iinc/
 DEPFLAGS = -MMD -MP

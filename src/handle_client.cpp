@@ -38,7 +38,10 @@ int	handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_
 
 	const Server *serv = find_serv_block(conf.getServerVector(), req);
 
-	std::cout << "selected server is server " << serv->id << std::endl;
+	cout << req.getTarget() << endl;
+	//std::cout << "selected server is server " << serv->id << std::endl;
+
+	//const Location *loc = find_loc_block(serv, req);
 
  	Response	msg(req, serv);
 
