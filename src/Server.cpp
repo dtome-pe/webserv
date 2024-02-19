@@ -125,7 +125,51 @@ void	Server::printServer_Names()
 	}
 }
 
+void	Server::printErrorPages()
+{
+	std::cout << "Error Page: ";
+	std::cout << this->error_page << std::endl;
+}
+
+void	Server::printLocations()
+{
+	std::cout << std::endl << BOLD "LOCATIONS: " RESET << std::endl;
+	for (size_t i = 0; i < locations.size(); i++)
+	{
+		std::cout << BOLD "Location " << i + 1 << ": " RESET << locations[i].getLocation() << std::endl;
+		if (!locations[i].getRedirection().empty())
+			std::cout << "Redirection to: " << locations[i].getRedirection() << std::endl;
+		std::cout << "Autoindex: ";
+		if (locations[i].getAutoindex() == true)
+			std::cout << "on" << std::endl;
+		else
+			std::cout << "off" << std::endl;
+		std::cout << "Index: " << locations[i].getIndex() << std::endl;
+		std::cout << "Allow methods: ";
+		std::cout << "GET: ";
+		if (locations[i].getMethods()[0] == 1)
+			std::cout << "yes";
+		else
+			std::cout << "no";
+		std::cout << " / POST: ";
+		if (locations[i].getMethods()[1] == 1)
+			std::cout << "yes";
+		else
+			std::cout << "no";
+		std::cout << " / DELETE: ";
+		if (locations[i].getMethods()[2] == 1)
+			std::cout << "yes" << std::endl;
+		else
+			std::cout << "no" << std::endl;
+	}
+}
+
 void	Server::setLocation(Locations& loc)
 {
 	locations.push_back(loc);
+}
+
+std::vector<Locations>& Server::getLocations()
+{
+        return (locations);
 }
