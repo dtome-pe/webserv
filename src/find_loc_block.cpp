@@ -1,6 +1,6 @@
 #include<webserv.hpp>
 
-/* static std::string decode(const std::string& encoded) // decodifica caracteres escapados con hexadecimales en URL encoding
+static std::string decode(const std::string& encoded) // decodifica caracteres escapados con hexadecimales en URL encoding
 {  
 	std::ostringstream decoded;
 
@@ -18,7 +18,7 @@
             hexStream >> std::hex >> decodedChar;
 
             // Append the decoded character to the result
-            decodedStream << static_cast<char>(decodedChar);
+            decoded << static_cast<char>(decodedChar);
 
             // Move the index two characters forward
             i += 2;
@@ -30,12 +30,19 @@
         }
     }
     return decoded.str();
-} */
+}
 
-/*
-const Location *find_loc_block(const Server *serv, Request &req)
+
+const Locations *find_loc_block(const Server *serv, Request &req)
 {
 	std::string decoded_str = decode(req.request_line.target); // decodificamos posibles %xx de URI
 	
+	std::vector<Locations> loc_vec = serv->getLocations();
+
+	for (std::vector<Locations>::const_iterator it = loc_vec.begin(); it != loc_vec.end(); it++)
+	{
+		
+	}
+	
+	return (NULL);
 }
-*/

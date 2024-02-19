@@ -57,7 +57,7 @@ class Server
 		void	addVPort(std::string str);
 		std::vector<std::string>& getVPort();
 		void	setLocation(Locations &loc);
-		std::vector<Locations>& getLocations();
+		const std::vector<Locations>& getLocations() const;
 
 		void	printServer_Names();
 		void	printLocations();
