@@ -121,12 +121,64 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
 		// funcion getaddrinfo que ponemos en constructor de socket.
 }
 
+void	ConfFile::parse_location(std::string line, Locations& loc)
+{
+	size_t pos;
+	size_t fpos;
+	std::string res;
+
+	if (line.find(" /") != std::string::npos && loc.getLocation().empty())
+	{
+		pos = line.find("/");
+		fpos = line.find(" {");
+		res = line.substr(pos, fpos - pos);
+		loc.setLocation(res);
+	}
+	else if (line.find("autoindex ") != std::string::npos)
+	{
+		pos = line.find("autoindex ");
+		fpos = line.find(";");
+		res = line.substr(pos + 10, fpos - pos);
+		if (res == "on;" || res == "on")
+			loc.setAutoindex(1);
+		if (res == "off" || res == "off;")
+			loc.setAutoindex(0);
+	}
+	else if (line.find("index ") != std::string::npos)
+	{
+		pos = line.find("index ");
+		fpos = line.find(";");
+		res = line.substr(pos + 6, fpos - pos);
+		loc.setIndex(res.erase(res.size() - 1));
+	}
+	else if (line.find("allow_methods ") != std::string::npos)
+	{
+		int methods[3] = {0, 0, 0};
+		pos = line.find("allow_methods ");
+		fpos = line.find(";");
+		res = (line.substr(pos + 14, fpos - pos));
+		if (res.find("GET") != std::string::npos)
+			methods[0] = 1;
+		if (res.find("POST") != std::string::npos)
+			methods[1] = 1;
+		if (res.find("DELETE") != std::string::npos)
+			methods[2] = 1;
+		loc.setMethods(methods);
+	}
+	else if (line.find("return /") != std::string::npos)
+	{
+		pos = line.find("return /");
+		fpos = line.find(";");
+		res = line.substr(pos + 8, fpos - pos);
+		loc.setRedirection(res.erase(res.size() - 1));
+	}
+}
+
 int		ConfFile::parse_element(std::string &content, int i)
 {
 	int servpos = content.find("server ");
 	static int id = 1;
 	std::string newserv;
-	//Socket S;
 	std::string line;
 	Server Serv;
 
@@ -154,14 +206,27 @@ int		ConfFile::parse_element(std::string &content, int i)
 			Serv.addVServerName(findInfo(line, "server_name", ""));
 		if (line.find("error_page ") != std::string::npos)
 			Serv.setErrorPage(findInfo(line, "error_page ", Serv.getErrorPage()));
-		if (line.find("allow_methods ") != std::string::npos)
-			Serv.setAllowMethods(findInfo(line, "allow_methods ", Serv.getAllowMethods()));
+		if (line.find("location ") != std::string::npos)
+		{
+			Locations loc;
+			while(line.find("}") == std::string::npos)
+			{
+				parse_location(line, loc);
+				std::getline(iss, line, '\n');
+			}
+			std::cout << BGRED "AQUI" RESET << std::endl;
+			std::cout << "LOCATION: " << loc.getLocation() << std::endl;
+			std::cout << "Autoindex: " << loc.getAutoindex() << std::endl;
+			std::cout << "index: " << loc.getIndex() << std::endl;
+			std::cout << "Redirection: " << loc.getRedirection() << std::endl;
+			Serv.setLocation(loc);
+		}
+//		if (line.find("allow_methods ") != std::string::npos)
+//			Serv.setAllowMethods(findInfo(line, "allow_methods ", Serv.getAllowMethods()));
 	}
-//	findIp(S, newserv); casos como 127.0.0.1:8001, falta gestionar para server
 	if (!Serv.host_port.size())
 		Serv.setHostPort("0.0.0.0", "8080");  // si no hay listen directive, escucha en todas direcciones en puerto 8080
 	this->serv_vec.push_back(Serv);
-	//this->serv_vec.back().sock_vec.push_back(S);
 	return (0);
 }
 

@@ -2,6 +2,7 @@
 #define CONFFILE_HPP
 
 #include "Colors.hpp"
+#include "Locations.hpp"
 #include <webserv.hpp>
 
 
@@ -19,6 +20,7 @@ class ConfFile
 		ConfFile(std::string _file);
 		~ConfFile();
 		void	parse_config(); 
+		void	parse_location(std::string line, Locations &loc);
 		int		parse_element(std::string& content, int i);
 		int		countServers(std::string content);
 		std::string findInfo(std::string line, std::string tofind, std::string found);
