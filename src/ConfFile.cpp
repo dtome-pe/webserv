@@ -214,11 +214,11 @@ int		ConfFile::parse_element(std::string &content, int i)
 				parse_location(line, loc);
 				std::getline(iss, line, '\n');
 			}
-			std::cout << BGRED "AQUI" RESET << std::endl;
-			std::cout << "LOCATION: " << loc.getLocation() << std::endl;
-			std::cout << "Autoindex: " << loc.getAutoindex() << std::endl;
-			std::cout << "index: " << loc.getIndex() << std::endl;
-			std::cout << "Redirection: " << loc.getRedirection() << std::endl;
+//			std::cout << BGRED "AQUI" RESET << std::endl;
+//			std::cout << "LOCATION: " << loc.getLocation() << std::endl;
+//			std::cout << "Autoindex: " << loc.getAutoindex() << std::endl;
+//			std::cout << "index: " << loc.getIndex() << std::endl;
+//			std::cout << "Redirection: " << loc.getRedirection() << std::endl;
 			Serv.setLocation(loc);
 		}
 //		if (line.find("allow_methods ") != std::string::npos)
@@ -246,20 +246,9 @@ void	ConfFile::print_servers()
 		std::cout << BGRED "Server " << i + 1 << ":" RESET << std::endl;
 		this->serv_vec[i].printHostPort();
 		this->serv_vec[i].printIpPort();
-		//std::cout << "Port: ";
-		/* std::vector<std::string>str = this->serv_vec[i].getVPort();
-		for (std::vector<std::string>::iterator it = str.begin(); it != str.end(); it++)
-			std::cout << *it << std::endl;
-		std::cout << "Server name: " << endl;
-		str = this->serv_vec[i].getVServerName();
-		for (std::vector<std::string>::iterator it = str.begin(); it != str.end(); it++)
-			std::cout << *it << std::endl;
-		std::cout << "IP: " << this->serv_vec[i].getIp() << std::endl; */
-	
 		this->serv_vec[i].printServer_Names();
-
-		std::cout << "Error page: " << this->serv_vec[i].getErrorPage() << std::endl;
-		std::cout << "Allow methods: " << this->serv_vec[i].getAllowMethods() << std::endl;
+		this->serv_vec[i].printLocations();
+		this->serv_vec[i].printErrorPages();
 	}
 }
 
