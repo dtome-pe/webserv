@@ -169,7 +169,7 @@ void	Server::setLocation(Locations& loc)
 	locations.push_back(loc);
 }
 
-std::vector<Locations>& Server::getLocations()
+const std::vector<Locations>& Server::getLocations() const
 {
         return (locations);
 }

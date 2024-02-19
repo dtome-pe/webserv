@@ -50,6 +50,8 @@ class Server;
 
 	const Server *find_serv_block(const std::vector<class Server> &serv, Request &request);
 
+	const Locations *find_loc_block(const Server *serv, Request &req);
+
 	/*poll*/
 	//void	poll_loop(t_data *data);
 	void	poll_loop(pollfd *poll, int size, ConfFile &conf);

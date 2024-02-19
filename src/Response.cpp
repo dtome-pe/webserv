@@ -1,9 +1,10 @@
 #include <webserv.hpp>
 
-Response::Response(Request &request, const Server *serv)
+Response::Response(Request &request, const Server *serv, const Locations *loc)
 {	
 	(void) request;
 	(void) serv;
+	(void) loc;
 	
 	std::cout << "response: " <<  request.getMethod() << std::endl;
 	/*if (request.method == "GET")

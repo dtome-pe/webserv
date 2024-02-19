@@ -59,7 +59,7 @@ int *Locations::getMethods()
 	return (this->methods);
 }
 
-std::string Locations::getLocation()
+const std::string Locations::getLocation() const
 {
 	return (this->location);
 }
