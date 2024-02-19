@@ -214,15 +214,8 @@ int		ConfFile::parse_element(std::string &content, int i)
 				parse_location(line, loc);
 				std::getline(iss, line, '\n');
 			}
-//			std::cout << BGRED "AQUI" RESET << std::endl;
-//			std::cout << "LOCATION: " << loc.getLocation() << std::endl;
-//			std::cout << "Autoindex: " << loc.getAutoindex() << std::endl;
-//			std::cout << "index: " << loc.getIndex() << std::endl;
-//			std::cout << "Redirection: " << loc.getRedirection() << std::endl;
 			Serv.setLocation(loc);
 		}
-//		if (line.find("allow_methods ") != std::string::npos)
-//			Serv.setAllowMethods(findInfo(line, "allow_methods ", Serv.getAllowMethods()));
 	}
 	if (!Serv.host_port.size())
 		Serv.setHostPort("0.0.0.0", "8080");  // si no hay listen directive, escucha en todas direcciones en puerto 8080
