@@ -19,7 +19,7 @@ void	main_vec(char *argv[])
 
 	F.parse_config(); //
 //	F.check_info();
-//	F.print_servers(); // printamos la info de los servers
+	F.print_servers(); // printamos la info de los servers
 //	F.create_sockets(); // creamos sockets, hacemos getaddrinfo resolviendo hostname a ip, pero si hay un socket ya en el vector
 				// con misma direccion y puerto, no lo anadimos.
 	//F.print_sockets();
