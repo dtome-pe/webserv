@@ -12,11 +12,12 @@ typedef struct
 }	Status_line;
 
 class Server;
+class Locations;
 
 class Response
 {
 	public:
-		Response(Request &request, const Server *serv);
+		Response(Request &request, const Server *serv, const Locations *loc);
 		~Response();
 
 		Status_line	status_line;

@@ -41,9 +41,9 @@ int	handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_
 	cout << req.getTarget() << endl;
 	//std::cout << "selected server is server " << serv->id << std::endl;
 
-	//const Location *loc = find_loc_block(serv, req);
+	const Locations *loc = find_loc_block(serv, req);
 
- 	Response	msg(req, serv);
+ 	Response	msg(req, serv, loc);
 
 	std::string response = msg.makeResponse(); // hacemos respuesta con los valores del clase Response
 

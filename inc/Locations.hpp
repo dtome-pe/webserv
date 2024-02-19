@@ -23,7 +23,7 @@ class Locations {
 		bool getAutoindex();
 		std::string getIndex();
 		int *getMethods();
-		std::string getLocation();
+		const std::string getLocation() const;
 		std::string getRedirection();
 };
 
