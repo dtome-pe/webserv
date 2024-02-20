@@ -33,6 +33,8 @@ class Response
 
 		void 	do_default();
 
+		void 	do_200_get(std::string &path);
+
 		void 	do_404();
 		void	do_405(const Locations *loc);
 };
