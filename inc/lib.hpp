@@ -21,6 +21,7 @@
 #include <sys/socket.h>
 #include <vector>
 #include <sys/types.h>
+#include <sys/stat.h>
 
 // String headers
 #include <cstring>
