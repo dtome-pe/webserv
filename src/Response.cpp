@@ -17,21 +17,17 @@ void Response::do_default()
 		default_path = "/home/theonewhoknew/repos/CURSUS/webserv/default/default.html";
 	}
 	std::string content = readFileContents(default_path);
-
-	std::stringstream ss;
-    ss << content.length();
-    std::string lengthAsString = ss.str();
-
-	this->setHeader("Content-Length: " + lengthAsString);
-
+	this->setHeader("Content-Length: " + getLengthAsString(content));
 	this->setBody(content);
 }
 
 void Response::do_404()
 {
+	cout << "entra en 404 " << endl;
+	
 	this->setStatusLine("HTTP/1.1 404 Not Found");
 	this->setHeader("Content-Length: 54");
-	this->setBody("The resource you were looking fore could not be found");
+	this->setBody("The resource you were looking for could not be found");
 }
 
 void Response::do_405(const Locations *loc)

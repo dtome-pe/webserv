@@ -57,6 +57,7 @@ class Server;
 	std::string get_path(Request &request, const Server *serv, const Locations *loc);
 	std::string removeDoubleSlashes(const std::string& input);
 	std::string readFileContents(const std::string& filename);
+	std::string getLengthAsString(std::string &content);
 
 	/*poll*/
 	//void	poll_loop(t_data *data);

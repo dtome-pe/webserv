@@ -84,3 +84,12 @@ std::string readFileContents(const std::string& filename)
 	
     return content.str();
 }
+
+std::string getLengthAsString(std::string &content)
+{
+	std::stringstream ss;
+    ss << content.length();
+    std::string lengthAsString = ss.str();
+	
+	return (lengthAsString);
+}
