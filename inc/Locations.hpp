@@ -12,6 +12,8 @@ class Locations {
 		std::string index;
 		int methods[3]; //[0] = GET, [1] = POST, [2] = DELETE. Si es 0 no permitido si es 1 permitido.
 		std::string redirection;
+		std::string root;
+		std::string allurl;
 	public:
 		Locations();
 		~Locations();
@@ -20,11 +22,15 @@ class Locations {
 		void setMethods(int met[3]);
 		void setLocation(std::string loc);
 		void setRedirection(std::string red);
+		void setRoot(std::string rt);
+		void setAllUrl(std::string url);
 		bool getAutoindex();
 		std::string getIndex();
 		int *getMethods();
 		std::string getLocation();
 		std::string getRedirection();
+		std::string getRoot();
+		std::string getAllUrl();
 };
 
 #endif
