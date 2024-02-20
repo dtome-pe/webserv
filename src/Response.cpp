@@ -1,5 +1,39 @@
 #include <webserv.hpp>
 
+void Response::do_default()
+{
+	cout << "entra en do default" << endl;
+
+	this->setStatusLine("HTTP/1.1 200 OK");
+
+	const char *env_path = std::getenv("DEFAULT_DIR");
+	std::string default_path;
+
+	if (env_path)
+		default_path = std::string(env_path) + "/default.html";
+	else
+	{
+		cerr << "env not set, getting default path at /home/theonewhoknew/repos/CURSUS/webserv/default" << endl;
+		default_path = "/home/theonewhoknew/repos/CURSUS/webserv/default/default.html";
+	}
+	std::string content = readFileContents(default_path);
+
+	std::stringstream ss;
+    ss << content.length();
+    std::string lengthAsString = ss.str();
+
+	this->setHeader("Content-Length: " + lengthAsString);
+
+	this->setBody(content);
+}
+
+void Response::do_404()
+{
+	this->setStatusLine("HTTP/1.1 404 Not Found");
+	this->setHeader("Content-Length: 54");
+	this->setBody("The resource you were looking fore could not be found");
+}
+
 void Response::do_405(const Locations *loc)
 {
 	this->setStatusLine("HTTP/1.1 405 Method Not Allowed");
@@ -35,10 +69,10 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 		this->do_post();
 	else if (request.method == "DELETE")
 		this->do_delete();	*/
-	this->setStatusLine("HTTP/1.1 200 OK");
+	/* this->setStatusLine("HTTP/1.1 200 OK");
 	this->setHeader("Server: apache");
 	this->setBody("Hi");
-	this->setHeader("Content-Length: 2");
+	this->setHeader("Content-Length: 2"); */
 }
 
 void Response::do_get(Request &request, const Server *serv, const Locations *loc)
@@ -46,6 +80,17 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 	cout << "entra en do get " << endl;
 	std::string path = get_path(request, serv, loc);
 	cout << "resolved path is " << path << endl;
+	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
+	{
+		if (request.getTarget() == "/")
+			do_default();
+		else
+			do_404();
+	}
+	else
+	{
+
+	}
 }
 
 Response::~Response()
