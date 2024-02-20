@@ -175,8 +175,9 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 	{
 		pos = line.find("root ");
 		fpos = line.find(";");
-		res = line.substr(pos + 5, fpos - pos);
+		res = line.substr(pos + 5, fpos - pos - 4);
 		loc.setRoot(res.erase(res.size() - 1));
+		cout << loc.getRoot() << endl;
 	}
 }
 
@@ -226,7 +227,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 				loc.setAllUrl(Serv.getRoot() + res);
 			}
 			else
-				loc.setAllUrl(loc.getRoot() + loc.getLocation());
+				loc.setAllUrl(removeDoubleSlashes(loc.getRoot() + loc.getLocation()));
 			Serv.setLocation(loc);
 		}
 	}
