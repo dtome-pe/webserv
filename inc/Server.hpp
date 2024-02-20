@@ -17,6 +17,7 @@ class Server
 		std::string server_name;
 		std::string error_page;
 		std::string methods;
+		std::string root;
 		//vectores
 		std::vector<std::string> vserver_name;
 		std::vector<std::string> vports;
@@ -44,12 +45,14 @@ class Server
 		std::string getServerName();
 		std::string getErrorPage();
 		std::string getAllowMethods();
+		std::string getRoot();
 		//setters
 		void	setPort(std::string port);
 		void	setIp(std::string ip);
 		void	setServerName(std::string serverName);
 		void	setErrorPage(std::string errorPage);
 		void	setAllowMethods(std::string allow);
+		void	setRoot(std::string rt);
 		//setter/getter para vector server_name
 		void	addVServerName(std::string str);
 		const std::vector<std::string>& getVServerName() const;
@@ -62,6 +65,7 @@ class Server
 		void	printServer_Names();
 		void	printLocations();
 		void	printErrorPages();
+		void	printRoot();
 
 
 };

@@ -7,7 +7,7 @@ Locations::Locations()
 {
 	autoindex = false;
 	index = "";
-	methods[0] = 0;
+	methods[0] = 1;
 	methods[1] = 0;
 	methods[2] = 0;
 }
@@ -44,6 +44,16 @@ void	Locations::setRedirection(std::string red)
 	redirection = red;
 }
 
+void	Locations::setRoot(std::string rt)
+{
+	root = rt;
+}
+
+void	Locations::setAllUrl(std::string url)
+{
+	allurl = url;
+}
+
 bool	Locations::getAutoindex()
 {
 	return (this->autoindex);
@@ -67,4 +77,14 @@ std::string Locations::getLocation()
 std::string Locations::getRedirection()
 {
 	return (this->redirection);
+}
+
+std::string Locations::getRoot()
+{
+	return (this->root);
+}
+
+std::string Locations::getAllUrl()
+{
+	return (this->allurl);
 }

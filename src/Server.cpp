@@ -43,6 +43,11 @@ std::string Server::getAllowMethods()
 	return (this->methods);
 }
 
+std::string Server::getRoot()
+{
+	return (this->root);
+}
+
 void	Server::setPort(std::string port)
 {
 	this->port = port;
@@ -81,6 +86,11 @@ void	Server::setAllowMethods(std::string allow)
 void	Server::addVServerName(const std::string str)
 {
 	vserver_name.push_back(str);
+}
+
+void	Server::setRoot(std::string rt)
+{
+	root = rt;
 }
 
 const std::vector<std::string>& Server::getVServerName() const
@@ -125,6 +135,11 @@ void	Server::printServer_Names()
 	}
 }
 
+void	Server::printRoot()
+{
+	std::cout << "Root: " << this->root << std::endl;
+}
+
 void	Server::printErrorPages()
 {
 	std::cout << "Error Page: ";
@@ -161,6 +176,8 @@ void	Server::printLocations()
 			std::cout << "yes" << std::endl;
 		else
 			std::cout << "no" << std::endl;
+		std::cout << "Root: " << locations[i].getRoot() << std::endl;
+		std::cout << "All url: " << locations[i].getAllUrl() << std::endl;
 	}
 }
 
