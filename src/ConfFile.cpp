@@ -54,7 +54,6 @@ void	ConfFile::parse_config()
 		{
 			if (line.find("server ") == 0)
 			{
-			//	this->serv_vec.push_back(S);
 				parse_element(content, i);
 				i++;
 			}
@@ -172,6 +171,13 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		res = line.substr(pos + 8, fpos - pos);
 		loc.setRedirection(res.erase(res.size() - 1));
 	}
+	else if (line.find("root ") != std::string::npos)
+	{
+		pos = line.find("root ");
+		fpos = line.find(";");
+		res = line.substr(pos + 5, fpos - pos);
+		loc.setRoot(res.erase(res.size() - 1));
+	}
 }
 
 int		ConfFile::parse_element(std::string &content, int i)
@@ -193,19 +199,18 @@ int		ConfFile::parse_element(std::string &content, int i)
 	newserv = content.substr(servpos, content.length());
 	std::istringstream iss(newserv);
 	std::getline(iss, line, '\n');
-	/*hemos eliminado que busque Host, ya que en el host viene indicado en el listen directive*/
 	while (std::getline(iss, line, '\n'))
 	{ 
 		if (line.find("server ") == 0)
 			break ;
 		if (line.find("listen ") != std::string::npos)
-			findIp(Serv, &line[line.find("listen ")]);  // pasamos direccion del texto donde ha encontrado el listen.
-		//S.setIp(findInfo(line, "host ", S.getIp())); //quitar cuando se coja de server
-		//S.setPort(findInfo(line, "listen ", S.getPort())); //quitar cuando se coja de server
+			findIp(Serv, &line[line.find("listen ")]); 
 		if (line.find("server_name ") != std::string::npos)
 			Serv.addVServerName(findInfo(line, "server_name", ""));
 		if (line.find("error_page ") != std::string::npos)
 			Serv.setErrorPage(findInfo(line, "error_page ", Serv.getErrorPage()));
+		if (line.find("root") != std::string::npos)
+			Serv.setRoot(findInfo(line, "root ", ""));
 		if (line.find("location ") != std::string::npos)
 		{
 			Locations loc;
@@ -214,11 +219,19 @@ int		ConfFile::parse_element(std::string &content, int i)
 				parse_location(line, loc);
 				std::getline(iss, line, '\n');
 			}
+			if (loc.getRoot().empty())
+			{
+				std::string res = loc.getLocation();
+				res = res.erase(0, 1);
+				loc.setAllUrl(Serv.getRoot() + res);
+			}
+			else
+				loc.setAllUrl(loc.getRoot() + loc.getLocation());
 			Serv.setLocation(loc);
 		}
 	}
 	if (!Serv.host_port.size())
-		Serv.setHostPort("0.0.0.0", "8080");  // si no hay listen directive, escucha en todas direcciones en puerto 8080
+		Serv.setHostPort("0.0.0.0", "8080"); 
 	this->serv_vec.push_back(Serv);
 	return (0);
 }
@@ -240,8 +253,9 @@ void	ConfFile::print_servers()
 		this->serv_vec[i].printHostPort();
 		this->serv_vec[i].printIpPort();
 		this->serv_vec[i].printServer_Names();
-		this->serv_vec[i].printLocations();
+		this->serv_vec[i].printRoot();
 		this->serv_vec[i].printErrorPages();
+		this->serv_vec[i].printLocations();
 	}
 }
 
