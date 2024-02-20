@@ -1,14 +1,56 @@
 #include <webserv.hpp>
 
-Response::Response(Request &request, const Server *serv, const Locations *loc)
+static bool check_method(std::string method, const Locations *loc)
 {	
-	(void) request;
+	int idx;
+
+	if (method == "GET")
+		idx = 0;
+	else if (method == "POST")
+		idx = 1;
+	else if (method == "DELETE")
+		idx = 2;
+	else
+		return (true);
+	if (loc)
+	{
+		if (loc->getMethods()[idx] == 0)
+			return (false);
+	}
+	return (true);
+}
+
+void Response::do_405(const Locations *loc)
+{
+	this->setStatusLine("HTTP/1.1 405 Method Not Allowed");
+	
+	std::string allow_header = "Allow: ";			/*allow header obligatorio en caso de mensaje 405 method not allowed
+													donde se informan de metodos aceptados en URL*/
+	if (loc->getMethods()[0] == 1)
+		allow_header += "GET, ";
+	if (loc->getMethods()[1] == 1)
+		allow_header += "POST, ";
+	if (loc->getMethods()[1] == 1)
+		allow_header += "DELETE";
+	this->setHeader(allow_header);
+	this->setBody("Method not allowed");
+}
+
+Response::Response(Request &request, const Server *serv, const Locations *loc)
+{
 	(void) serv;
 	(void) loc;
 	
 	std::cout << "response: " <<  request.getMethod() << std::endl;
-	/*if (request.method == "GET")
-		this->do_get();
+
+	if (!check_method(request.getMethod(), loc))
+	{
+		this->do_405(loc);
+		return ;
+	}
+	/* if (request.request_line.method == "GET")
+		this->do_get(request, serv, loc); */
+	/*
 	else if (request.method == "POST")
 		this->do_post();
 	else if (request.method == "DELETE")
@@ -18,6 +60,11 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 	this->setBody("Hi");
 	this->setHeader("Content-Length: 2");
 }
+
+/* void Response::do_get(Request &request, const Server *serv, const Locations *loc)
+{
+
+} */
 
 Response::~Response()
 {
