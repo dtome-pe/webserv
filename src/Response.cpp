@@ -96,7 +96,10 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 	else
 	{
 		if (!checkGood(path))  // si el path que ha resultado no existe, 404
+		{
 			do_404();
+			return ;
+		}
 		if (checkFileOrDir(path) == "file")
 		{
 			cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
@@ -105,7 +108,12 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{
 			cout << "path is good and it's a dir"  << endl;
-			
+			if (findIndexHtml(path))
+			{
+				path += "index.html";
+				do_200_get(path);
+				return ;
+			}			
 		}
 	}
 }
