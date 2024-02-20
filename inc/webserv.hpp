@@ -52,6 +52,11 @@ class Server;
 
 	const Locations *find_loc_block(const Server *serv, Request &req);
 
+	/*response utils*/
+	bool check_method(std::string method, const Locations *loc);
+	std::string get_path(Request &request, const Server *serv, const Locations *loc);
+	std::string removeDoubleSlashes(const std::string& input);
+
 	/*poll*/
 	//void	poll_loop(t_data *data);
 	void	poll_loop(pollfd *poll, int size, ConfFile &conf);
