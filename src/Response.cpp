@@ -1,5 +1,15 @@
 #include <webserv.hpp>
 
+void Response::do_200_get(std::string &path)
+{
+	this->setStatusLine("HTTP/1.1 200 OK");
+
+	std::string content = readFileContents(path);
+
+	this->setHeader("Content-Length: " + getLengthAsString(content));
+	this->setBody(content);
+}
+
 void Response::do_default()
 {
 	cout << "entra en do default" << endl;
@@ -26,7 +36,7 @@ void Response::do_404()
 	cout << "entra en 404 " << endl;
 	
 	this->setStatusLine("HTTP/1.1 404 Not Found");
-	this->setHeader("Content-Length: 54");
+	this->setHeader("Content-Length: 52");
 	this->setBody("The resource you were looking for could not be found");
 }
 
@@ -85,7 +95,18 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 	}
 	else
 	{
-
+		if (!checkGood(path))  // si el path que ha resultado no existe, 404
+			do_404();
+		if (checkFileOrDir(path) == "file")
+		{
+			cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
+			do_200_get(path);
+		}
+		else // si corresponde a un directorio, primero miramos que no haya un index file
+		{
+			cout << "path is good and it's a dir"  << endl;
+			
+		}
 	}
 }
 

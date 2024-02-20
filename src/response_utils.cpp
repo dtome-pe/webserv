@@ -93,3 +93,29 @@ std::string getLengthAsString(std::string &content)
 	
 	return (lengthAsString);
 }
+
+bool	checkGood(std::string &path)
+{
+	struct stat fileInfo;
+	//cout << "entra en checkGood" << endl;
+    return stat(path.c_str(), &fileInfo) == 0;
+}
+
+std::string checkFileOrDir(std::string &path)
+{
+	struct stat fileInfo;
+
+	stat(path.c_str(), &fileInfo);
+
+	if(fileInfo.st_mode & S_IFDIR )
+    {
+		cout << "es dir" << endl;
+        return ("dir");
+    }
+    else if(fileInfo.st_mode & S_IFREG )
+    {	
+		cout << "es file" << endl;
+        return ("file");
+    }
+	return ("");
+}
