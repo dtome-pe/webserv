@@ -58,6 +58,7 @@ class Server;
 	std::string removeDoubleSlashes(const std::string& input);
 	std::string readFileContents(const std::string& filename);
 	std::string getLengthAsString(std::string &content);
+	bool 		findIndexHtml(std::string &path);
 	
 	/*check GET path*/
 	bool		checkGood(std::string &path);
