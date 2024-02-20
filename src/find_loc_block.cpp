@@ -35,14 +35,33 @@ static std::string decode(const std::string& encoded) // decodifica caracteres e
 
 const Locations *find_loc_block(const Server *serv, Request &req)
 {
+	const Locations *ret = NULL;
+
 	std::string decoded_str = decode(req.request_line.target); // decodificamos posibles %xx de URI
 	
-	std::vector<Locations> loc_vec = serv->getLocations();
+	std::vector<Locations>loc_vec = serv->getLocations();
+	std::vector<Locations>matches;
 
 	for (std::vector<Locations>::const_iterator it = loc_vec.begin(); it != loc_vec.end(); it++)
 	{
-		
+		int len = it->getLocation().length();
+		cout << it->getLocation() << " len is " << len << endl;
+		if (!req.request_line.target.compare(0, len, it->getLocation()))
+			matches.push_back(*it);
 	}
-	
-	return (NULL);
+	for (std::vector<Locations>::const_iterator it = matches.begin(); it != matches.end(); it++)
+	{
+		if (!ret)
+			ret = &(*it);
+		else
+		{
+			if (it->getLocation().length() > ret->getLocation().length())
+				ret = &(*it);
+		}
+	}
+	if (!ret)
+		cout << "No location was found" << endl;
+	else
+		cout << "Location " << ret->getLocation() << " was found." << endl;
+	return (ret);
 }
