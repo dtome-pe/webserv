@@ -54,7 +54,7 @@ std::string	Locations::getIndex()
 	return (this->index);
 }
 
-int *Locations::getMethods()
+const int *Locations::getMethods() const
 {
 	return (this->methods);
 }

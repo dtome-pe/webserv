@@ -39,24 +39,25 @@ const Locations *find_loc_block(const Server *serv, Request &req)
 
 	std::string decoded_str = decode(req.request_line.target); // decodificamos posibles %xx de URI
 	
-	std::vector<Locations>loc_vec = serv->getLocations();
-	std::vector<Locations>matches;
+	const std::vector<Locations>&locations = serv->getLocations();
+	
+	std::vector<const Locations*>matches;
 
-	for (std::vector<Locations>::const_iterator it = loc_vec.begin(); it != loc_vec.end(); it++)
+	for (unsigned int i = 0; i < locations.size(); i++)
 	{
-		int len = it->getLocation().length();
-		cout << it->getLocation() << " len is " << len << endl;
-		if (!req.request_line.target.compare(0, len, it->getLocation()))
-			matches.push_back(*it);
+		int len = locations[i].getLocation().length();
+		cout << locations[i].getLocation() << " len is " << len << endl;
+		if (!req.request_line.target.compare(0, len, locations[i].getLocation()))
+			matches.push_back(&locations[i]);
 	}
-	for (std::vector<Locations>::const_iterator it = matches.begin(); it != matches.end(); it++)
+	for (unsigned int i = 0; i < matches.size(); i++)
 	{
 		if (!ret)
-			ret = &(*it);
+			ret = matches[i];
 		else
 		{
-			if (it->getLocation().length() > ret->getLocation().length())
-				ret = &(*it);
+			if (matches[i]->getLocation().length() > ret->getLocation().length())
+				ret = matches[i];
 		}
 	}
 	if (!ret)
