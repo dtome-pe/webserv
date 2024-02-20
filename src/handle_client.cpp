@@ -43,6 +43,8 @@ int	handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_
 
 	const Locations *loc = find_loc_block(serv, req);
 
+	cout << loc->getLocation() << endl;
+
  	Response	msg(req, serv, loc);
 
 	std::string response = msg.makeResponse(); // hacemos respuesta con los valores del clase Response
