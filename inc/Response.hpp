@@ -31,6 +31,9 @@ class Response
 		void	setHeader(std::string _header);
 		void	setBody(std::string _body);
 
+		void 	do_default();
+
+		void 	do_404();
 		void	do_405(const Locations *loc);
 };
 

@@ -69,3 +69,18 @@ std::string get_path(Request &request, const Server *serv, const Locations *loc)
 					// y solo devolveremos una pagina de cortesia si se accede al mismo '/', como nginx
 	}
 }
+
+std::string readFileContents(const std::string& filename) 
+{
+    std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
+    if (!file) {
+        std::cerr << "Error opening file: " << filename << std::endl;
+        return "";
+    }
+
+    std::ostringstream content;
+    content << file.rdbuf();
+    file.close();
+	
+    return content.str();
+}
