@@ -113,7 +113,19 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 				path += "index.html";
 				do_200_get(path);
 				return ;
-			}			
+			}
+			else
+			{
+				if (!loc->getAutoindex()) // si no tiene autoindex, devolvemos 404 ya que no esta activado el directorylisting
+				{
+					do_404();
+					return ;
+				}
+				else
+				{
+					/*implementar mostrar listado del directorio*/
+				}
+			}		
 		}
 	}
 }
