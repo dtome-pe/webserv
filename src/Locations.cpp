@@ -54,7 +54,7 @@ void	Locations::setAllUrl(std::string url)
 	allurl = url;
 }
 
-bool	Locations::getAutoindex()
+bool	Locations::getAutoindex() const
 {
 	return (this->autoindex);
 }
