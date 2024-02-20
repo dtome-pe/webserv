@@ -45,7 +45,7 @@ class Server
 		std::string getServerName();
 		std::string getErrorPage();
 		std::string getAllowMethods();
-		std::string getRoot();
+		std::string getRoot() const;
 		//setters
 		void	setPort(std::string port);
 		void	setIp(std::string ip);

@@ -79,7 +79,7 @@ std::string Locations::getRedirection()
 	return (this->redirection);
 }
 
-std::string Locations::getRoot()
+const std::string Locations::getRoot() const
 {
 	return (this->root);
 }

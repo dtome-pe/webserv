@@ -1,25 +1,5 @@
 #include <webserv.hpp>
 
-static bool check_method(std::string method, const Locations *loc)
-{	
-	int idx;
-
-	if (method == "GET")
-		idx = 0;
-	else if (method == "POST")
-		idx = 1;
-	else if (method == "DELETE")
-		idx = 2;
-	else
-		return (true);
-	if (loc)
-	{
-		if (loc->getMethods()[idx] == 0)
-			return (false);
-	}
-	return (true);
-}
-
 void Response::do_405(const Locations *loc)
 {
 	this->setStatusLine("HTTP/1.1 405 Method Not Allowed");
@@ -48,8 +28,8 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 		this->do_405(loc);
 		return ;
 	}
-	/* if (request.request_line.method == "GET")
-		this->do_get(request, serv, loc); */
+	if (request.request_line.method == "GET")
+		this->do_get(request, serv, loc);
 	/*
 	else if (request.method == "POST")
 		this->do_post();
@@ -61,13 +41,16 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 	this->setHeader("Content-Length: 2");
 }
 
-/* void Response::do_get(Request &request, const Server *serv, const Locations *loc)
-{
-
-} */
+void Response::do_get(Request &request, const Server *serv, const Locations *loc)
+{	
+	cout << "entra en do get " << endl;
+	std::string path = get_path(request, serv, loc);
+	cout << "resolved path is " << path << endl;
+}
 
 Response::~Response()
 {
+
 }
 
 std::string Response::makeResponse()

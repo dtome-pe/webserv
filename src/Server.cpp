@@ -43,7 +43,7 @@ std::string Server::getAllowMethods()
 	return (this->methods);
 }
 
-std::string Server::getRoot()
+std::string Server::getRoot() const
 {
 	return (this->root);
 }
