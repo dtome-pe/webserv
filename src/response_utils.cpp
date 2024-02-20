@@ -119,3 +119,23 @@ std::string checkFileOrDir(std::string &path)
     }
 	return ("");
 }
+
+bool findIndexHtml(std::string &path) 
+{
+    DIR* dir = opendir(path.c_str());
+
+    if (dir) 
+	{
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != NULL) 
+		{
+            if (entry->d_type == DT_REG && std::string(entry->d_name) == "index.html") 
+			{
+				closedir(dir);
+                return (true);
+            }
+        }
+        closedir(dir);
+    }
+    return (false);
+}
