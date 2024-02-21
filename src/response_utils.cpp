@@ -215,6 +215,18 @@ bool checkTrailingSlash(std::string &path)
 		return false;
 }
 
+std::string checkReturn(const Locations *loc)
+{	
+	
+	if (loc)
+	{
+		cout << "entra en checkReturn: " << loc->getRedirection()  << endl;
+		if (loc->getRedirection() != "")
+			return (loc->getRedirection());
+	}
+	return ("");
+}
+
 
 /* std::string findIndex(std::string &path, Server *serv, Locations *loc)
 {
