@@ -61,6 +61,13 @@ void Response::do_301(std::string location)
 	this->setHeader("Connection: keep-alive");
 }
 
+void Response::do_403()
+{
+	cout << "entra en 403 " << endl;
+	
+	this->setStatusLine("HTTP/1.1 404 Not Allowed");
+}
+
 void Response::do_404()
 {
 	cout << "entra en 404 " << endl;
@@ -99,11 +106,6 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 	
 	std::cout << "response: " <<  request.getMethod() << std::endl;
 
-	if (!check_method(request.getMethod(), loc))
-	{
-		this->do_405(loc);
-		return ;
-	}
 	/*aqui habria que gestionar redireccion, antes que nada = check_return()*/
 	if (request.request_line.method == "GET")
 		this->do_get(request, serv, loc);
@@ -130,6 +132,19 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 			do_404();
 			return ;
 		}
+		if (checkFileOrDir(path) == "dir" && !checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
+			return do_301(request.ip + ":" + request.port + request.getTarget() + "/");
+		if (!check_method(request.getMethod(), loc))
+		{
+			this->do_405(loc);
+			return ;
+		}
+		std::string return_str = checkReturn(loc);
+		if (return_str != "")
+		{
+			do_redirection(request, return_str);
+			return ;
+		}
 		if (checkFileOrDir(path) == "file")
 		{
 			cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
@@ -138,14 +153,6 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{
 			cout << "path is good and it's a dir"  << endl;
-			if (!checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
-				return do_301(request.ip + ":" + request.port + request.getTarget() + "/");
-			std::string return_str = checkReturn(loc);
-			if (return_str != "")
-			{
-				do_redirection(request, return_str);
-				return ;
-			}
 /* 			if (findIndex(path, serv, loc)) // checquearemos si hay un index directive, para intentar servir archivo index
 			{
 
@@ -158,15 +165,16 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 			}
 			else // sino, comprobamos si tiene autoindex activado para mostrar listado directorio
 			{
-				if (!loc->getAutoindex()) // si no tiene autoindex, devolvemos 404 ya que no esta activado el directorylisting
+				if (!loc->getAutoindex()) // si no tiene autoindex, devolvemos 403 ya que no esta activado el directorylisting
+											// y no tenemos permiso para coger ningun archivo de directorio
 				{
-					do_404();
+					do_403();
 					return ;
 				}
 				else
 				{
 					std::string content = generateDirectoryListing(path);
-					if (content == "Error 500")
+					if (content == "Error 500") // por si da algun error interno el server.
 						do_500();
 					else
 						do_200_get_content(content);
