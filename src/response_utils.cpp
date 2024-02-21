@@ -207,6 +207,15 @@ std::string generateDirectoryListing(const std::string& path)
     }
 }
 
+bool checkTrailingSlash(std::string &path)
+{
+	if (path[path.length() - 1] == '/')
+		return true;
+   	else
+		return false;
+}
+
+
 /* std::string findIndex(std::string &path, Server *serv, Locations *loc)
 {
 	if (loc)
