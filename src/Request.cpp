@@ -42,7 +42,7 @@ void	print_str(std::string str)
 Request::Request(std::string buff, sockaddr_in &c_addr, sockaddr_in &sock_addr)
 {	
 	splitRequest(buff);
-	headers.printHeaders();
+	//headers.printHeaders();
 	setIpPortHost(c_addr, sock_addr);
 }
 

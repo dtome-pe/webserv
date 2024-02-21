@@ -36,6 +36,8 @@ class Response
 		void 	do_200_get_path(std::string &path);
 		void 	do_200_get_content(std::string &content);
 
+		void	do_301(Request &request);
+
 		void 	do_404();
 		void	do_405(const Locations *loc);
 

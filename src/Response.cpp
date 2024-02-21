@@ -1,23 +1,5 @@
 #include <webserv.hpp>
 
-void Response::do_200_get_path(std::string &path)
-{
-	this->setStatusLine("HTTP/1.1 200 OK");
-
-	std::string content = readFileContents(path);
-
-	this->setHeader("Content-Length: " + getLengthAsString(content));
-	this->setBody(content);
-}
-
-void Response::do_200_get_content(std::string &content)
-{
-	this->setStatusLine("HTTP/1.1 200 OK");
-
-	this->setHeader("Content-Length: " + getLengthAsString(content));
-	this->setBody(content);
-}
-
 void Response::do_default() // damos default.html si se accede al root del server pero no hay root directive
 {
 	cout << "entra en do default" << endl;
@@ -37,6 +19,34 @@ void Response::do_default() // damos default.html si se accede al root del serve
 	std::string content = readFileContents(default_path);
 	this->setHeader("Content-Length: " + getLengthAsString(content));
 	this->setBody(content);
+}
+
+void Response::do_200_get_path(std::string &path)
+{
+	this->setStatusLine("HTTP/1.1 200 OK");
+
+	std::string content = readFileContents(path);
+
+	this->setHeader("Content-Length: " + getLengthAsString(content));
+	this->setBody(content);
+}
+
+void Response::do_200_get_content(std::string &content)
+{
+	this->setStatusLine("HTTP/1.1 200 OK");
+
+	this->setHeader("Content-Length: " + getLengthAsString(content));
+	this->setBody(content);
+}
+
+void Response::do_301(Request &request)
+{
+	cout << "entra en 301" << endl;
+
+	this->setStatusLine("HTTP/1.1 301 Moved Permanently");
+
+	this->setHeader("Location: http://" + request.ip + ":" + request.port + request.getTarget() + "/");
+	this->setHeader("Connection: keep-alive");
 }
 
 void Response::do_404()
@@ -123,6 +133,8 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{
 			cout << "path is good and it's a dir"  << endl;
+			if (!checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
+				return do_301(request);
 /* 			if (findIndex(path, serv, loc)) // checquearemos si hay un index directive, para intentar servir archivo index
 			{
 
