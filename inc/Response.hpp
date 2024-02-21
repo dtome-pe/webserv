@@ -32,11 +32,12 @@ class Response
 		void	setBody(std::string _body);
 
 		void 	do_default();
+		void	do_redirection(Request &request, std::string return_str);
 
 		void 	do_200_get_path(std::string &path);
 		void 	do_200_get_content(std::string &content);
 
-		void	do_301(Request &request);
+		void	do_301(std::string return_str);
 
 		void 	do_404();
 		void	do_405(const Locations *loc);
