@@ -39,6 +39,7 @@ class Response
 
 		void	do_301(std::string return_str);
 
+		void	do_403();
 		void 	do_404();
 		void	do_405(const Locations *loc);
 
