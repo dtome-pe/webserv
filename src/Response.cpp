@@ -5,20 +5,7 @@ void Response::do_default() // damos default.html si se accede al root del serve
 	cout << "entra en do default" << endl;
 
 	this->setStatusLine("HTTP/1.1 200 OK");
-
-	const char *env_path = std::getenv("DEFAULT_DIR");
-	std::string default_path;
-
-	if (env_path)
-		default_path = std::string(env_path) + "/default.html";
-	else
-	{
-		cerr << "env not set, getting default path at /home/theonewhoknew/repos/CURSUS/webserv/default" << endl;
-		default_path = "/home/theonewhoknew/repos/CURSUS/webserv/default/default.html";
-	}
-	std::string content = readFileContents(default_path);
-	this->setHeader("Content-Length: " + getLengthAsString(content));
-	this->setBody(content);
+	makeDefault(*this, "/default.html");
 }
 
 void Response::do_redirection(Request &request, std::string return_str)
@@ -66,6 +53,7 @@ void Response::do_403()
 	cout << "entra en 403 " << endl;
 	
 	this->setStatusLine("HTTP/1.1 404 Not Allowed");
+	makeDefault(*this, "/403.html");
 }
 
 void Response::do_404()
@@ -73,8 +61,7 @@ void Response::do_404()
 	cout << "entra en 404 " << endl;
 	
 	this->setStatusLine("HTTP/1.1 404 Not Found");
-	this->setHeader("Content-Length: 52");
-	this->setBody("The resource you were looking for could not be found");
+	makeDefault(*this, "/404.html");
 }
 
 void Response::do_405(const Locations *loc)
@@ -90,7 +77,7 @@ void Response::do_405(const Locations *loc)
 	if (loc->getMethods()[1] == 1)
 		allow_header += "DELETE";
 	this->setHeader(allow_header);
-	this->setBody("Method not allowed");
+	makeDefault(*this, "/405.html");
 }
 
 void Response::do_500()
@@ -116,7 +103,7 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 	/*primero chequeamos directiva return, lo paramos todo y enviamos una nueva url a cliente mediante 301, u otros*/
 
 	/*luego ya comprobamos el path del request y realizamos comprobaciones pertinentes*/
-	std::string path = get_path(request, serv, loc);
+	std::string path = getPath(request, serv, loc);
 	//cout << "resolved path is " << path << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
@@ -165,7 +152,7 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 			}
 			else // sino, comprobamos si tiene autoindex activado para mostrar listado directorio
 			{
-				if (!loc->getAutoindex()) // si no tiene autoindex, devolvemos 403 ya que no esta activado el directorylisting
+				if (!loc || !loc->getAutoindex()) // si no tiene autoindex (como solo lo puede tener un location, de momento), devolvemos 403 ya que no esta activado el directorylisting
 											// y no tenemos permiso para coger ningun archivo de directorio
 				{
 					do_403();
