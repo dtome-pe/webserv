@@ -54,7 +54,7 @@ class Server;
 
 	/*response utils*/
 	bool 		check_method(std::string method, const Locations *loc);
-	std::string get_path(Request &request, const Server *serv, const Locations *loc);
+	std::string getPath(Request &request, const Server *serv, const Locations *loc);
 	std::string removeDoubleSlashes(const std::string& input);
 	std::string readFileContents(const std::string& filename);
 	std::string getLengthAsString(std::string &content);
@@ -63,6 +63,11 @@ class Server;
 	std::string generateDirectoryListing(const std::string& path);
 	bool		checkTrailingSlash(std::string &path);
 	std::string checkReturn(const Locations *loc);
+
+	bool 		checkDefaultPath();
+	std::string getDefaultPath();
+	std::string getDefaultFile(const std::string &file);
+	void		makeDefault(Response &response, const std::string &file);
 	
 	/*check GET path*/
 	bool		checkGood(std::string &path);
