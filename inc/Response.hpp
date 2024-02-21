@@ -33,10 +33,13 @@ class Response
 
 		void 	do_default();
 
-		void 	do_200_get(std::string &path);
+		void 	do_200_get_path(std::string &path);
+		void 	do_200_get_content(std::string &content);
 
 		void 	do_404();
 		void	do_405(const Locations *loc);
+
+		void	do_500();
 };
 
 #endif
