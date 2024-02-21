@@ -145,10 +145,8 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 	}
 	else if (line.find("index ") != std::string::npos)
 	{
-		pos = line.find("index ");
-		fpos = line.find(";");
-		res = line.substr(pos + 6, fpos - pos);
-		loc.setIndex(res.erase(res.size() - 1));
+		std::string index = findInfo(line, "index ", "");
+		loc.setVIndex(splitString(index));
 	}
 	else if (line.find("allow_methods ") != std::string::npos)
 	{
@@ -177,32 +175,20 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		fpos = line.find(";");
 		res = line.substr(pos + 5, fpos - pos - 4);
 		loc.setRoot(res.erase(res.size() - 1));
-		cout << loc.getRoot() << endl;
 	}
 }
 
-void ConfFile::parseLine(std::string& line, std::vector<std::string>& vindex)
+std::vector<std::string> ConfFile::splitString(std::string& input)
 {
-  	std::istringstream iss(line);
-    std::string word;
+    std::vector<std::string> tokens;
+    std::istringstream iss(input);
+    std::string token;
 
-    while (iss >> word) {
-        if (word == "index")
-		{
-            while (iss >> word)
-			{
-                if (word != ";")
-				{ 
-				vindex.push_back(word);
-                }
-				else
-				{
-                    break;
-                }
-            }
-            break; 
-		}
-	}
+    while (iss >> token)
+	{
+        tokens.push_back(token);
+    } 
+    return tokens;
 }
 
 int		ConfFile::parse_element(std::string &content, int i)
@@ -239,7 +225,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 		if (line.find("index ") != std::string::npos)
 		{
 			std::string index = findInfo(line, "index ", "");
-			parseLine(index, Serv.getVIndex());
+			Serv.addVIndex(splitString(index));
 		}
 		if (line.find("location ") != std::string::npos)
 		{
@@ -289,6 +275,7 @@ void	ConfFile::print_servers()
 		this->serv_vec[i].printServer_Names();
 		this->serv_vec[i].printRoot();
 		this->serv_vec[i].printErrorPages();
+		this->serv_vec[i].printindex();
 		this->serv_vec[i].printLocations();
 	}
 }
