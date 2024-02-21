@@ -6,7 +6,6 @@
 Locations::Locations()
 {
 	autoindex = false;
-	index = "";
 	methods[0] = 1;
 	methods[1] = 0;
 	methods[2] = 0;
@@ -22,7 +21,7 @@ void	Locations::setAutoindex(bool autoin)
 	autoindex = autoin;
 }
 
-void	Locations::setIndex(std::string idx)
+void	Locations::setVIndex(std::vector<std::string> idx)
 {
 	index = idx;
 }
@@ -59,9 +58,9 @@ bool	Locations::getAutoindex() const
 	return (this->autoindex);
 }
 
-std::string	Locations::getIndex()
+std::vector<std::string>	Locations::getIndex()
 {
-	return (this->index);
+	return (index);
 }
 
 const int *Locations::getMethods() const

@@ -64,10 +64,11 @@ class Server
 		const std::vector<Locations>& getLocations() const;
 		//setter/getter para vector index
 		std::vector<std::string>& getVIndex();
-		void	addVIndex(std::string str);
+		void	addVIndex(std::vector<std::string> idxvec);
 		void	printServer_Names();
 		void	printLocations();
 		void	printErrorPages();
+		void	printindex();
 		void	printRoot();
 
 
