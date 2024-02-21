@@ -34,7 +34,7 @@ class ConfFile
 		void	start_sockets();
 		void	init_poll();
 		void	poll_loop();
-		void	parseLine(std::string& line, std::vector<std::string>& vindex);
+		std::vector<std::string>	splitString(std::string& line);
 		const std::vector<class Server>& getServerVector() const {
 			return (serv_vec);
 		}
