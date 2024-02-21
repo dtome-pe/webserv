@@ -18,7 +18,11 @@ void	main_vec(char *argv[])
 	ConfFile	F(argv[1]);
 
 	F.parse_config(); //
-//	F.check_info();
+	if (F.check_info() == 1)
+	{
+		std::cout << "Error: The configuration file is invalid or incomplete." << std::endl;
+		exit(1);
+	}
 	F.print_servers(); // printamos la info de los servers
 	F.create_sockets(); // creamos sockets, hacemos getaddrinfo resolviendo hostname a ip, pero si hay un socket ya en el vector
 				// con misma direccion y puerto, no lo anadimos.

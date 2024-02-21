@@ -103,6 +103,16 @@ void	Server::addVPort(std::string str)
 	vports.push_back(str);
 }
 
+void	Server::addVIndex(std::string str)
+{
+	vindex.push_back(str);
+}
+
+std::vector<std::string>& Server::getVIndex()
+{
+	return (vindex);
+}
+
 std::vector<std::string>& Server::getVPort()
 {
 	return (vports);
@@ -145,6 +155,11 @@ void	Server::printErrorPages()
 	std::cout << "Error Page: ";
 	std::cout << this->error_page << std::endl;
 }
+/*
+void	Server::printindex()
+{
+		
+}*/
 
 void	Server::printLocations()
 {
