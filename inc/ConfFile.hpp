@@ -26,7 +26,7 @@ class ConfFile
 		std::string findInfo(std::string line, std::string tofind, std::string found);
 		void	findIp(Server& Serv, std::string newserv); // primero parseamos informacion en servers
 
-		int		check_info(Socket S);
+		int		check_info();
 
 		void	print_servers();
 		void	print_sockets();
@@ -34,6 +34,7 @@ class ConfFile
 		void	start_sockets();
 		void	init_poll();
 		void	poll_loop();
+		void	parseLine(std::string& line, std::vector<std::string>& vindex);
 		const std::vector<class Server>& getServerVector() const {
 			return (serv_vec);
 		}
