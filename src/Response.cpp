@@ -1,16 +1,6 @@
 #include <webserv.hpp>
 
-void Response::do_200_get(std::string &path)
-{
-	this->setStatusLine("HTTP/1.1 200 OK");
-
-	std::string content = readFileContents(path);
-
-	this->setHeader("Content-Length: " + getLengthAsString(content));
-	this->setBody(content);
-}
-
-void Response::do_default()
+void Response::do_default() // damos default.html si se accede al root del server pero no hay root directive
 {
 	cout << "entra en do default" << endl;
 
@@ -29,6 +19,46 @@ void Response::do_default()
 	std::string content = readFileContents(default_path);
 	this->setHeader("Content-Length: " + getLengthAsString(content));
 	this->setBody(content);
+}
+
+void Response::do_redirection(Request &request, std::string return_str)
+{
+	cout << "entra en redirection. return str is " << return_str << endl;
+
+	std::string code = return_str.substr(0, return_str.find(" "));
+	std::string location = return_str.substr(return_str.find(" "), return_str.length());
+
+	if (code == "301")
+		do_301(request.ip + ":" + request.port + location);
+}
+
+
+void Response::do_200_get_path(std::string &path)
+{
+	this->setStatusLine("HTTP/1.1 200 OK");
+
+	std::string content = readFileContents(path);
+
+	this->setHeader("Content-Length: " + getLengthAsString(content));
+	this->setBody(content);
+}
+
+void Response::do_200_get_content(std::string &content)
+{
+	this->setStatusLine("HTTP/1.1 200 OK");
+
+	this->setHeader("Content-Length: " + getLengthAsString(content));
+	this->setBody(content);
+}
+
+void Response::do_301(std::string location)
+{
+	cout << "entra en 301" << endl;
+
+	this->setStatusLine("HTTP/1.1 301 Moved Permanently");
+
+	this->setHeader("Location: http://" + location);
+	this->setHeader("Connection: keep-alive");
 }
 
 void Response::do_404()
@@ -56,10 +86,16 @@ void Response::do_405(const Locations *loc)
 	this->setBody("Method not allowed");
 }
 
+void Response::do_500()
+{
+	cout << "entra en 500 " << endl;
+	
+	this->setStatusLine("HTTP/1.1 500 Internal Server Error");
+}
+
 Response::Response(Request &request, const Server *serv, const Locations *loc)
 {
 	(void) serv;
-	(void) loc;
 	
 	std::cout << "response: " <<  request.getMethod() << std::endl;
 
@@ -68,24 +104,24 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 		this->do_405(loc);
 		return ;
 	}
+	/*aqui habria que gestionar redireccion, antes que nada = check_return()*/
 	if (request.request_line.method == "GET")
 		this->do_get(request, serv, loc);
-	/*
-	else if (request.method == "POST")
-		this->do_post();
-	else if (request.method == "DELETE")
-		this->do_delete();	*/
-	/* this->setStatusLine("HTTP/1.1 200 OK");
-	this->setHeader("Server: apache");
-	this->setBody("Hi");
-	this->setHeader("Content-Length: 2"); */
 }
 
 void Response::do_get(Request &request, const Server *serv, const Locations *loc)
-{	
-	cout << "entra en do get " << endl;
+{
+	/*primero chequeamos directiva return, lo paramos todo y enviamos una nueva url a cliente mediante 301, u otros*/
+	std::string return_str = checkReturn(loc);
+	if (return_str != "")
+	{
+		do_redirection(request, return_str);
+		return ;
+	}
+
+	/*luego ya comprobamos el path del request y realizamos comprobaciones pertinentes*/
 	std::string path = get_path(request, serv, loc);
-	cout << "resolved path is " << path << endl;
+	//cout << "resolved path is " << path << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (request.getTarget() == "/")
@@ -103,18 +139,24 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		if (checkFileOrDir(path) == "file")
 		{
 			cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
-			do_200_get(path);
+			do_200_get_path(path);
 		}
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{
 			cout << "path is good and it's a dir"  << endl;
-			if (findIndexHtml(path))
+			if (!checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
+				return do_301(request.ip + ":" + request.port + request.getTarget() + "/");
+/* 			if (findIndex(path, serv, loc)) // checquearemos si hay un index directive, para intentar servir archivo index
+			{
+
+			} */
+			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
 			{
 				path += "index.html";
-				do_200_get(path);
+				do_200_get_path(path);
 				return ;
 			}
-			else
+			else // sino, comprobamos si tiene autoindex activado para mostrar listado directorio
 			{
 				if (!loc->getAutoindex()) // si no tiene autoindex, devolvemos 404 ya que no esta activado el directorylisting
 				{
@@ -123,7 +165,12 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 				}
 				else
 				{
-					/*implementar mostrar listado del directorio*/
+					std::string content = generateDirectoryListing(path);
+					if (content == "Error 500")
+						do_500();
+					else
+						do_200_get_content(content);
+					return ;
 				}
 			}		
 		}
