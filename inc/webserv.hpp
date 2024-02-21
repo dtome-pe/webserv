@@ -53,12 +53,16 @@ class Server;
 	const Locations *find_loc_block(const Server *serv, Request &req);
 
 	/*response utils*/
-	bool check_method(std::string method, const Locations *loc);
+	bool 		check_method(std::string method, const Locations *loc);
 	std::string get_path(Request &request, const Server *serv, const Locations *loc);
 	std::string removeDoubleSlashes(const std::string& input);
 	std::string readFileContents(const std::string& filename);
 	std::string getLengthAsString(std::string &content);
 	bool 		findIndexHtml(std::string &path);
+	std::string	findIndex(std::string &path, Server *serv, Locations *loc);
+	std::string generateDirectoryListing(const std::string& path);
+	bool		checkTrailingSlash(std::string &path);
+	std::string checkReturn(const Locations *loc);
 	
 	/*check GET path*/
 	bool		checkGood(std::string &path);
