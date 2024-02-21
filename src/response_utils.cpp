@@ -40,7 +40,7 @@ std::string removeDoubleSlashes(const std::string& input)
     return result;
 }
 
-std::string get_path(Request &request, const Server *serv, const Locations *loc)
+std::string getPath(Request &request, const Server *serv, const Locations *loc)
 {	
 	std::string path;
 
@@ -53,8 +53,10 @@ std::string get_path(Request &request, const Server *serv, const Locations *loc)
 			path = loc->getRoot() + request.request_line.target;
 			return (removeDoubleSlashes(path));
 		}
+		cout << "location has no root directive " << endl;
 	}
-	cout << "location has no root directive " << endl;
+	else
+		cout << "no location was selected" << endl;
 	if (serv->getRoot().length() > 0)
 	{
 		cout << "server root is " << serv->getRoot() << endl;
@@ -225,6 +227,40 @@ std::string checkReturn(const Locations *loc)
 			return (loc->getRedirection());
 	}
 	return ("");
+}
+
+bool checkDefaultPath()
+{
+	const char *env_path = std::getenv("DEFAULT_DIR");
+	if (env_path)
+		return (true);
+	else
+		return (false);
+}
+
+std::string getDefaultPath()
+{
+	return (std::getenv("DEFAULT_DIR"));
+}
+
+std::string getDefaultFile(const std::string &file)
+{
+	std::string default_path;
+
+	if (checkDefaultPath())
+		default_path = getDefaultPath() + file;
+	else
+		default_path = "/home/theonewhoknew/repos/CURSUS/webserv/default" + file;
+	
+	return (default_path);
+}
+
+void	makeDefault(Response &response, const std::string &file)
+{
+	std::string content = readFileContents(getDefaultFile(file));
+	response.setHeader("Content-Length: " + getLengthAsString(content));
+	response.setHeader("Content-Type: text/html");
+	response.setBody(content);
 }
 
 
