@@ -74,7 +74,7 @@ const std::string Locations::getLocation() const
 	return (this->location);
 }
 
-std::string Locations::getRedirection()
+const std::string Locations::getRedirection() const
 {
 	return (this->redirection);
 }
