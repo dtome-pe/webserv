@@ -28,7 +28,7 @@ class Locations {
 		std::string getIndex();
 		const int *getMethods() const;
 		const std::string getLocation() const;
-		std::string getRedirection();
+		const std::string getRedirection() const;
 		const std::string getRoot() const;
 		std::string getAllUrl();
 };
