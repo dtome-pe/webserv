@@ -36,6 +36,8 @@ int	handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_
 		text += buff[i];
 	Request	req(text, c_addr, sock_addr);
 
+	cout << req.getTarget() << endl;
+
 	const Server *serv = find_serv_block(conf.getServerVector(), req);
 
 	const Locations *loc = find_loc_block(serv, req);

@@ -61,6 +61,7 @@ class Server;
 	bool 		findIndexHtml(std::string &path);
 	std::string	findIndex(std::string &path, Server *serv, Locations *loc);
 	std::string generateDirectoryListing(const std::string& path);
+	bool		checkTrailingSlash(std::string &path);
 	
 	/*check GET path*/
 	bool		checkGood(std::string &path);
