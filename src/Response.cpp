@@ -26,7 +26,7 @@ void Response::do_redirection(Request &request, std::string return_str)
 	cout << "entra en redirection. return str is " << return_str << endl;
 
 	std::string code = return_str.substr(0, return_str.find(" "));
-	std::string location = return_str.substr(return_str.find(" "), return_str.length());
+	std::string location = return_str.substr(return_str.find(" ") + 1, return_str.length());
 
 	if (code == "301")
 		do_301(request.ip + ":" + request.port + location);
@@ -112,12 +112,6 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 void Response::do_get(Request &request, const Server *serv, const Locations *loc)
 {
 	/*primero chequeamos directiva return, lo paramos todo y enviamos una nueva url a cliente mediante 301, u otros*/
-	std::string return_str = checkReturn(loc);
-	if (return_str != "")
-	{
-		do_redirection(request, return_str);
-		return ;
-	}
 
 	/*luego ya comprobamos el path del request y realizamos comprobaciones pertinentes*/
 	std::string path = get_path(request, serv, loc);
@@ -146,6 +140,12 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 			cout << "path is good and it's a dir"  << endl;
 			if (!checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
 				return do_301(request.ip + ":" + request.port + request.getTarget() + "/");
+			std::string return_str = checkReturn(loc);
+			if (return_str != "")
+			{
+				do_redirection(request, return_str);
+				return ;
+			}
 /* 			if (findIndex(path, serv, loc)) // checquearemos si hay un index directive, para intentar servir archivo index
 			{
 
