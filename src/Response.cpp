@@ -52,7 +52,7 @@ void Response::do_403()
 {
 	cout << "entra en 403 " << endl;
 	
-	this->setStatusLine("HTTP/1.1 404 Not Allowed");
+	this->setStatusLine("HTTP/1.1 403 Not Allowed");
 	makeDefault(*this, "/403.html");
 }
 
@@ -140,10 +140,12 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{
 			cout << "path is good and it's a dir"  << endl;
-/* 			if (findIndex(path, serv, loc)) // checquearemos si hay un index directive, para intentar servir archivo index
+			std::string index_file = findIndex(path, serv, loc); // checquearemos si hay un index directive, para intentar servir archivo index
+			if (index_file != "")
 			{
-
-			} */
+				do_200_get_path(index_file);
+				return ;
+			}
 			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
 			{
 				path += "index.html";
