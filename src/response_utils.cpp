@@ -139,3 +139,102 @@ bool findIndexHtml(std::string &path)
     }
     return (false);
 }
+
+std::string formatFileSize(off_t size) 
+{
+    const char* units[] = {"B", "KB", "MB", "GB", "TB"};
+    int unitIndex = 0;
+
+    while (size >= 1024 && unitIndex < 4) 
+	{
+        size /= 1024;
+        ++unitIndex;
+    }
+
+    std::ostringstream formattedSize;
+    formattedSize << size << " " << units[unitIndex];
+    return formattedSize.str();
+}
+
+std::string generateDirectoryListing(const std::string& path) 
+{
+    DIR* dir = opendir(path.c_str());
+
+    if (dir) 
+	{
+        std::ostringstream html;
+        html << "<html><head><title>Index of " << path << "</title></head><body>\n";
+        html << "<h1>Index of " << path << "</h1><hr><pre>";
+
+		if (path != "/") 
+		{
+            std::string parentPath = path.substr(0, path.find_last_of('/'));
+            html << "<a href=\"../\">../</a>";
+            html << std::string(40, ' '); // Padding
+            html << std::string(20, ' '); // Padding
+            html << "\n";
+        }
+
+        struct dirent* entry;
+        while ((entry = readdir(dir)) != NULL) {
+            const char* filename = entry->d_name;
+
+            // Skip the current and parent directory entries
+            if (strcmp(filename, ".") == 0 || strcmp(filename, "..") == 0)
+                continue;
+
+            // Get file information to determine modification time and size
+            struct stat fileStat;
+            std::string filePath = path + "/" + filename;
+            stat(filePath.c_str(), &fileStat);
+
+            char dateStr[64];
+            strftime(dateStr, sizeof(dateStr), "%d-%b-%Y %H:%M", localtime(&fileStat.st_mtime));
+
+            html << "<a href=\"" << filename << "\">" << filename << "</a>";
+            html << std::string(40 - strlen(filename), ' '); // Padding
+            html << std::right << std::setw(20) << dateStr;
+            html << std::right << std::setw(20) << formatFileSize(fileStat.st_size) << "\n";
+        }
+        html << "</pre><hr></body></html>";
+        closedir(dir);
+        return html.str();
+    }
+	else 
+	{
+        cerr << "Error opening directory: " << strerror(errno) << endl;
+        return "Error 500";
+    }
+}
+
+bool checkTrailingSlash(std::string &path)
+{
+	if (path[path.length() - 1] == '/')
+		return true;
+   	else
+		return false;
+}
+
+std::string checkReturn(const Locations *loc)
+{	
+	
+	if (loc)
+	{
+		cout << "entra en checkReturn: " << loc->getRedirection()  << endl;
+		if (loc->getRedirection() != "")
+			return (loc->getRedirection());
+	}
+	return ("");
+}
+
+
+/* std::string findIndex(std::string &path, Server *serv, Locations *loc)
+{
+	if (loc)
+	{
+		for (std::vector<class Index>iterator it = loc->getVIndex().begin(); it != loc->getVIndex().end(); it++)
+		{
+
+		}
+	}
+} */
