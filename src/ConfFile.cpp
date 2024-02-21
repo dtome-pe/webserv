@@ -164,11 +164,11 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 			methods[2] = 1;
 		loc.setMethods(methods);
 	}
-	else if (line.find("return /") != std::string::npos)
+	else if (line.find("return ") != std::string::npos)
 	{
-		pos = line.find("return /");
+		pos = line.find("return ");
 		fpos = line.find(";");
-		res = line.substr(pos + 8, fpos - pos);
+		res = line.substr(pos + 7, fpos - pos);
 		loc.setRedirection(res.erase(res.size() - 1));
 	}
 	else if (line.find("root ") != std::string::npos)
@@ -178,6 +178,30 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		res = line.substr(pos + 5, fpos - pos - 4);
 		loc.setRoot(res.erase(res.size() - 1));
 		cout << loc.getRoot() << endl;
+	}
+}
+
+void ConfFile::parseLine(std::string& line, std::vector<std::string>& vindex)
+{
+  	std::istringstream iss(line);
+    std::string word;
+
+    while (iss >> word) {
+        if (word == "index")
+		{
+            while (iss >> word)
+			{
+                if (word != ";")
+				{ 
+				vindex.push_back(word);
+                }
+				else
+				{
+                    break;
+                }
+            }
+            break; 
+		}
 	}
 }
 
@@ -210,8 +234,13 @@ int		ConfFile::parse_element(std::string &content, int i)
 			Serv.addVServerName(findInfo(line, "server_name", ""));
 		if (line.find("error_page ") != std::string::npos)
 			Serv.setErrorPage(findInfo(line, "error_page ", Serv.getErrorPage()));
-		if (line.find("root") != std::string::npos)
+		if (line.find("root ") != std::string::npos)
 			Serv.setRoot(findInfo(line, "root ", ""));
+		if (line.find("index ") != std::string::npos)
+		{
+			std::string index = findInfo(line, "index ", "");
+			parseLine(index, Serv.getVIndex());
+		}
 		if (line.find("location ") != std::string::npos)
 		{
 			Locations loc;
@@ -237,14 +266,18 @@ int		ConfFile::parse_element(std::string &content, int i)
 	return (0);
 }
 
-int		ConfFile::check_info(Socket S)
+int	ConfFile::check_info()
 {
-	if (S.getPort().find_first_not_of("0123456789") != std::string::npos)
-		return (1);
-	else if (S.getIp().find_first_not_of("0123456789.") != std::string::npos)
-		return (1);
+	for (size_t i = 0; i < this->serv_vec.size(); i++)
+	{
+//		if (this->serv_vec[i].getIp().find_first_not_of("0123456789.") != std::string::npos)
+///				return (1);
+//		if (this->serv_vec[i].getPort().find_forst_not_of("0123456789") != std::string::npos)
+//			return (1);
+	}
 	return (0);
 }
+
 
 void	ConfFile::print_servers()
 {

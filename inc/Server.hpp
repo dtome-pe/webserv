@@ -21,6 +21,7 @@ class Server
 		//vectores
 		std::vector<std::string> vserver_name;
 		std::vector<std::string> vports;
+		std::vector<std::string> vindex;
 		std::vector<class Locations> locations;
 	public:
 		int		active;
@@ -61,7 +62,9 @@ class Server
 		std::vector<std::string>& getVPort();
 		void	setLocation(Locations &loc);
 		const std::vector<Locations>& getLocations() const;
-
+		//setter/getter para vector index
+		std::vector<std::string>& getVIndex();
+		void	addVIndex(std::string str);
 		void	printServer_Names();
 		void	printLocations();
 		void	printErrorPages();
