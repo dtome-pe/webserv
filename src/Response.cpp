@@ -23,6 +23,7 @@ void Response::do_cgi(Request &request, std::string &path)
 		
 		/*pasamos variable de entorno query string*/
 		std::string query_string = "QUERY_STRING=" + file.substr(file.find("?") + 1, file.length());
+		std::string path_info = "PATH_INFO=" + path;
 		
 		/*preparamos argv arr*/
 		std::vector<std::string> arg;
@@ -39,6 +40,7 @@ void Response::do_cgi(Request &request, std::string &path)
     	std::vector<std::string>env;
 
 		env.push_back(query_string);
+		env.push_back(path_info);
 
     	// Prepare an array of const char*
     	std::vector<const char*> envp;
