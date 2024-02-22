@@ -30,6 +30,7 @@
 #include <cstring>
 #include <string.h>
 #include <string>
+#include <algorithm>
 
 // Memory headers
 #include <cstdlib>
