@@ -68,6 +68,9 @@ class Server;
 	std::string 		getDefaultPath();
 	std::string 		getDefaultFile(const std::string &file);
 	void				makeDefault(Response &response, const std::string &file);
+
+	bool				checkCgi(std::string &path);
+	char 				**setArg(Request &request);
 	
 	/*check GET path*/
 	bool		checkGood(const std::string &path);

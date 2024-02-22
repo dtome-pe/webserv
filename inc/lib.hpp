@@ -24,6 +24,7 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <iomanip>
+#include <sys/wait.h>
 
 // String headers
 #include <cstring>

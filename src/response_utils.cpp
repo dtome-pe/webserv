@@ -51,7 +51,8 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 			cout << "location root is " << loc->getRoot() << endl;
 			cout << "request target is " << request.request_line.target << endl;
 			path = loc->getRoot() + request.request_line.target;
-			return (removeDoubleSlashes(path));
+			path = removeDoubleSlashes(path);
+			return (path.substr(0, path.find('?')));
 		}
 		cout << "location has no root directive " << endl;
 	}
@@ -61,7 +62,8 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 	{
 		cout << "server root is " << serv->getRoot() << endl;
 		path = serv->getRoot() + request.request_line.target;
-		return (removeDoubleSlashes(path));
+		path = removeDoubleSlashes(path);
+		return (path.substr(0, path.find('?')));
 	}
 	else
 	{
@@ -288,4 +290,12 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 		}
 	}
 	return (index_file);
+}
+
+bool	checkCgi(std::string &path)
+{
+	if (path.length() >= 3 && path.substr(path.length() - 3) == ".py") 
+		return (true);
+	else 
+		return (false);
 }
