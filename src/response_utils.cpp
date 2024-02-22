@@ -96,14 +96,14 @@ std::string getLengthAsString(std::string &content)
 	return (lengthAsString);
 }
 
-bool	checkGood(std::string &path)
+bool	checkGood(const std::string &path)
 {
 	struct stat fileInfo;
 	//cout << "entra en checkGood" << endl;
     return stat(path.c_str(), &fileInfo) == 0;
 }
 
-std::string checkFileOrDir(std::string &path)
+std::string checkFileOrDir(const std::string &path)
 {
 	struct stat fileInfo;
 
@@ -264,13 +264,28 @@ void	makeDefault(Response &response, const std::string &file)
 }
 
 
-/* std::string findIndex(std::string &path, Server *serv, Locations *loc)
-{
+std::string findIndex(std::string &path, const Server *serv, const Locations *loc)
+{	
+	std::string index_file = "";
+
 	if (loc)
 	{
-		for (std::vector<class Index>iterator it = loc->getVIndex().begin(); it != loc->getVIndex().end(); it++)
+		for (std::vector<std::string>::iterator it = loc->getIndex().begin(); it != loc->getIndex().end(); it++)
 		{
-
+			if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
+			{
+				index_file = path + *it;
+				return (index_file);
+			}
 		}
 	}
-} */
+	for (std::vector<std::string>::const_iterator it = serv->getVIndex().begin(); it != serv->getVIndex().end(); it++)
+	{
+		if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
+		{
+			index_file = path + *it;
+			return (index_file);
+		}
+	}
+	return (index_file);
+}
