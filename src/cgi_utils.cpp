@@ -1,7 +1,69 @@
 #include <webserv.hpp>
 
+static char* strdup_cpp98(const char* str)
+{
+    if (str == NULL)
+        return NULL;
+
+    size_t len = std::strlen(str);
+    char* newStr = static_cast<char*>(std::malloc(len + 1));
+
+    if (newStr != NULL)
+        std::strcpy(newStr, str);
+
+    return (newStr);
+}
+
+char* const*	setEnvp(Request &request, std::string &path)
+{	
+	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
+	std::string query_string = "QUERY_STRING=" + file.substr(file.find("?") + 1, file.length());
+	std::string path_info = "PATH_INFO=" + path;
+
+	std::vector<std::string>env;
+
+	env.push_back(query_string);
+	env.push_back(path_info);
+
+	char** envp = new char*[env.size() + 1];
+
+    for (size_t i = 0; i < env.size(); ++i)
+    {
+        envp[i] = strdup_cpp98(env[i].c_str());
+    }
+	envp[env.size()] = NULL;
+
+	return (envp);
+}
+
+char* const* 	setArgv(std::string &path)
+{	
+	std::vector<std::string> arg;
+    arg.push_back("." + path);
+
+	char** argv = new char*[arg.size() + 1];
+
+    for (size_t i = 0; i < arg.size(); ++i)
+    {
+        argv[i] = strdup_cpp98(arg[i].c_str());
+    }
+	argv[arg.size()] = NULL;
+
+	return (argv);
+}
+
 static bool caseInsensitiveCompare(char c1, char c2) {
     return std::toupper(static_cast<unsigned char>(c1)) == std::toupper(static_cast<unsigned char>(c2));
+}
+
+std::string bounceContent(int *pipe_fd)
+{
+	char buffer[4096];
+    ssize_t bytesRead;
+	std::string content;
+	while ((bytesRead = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
+		content.append(buffer,bytesRead);
+	return (content);
 }
 
 std::string getCgiHeader(const std::string& content, const std::string &header) 

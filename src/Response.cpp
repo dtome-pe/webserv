@@ -18,38 +18,7 @@ void Response::do_cgi(Request &request, std::string &path)
 		return do_500();
 	}
 	if (pid == 0)
-	{	
-		std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
-		
-		/*pasamos variable de entorno query string*/
-		std::string query_string = "QUERY_STRING=" + file.substr(file.find("?") + 1, file.length());
-		std::string path_info = "PATH_INFO=" + path;
-		
-		/*preparamos argv arr*/
-		std::vector<std::string> arg;
-       	arg.push_back("." + path);
-
-		std::vector<const char*> argv;
-    	for (unsigned int i = 0; i < arg.size(); i++) 
-		{
-       		 argv.push_back(arg[i].c_str());
-   		}
-		argv.push_back(NULL);
-
-		// rray of std::string
-    	std::vector<std::string>env;
-
-		env.push_back(query_string);
-		env.push_back(path_info);
-
-    	// Prepare an array of const char*
-    	std::vector<const char*> envp;
-    	for (unsigned int i = 0; i < env.size(); i++) 
-		{
-       		 envp.push_back(env[i].c_str());
-   		}
-		envp.push_back(NULL);
-
+	{
 		close(pipe_fd[0]);
 		if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
 		{
@@ -57,15 +26,12 @@ void Response::do_cgi(Request &request, std::string &path)
 			return do_500();
 		}
 		close(pipe_fd[1]);
-		execve(path.c_str(), const_cast<char* const*>(argv.data()), const_cast<char* const*>(envp.data()));
+		execve(path.c_str(), setArgv(path), setEnvp(request, path));
 	}
 	else
 	{
-        close(pipe_fd[1]);  // Close unused write end in the parent
-
-		// Parent process code
+        close(pipe_fd[1]);
 		int	status;
-        // Wait for the child process to finish
         int result = waitpid(pid, &status, 0);
 		if (result == -1)
 		{
@@ -74,25 +40,21 @@ void Response::do_cgi(Request &request, std::string &path)
 		}
 		else
 		{
-			/*children has exited*/
 			if (WIFEXITED(status))
-       		{	
-				cout << "llega a hijo a salido" << endl;
+       		{
             	int exitStatus = WEXITSTATUS(status);
 				if (exitStatus == -1)
 					do_500();
 				else
 				{
-					char buffer[4096];
+					/* char buffer[4096];
         			ssize_t bytesRead;
 					std::string content;
-
-					// Leemos de la pipe
 					while ((bytesRead = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
 					{
-						// Vamos volcando contenido del script en std::string content
 						content.append(buffer,bytesRead);
-					}
+					} */
+					std::string content = bounceContent(pipe_fd);
 					std::string contentType = getCgiHeader(content, "Content-Type:");
 					content = removeHeaders(content);
 					cout << "content type value parsed was " << contentType << endl;
@@ -237,12 +199,13 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		if (checkFileOrDir(path) == "file")
 		{
 			cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
-			if (checkCgi(path))
+			if (checkCgi(path)) // chequearemos si location tiene activado el cgi y para que extensiones
 			{
 				do_cgi(request, path);
 				return ;
 			}
-			do_200_get_path(path);
+			else
+				do_200_get_path(path); //sino servimos el recurso de manera normal
 		}
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{

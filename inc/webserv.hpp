@@ -31,62 +31,65 @@ class Server;
 
 
 
-	void	init_servers(t_data *data, t_serv *lst);
-	void	init_poll(t_data *data, t_serv *lst);
-	void	init_data(t_data *data);
+	void						init_servers(t_data *data, t_serv *lst);
+	void						init_poll(t_data *data, t_serv *lst);
+	void						init_data(t_data *data);
 
 	/*parse config*/
-	int		parse_config(const std::string& file, t_data *data);
+	int							parse_config(const std::string& file, t_data *data);
 
-	int		parse_listen(t_sock **list, std::string &line);
+	int							parse_listen(t_sock **list, std::string &line);
 	
 	/*start server*/
-	void	get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
-	int 	create_s(int server_fd, struct addrinfo *s_addr);
-	int 	bind_s(int server_fd, struct addrinfo *s_addr, std::string ip);
-	int 	listen_s(int server_fd);
+	void						get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
+	int 						create_s(int server_fd, struct addrinfo *s_addr);
+	int 						bind_s(int server_fd, struct addrinfo *s_addr, std::string ip);
+	int 						listen_s(int server_fd);
 
-	int		handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_in &sock_addr);
+	int							handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_in &sock_addr);
 
-	const Server *find_serv_block(const std::vector<class Server> &serv, Request &request);
+	const Server 				*find_serv_block(const std::vector<class Server> &serv, Request &request);
 
-	const Locations *find_loc_block(const Server *serv, Request &req);
+	const Locations 			*find_loc_block(const Server *serv, Request &req);
 
 	/*response utils*/
-	bool 				check_method(std::string method, const Locations *loc);
-	std::string 		getPath(Request &request, const Server *serv, const Locations *loc);
-	std::string 		removeDoubleSlashes(const std::string& input);
-	std::string 		readFileContents(const std::string& filename);
-	std::string 		getLengthAsString(std::string &content);
-	bool 				findIndexHtml(std::string &path);
-	std::string			findIndex(std::string &path, const Server *serv, const Locations *loc);
-	std::string 		generateDirectoryListing(const std::string& path);
-	bool				checkTrailingSlash(std::string &path);
-	std::string 		checkReturn(const Locations *loc);
+	bool 						check_method(std::string method, const Locations *loc);
+	std::string 				getPath(Request &request, const Server *serv, const Locations *loc);
+	std::string 				removeDoubleSlashes(const std::string& input);
+	std::string 				readFileContents(const std::string& filename);
+	std::string 				getLengthAsString(std::string &content);
+	bool 						findIndexHtml(std::string &path);
+	std::string					findIndex(std::string &path, const Server *serv, const Locations *loc);
+	std::string 				generateDirectoryListing(const std::string& path);
+	bool						checkTrailingSlash(std::string &path);
+	std::string 				checkReturn(const Locations *loc);
 
-	bool 				checkDefaultPath();
-	std::string 		getDefaultPath();
-	std::string 		getDefaultFile(const std::string &file);
-	void				makeDefault(Response &response, const std::string &file);
+	bool 						checkDefaultPath();
+	std::string 				getDefaultPath();
+	std::string 				getDefaultFile(const std::string &file);
+	void						makeDefault(Response &response, const std::string &file);
 
-	bool				checkCgi(std::string &path);
+	bool						checkCgi(std::string &path);
 
 	/*cgi utils*/
-	std::string 		getCgiHeader(const std::string& content, const std::string &header);
-	std::string			removeHeaders(std::string &content);
+	char* const* 				setEnvp(Request &request, std::string &path);
+	char* const*				setArgv(std::string &path);
+	std::string 				bounceContent(int *pipe_fd);
+	std::string 				getCgiHeader(const std::string& content, const std::string &header);
+	std::string					removeHeaders(std::string &content);
 	
 	/*check GET path*/
-	bool		checkGood(const std::string &path);
-	std::string checkFileOrDir(const std::string &path);
+	bool						checkGood(const std::string &path);
+	std::string 				checkFileOrDir(const std::string &path);
 
 	/*poll*/
 	//void	poll_loop(t_data *data);
-	void	poll_loop(pollfd *poll, int size, ConfFile &conf);
+	void						poll_loop(pollfd *poll, int size, ConfFile &conf);
 
 	/*print utils*/
-	void	print_error(const char *str);
+	void						print_error(const char *str);
 
 	/*ip utils*/
-	std::string ip_to_str(sockaddr_in *addr);
+	std::string					ip_to_str(sockaddr_in *addr);
 
 #endif
