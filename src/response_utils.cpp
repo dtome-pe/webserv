@@ -271,8 +271,9 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	std::string index_file = "";
 
 	if (loc)
-	{
-		for (std::vector<std::string>::iterator it = loc->getIndex().begin(); it != loc->getIndex().end(); it++)
+	{	
+		std::vector<std::string>indexVector = loc->getIndex();
+		for (std::vector<std::string>::iterator it = indexVector.begin(); it != indexVector.end(); it++)
 		{
 			if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
 			{
@@ -281,7 +282,8 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 			}
 		}
 	}
-	for (std::vector<std::string>::const_iterator it = serv->getVIndex().begin(); it != serv->getVIndex().end(); it++)
+	std::vector<std::string>indexVector = serv->getVIndex();
+	for (std::vector<std::string>::const_iterator it = indexVector.begin(); it != indexVector.end(); it++)
 	{
 		if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
 		{
