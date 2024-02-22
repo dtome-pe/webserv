@@ -28,7 +28,7 @@ class Locations {
 		void setRoot(std::string rt);
 		void setAllUrl(std::string url);
 		bool getAutoindex() const;
-		std::vector<std::string> getIndex();
+		std::vector<std::string> getIndex() const;
 		const int *getMethods() const;
 		const std::string getLocation() const;
 		const std::string getRedirection() const;
