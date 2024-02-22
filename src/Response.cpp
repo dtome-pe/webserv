@@ -20,12 +20,13 @@ void Response::do_cgi(Request &request, std::string &path)
 	if (pid == 0)
 	{	
 		std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
-		std::string query_string = file.substr(file.find("?") + 1, file.length()).c_str();
+		
+		/*pasamos variable de entorno query string*/
+		std::string query_string = "QUERY_STRING=" + file.substr(file.find("?") + 1, file.length());
 		
 		/*preparamos argv arr*/
 		std::vector<std::string> arg;
        	arg.push_back("." + path);
-		cout << "arg is " << arg[0] << endl;
 
 		std::vector<const char*> argv;
     	for (unsigned int i = 0; i < arg.size(); i++) 
@@ -48,39 +49,23 @@ void Response::do_cgi(Request &request, std::string &path)
 		envp.push_back(NULL);
 
 		close(pipe_fd[0]);
-		if (dup2(STDOUT_FILENO, pipe_fd[1]) == -1)
+		if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
 		{
 			strerror(errno);
 			return do_500();
 		}
+		close(pipe_fd[1]);
 		execve(path.c_str(), const_cast<char* const*>(argv.data()), const_cast<char* const*>(envp.data()));
 	}
 	else
 	{
-		// Parent process code
-
         close(pipe_fd[1]);  // Close unused write end in the parent
 
-        char buffer[4096];
-        ssize_t bytesRead;
-
-        // Read from the read end of the pipe
-        while ((bytesRead = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
-        {
-            // Process or print the output from the child process
-            write(STDOUT_FILENO, buffer, bytesRead);
-        }
-
-        close(pipe_fd[0]);  // Close read end in the parent
-
+		// Parent process code
 		int	status;
         // Wait for the child process to finish
-        int result = waitpid(pid, &status, WNOHANG);
-		if (result == 0)
-		{
-			return ;
-		}
-		else if (result == -1)
+        int result = waitpid(pid, &status, 0);
+		if (result == -1)
 		{
 			strerror(errno);
 			return do_500();
@@ -89,13 +74,34 @@ void Response::do_cgi(Request &request, std::string &path)
 		{
 			/*children has exited*/
 			if (WIFEXITED(status))
-       		{
+       		{	
+				cout << "llega a hijo a salido" << endl;
             	int exitStatus = WEXITSTATUS(status);
 				if (exitStatus == -1)
 					do_500();
+				else
+				{
+					char buffer[4096];
+        			ssize_t bytesRead;
+					std::string content;
+
+					// Leemos de la pipe
+					while ((bytesRead = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
+					{
+						// Vamos volcando contenido del script en std::string content
+						content.append(buffer,bytesRead);
+					}
+					std::string contentType = getCgiHeader(content, "Content-Type:");
+					content = removeHeaders(content);
+					cout << "content type value parsed was " << contentType << endl;
+					this->setStatusLine("HTTP/1.1 200 OK");
+					this->setHeader("Content-Type: " + contentType);
+					this->setHeader("Content-Length: " + getLengthAsString(content));
+					this->setBody(content);
+					close(pipe_fd[0]);  // Close read end in the parent
+				}
        		}
 		}
-
 	}
 }
 

@@ -12,7 +12,6 @@ name = form.getvalue('name')
 email = form.getvalue('email')
 message = form.getvalue('message')
 
-print("Content-Type: text/html") 
 # HTML response
 print("<html>")
 print("<head>")

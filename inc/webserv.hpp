@@ -70,7 +70,10 @@ class Server;
 	void				makeDefault(Response &response, const std::string &file);
 
 	bool				checkCgi(std::string &path);
-	char 				**setArg(Request &request);
+
+	/*cgi utils*/
+	std::string 		getCgiHeader(const std::string& content, const std::string &header);
+	std::string			removeHeaders(std::string &content);
 	
 	/*check GET path*/
 	bool		checkGood(const std::string &path);
