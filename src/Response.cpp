@@ -1,5 +1,104 @@
 #include <webserv.hpp>
 
+void Response::do_cgi(Request &request, std::string &path)
+{
+	(void) path;
+	
+	int pipe_fd[2];
+	
+    if (pipe(pipe_fd) == -1) 
+	{
+        strerror(errno);
+        return do_500();
+    }
+	pid_t	pid = fork();
+	if (pid == -1)
+	{
+		strerror(errno);
+		return do_500();
+	}
+	if (pid == 0)
+	{	
+		std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
+		std::string query_string = file.substr(file.find("?") + 1, file.length()).c_str();
+		
+		/*preparamos argv arr*/
+		std::vector<std::string> arg;
+       	arg.push_back("." + path);
+		cout << "arg is " << arg[0] << endl;
+
+		std::vector<const char*> argv;
+    	for (unsigned int i = 0; i < arg.size(); i++) 
+		{
+       		 argv.push_back(arg[i].c_str());
+   		}
+		argv.push_back(NULL);
+
+		// rray of std::string
+    	std::vector<std::string>env;
+
+		env.push_back(query_string);
+
+    	// Prepare an array of const char*
+    	std::vector<const char*> envp;
+    	for (unsigned int i = 0; i < env.size(); i++) 
+		{
+       		 envp.push_back(env[i].c_str());
+   		}
+		envp.push_back(NULL);
+
+		close(pipe_fd[0]);
+		if (dup2(STDOUT_FILENO, pipe_fd[1]) == -1)
+		{
+			strerror(errno);
+			return do_500();
+		}
+		execve(path.c_str(), const_cast<char* const*>(argv.data()), const_cast<char* const*>(envp.data()));
+	}
+	else
+	{
+		// Parent process code
+
+        close(pipe_fd[1]);  // Close unused write end in the parent
+
+        char buffer[4096];
+        ssize_t bytesRead;
+
+        // Read from the read end of the pipe
+        while ((bytesRead = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
+        {
+            // Process or print the output from the child process
+            write(STDOUT_FILENO, buffer, bytesRead);
+        }
+
+        close(pipe_fd[0]);  // Close read end in the parent
+
+		int	status;
+        // Wait for the child process to finish
+        int result = waitpid(pid, &status, WNOHANG);
+		if (result == 0)
+		{
+			return ;
+		}
+		else if (result == -1)
+		{
+			strerror(errno);
+			return do_500();
+		}
+		else
+		{
+			/*children has exited*/
+			if (WIFEXITED(status))
+       		{
+            	int exitStatus = WEXITSTATUS(status);
+				if (exitStatus == -1)
+					do_500();
+       		}
+		}
+
+	}
+}
+
 void Response::do_default() // damos default.html si se accede al root del server pero no hay root directive
 {
 	cout << "entra en do default" << endl;
@@ -89,22 +188,17 @@ void Response::do_500()
 
 Response::Response(Request &request, const Server *serv, const Locations *loc)
 {
-	(void) serv;
 	
-	std::cout << "response: " <<  request.getMethod() << std::endl;
-
-	/*aqui habria que gestionar redireccion, antes que nada = check_return()*/
 	if (request.request_line.method == "GET")
 		this->do_get(request, serv, loc);
 }
 
 void Response::do_get(Request &request, const Server *serv, const Locations *loc)
 {
-	/*primero chequeamos directiva return, lo paramos todo y enviamos una nueva url a cliente mediante 301, u otros*/
 
-	/*luego ya comprobamos el path del request y realizamos comprobaciones pertinentes*/
-	std::string path = getPath(request, serv, loc);
-	//cout << "resolved path is " << path << endl;
+	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
+	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
+	cout << "resolved path is " << path << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (request.getTarget() == "/")
@@ -121,12 +215,12 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		}
 		if (checkFileOrDir(path) == "dir" && !checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
 			return do_301(request.ip + ":" + request.port + request.getTarget() + "/");
-		if (!check_method(request.getMethod(), loc))
+		if (!check_method(request.getMethod(), loc)) // si metodo no permitido, 405
 		{
 			this->do_405(loc);
 			return ;
 		}
-		std::string return_str = checkReturn(loc);
+		std::string return_str = checkReturn(loc); // luego se comprueban redirecciones
 		if (return_str != "")
 		{
 			do_redirection(request, return_str);
@@ -135,6 +229,11 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		if (checkFileOrDir(path) == "file")
 		{
 			cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
+			if (checkCgi(path))
+			{
+				do_cgi(request, path);
+				return ;
+			}
 			do_200_get_path(path);
 		}
 		else // si corresponde a un directorio, primero miramos que no haya un index file
