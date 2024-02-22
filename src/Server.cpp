@@ -108,7 +108,7 @@ void	Server::addVIndex(std::vector<std::string> idxvec)
 	vindex = idxvec;
 }
 
-std::vector<std::string>& Server::getVIndex()
+const std::vector<std::string>& Server::getVIndex() const
 {
 	return (vindex);
 }
