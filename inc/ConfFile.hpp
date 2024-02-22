@@ -3,6 +3,7 @@
 
 #include "Colors.hpp"
 #include "Locations.hpp"
+#include <cctype>
 #include <webserv.hpp>
 
 

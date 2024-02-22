@@ -256,10 +256,7 @@ int	ConfFile::check_info()
 {
 	for (size_t i = 0; i < this->serv_vec.size(); i++)
 	{
-//		if (this->serv_vec[i].getIp().find_first_not_of("0123456789.") != std::string::npos)
-///				return (1);
-//		if (this->serv_vec[i].getPort().find_forst_not_of("0123456789") != std::string::npos)
-//			return (1);
+
 	}
 	return (0);
 }
