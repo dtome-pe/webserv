@@ -56,12 +56,13 @@ void Response::do_cgi(Request &request, std::string &path)
 					} */
 					std::string content = bounceContent(pipe_fd);
 					std::string contentType = getCgiHeader(content, "Content-Type:");
-					content = removeHeaders(content);
+					removeHeaderLine(content);
 					cout << "content type value parsed was " << contentType << endl;
 					this->setStatusLine("HTTP/1.1 200 OK");
 					this->setHeader("Content-Type: " + contentType);
 					this->setHeader("Content-Length: " + getLengthAsString(content));
 					this->setBody(content);
+					cout << content << endl;
 					close(pipe_fd[0]);  // Close read end in the parent
 				}
        		}
