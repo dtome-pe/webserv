@@ -77,6 +77,7 @@ class Server;
 	std::string 				bounceContent(int *pipe_fd);
 	std::string 				getCgiHeader(const std::string& content, const std::string &header);
 	std::string					removeHeaders(std::string &content);
+	void						removeHeaderLine(std::string& content);
 	
 	/*check GET path*/
 	bool						checkGood(const std::string &path);
