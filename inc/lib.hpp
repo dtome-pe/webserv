@@ -24,11 +24,13 @@
 #include <sys/stat.h>
 #include <dirent.h>
 #include <iomanip>
+#include <sys/wait.h>
 
 // String headers
 #include <cstring>
 #include <string.h>
 #include <string>
+#include <algorithm>
 
 // Memory headers
 #include <cstdlib>
