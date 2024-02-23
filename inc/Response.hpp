@@ -32,6 +32,7 @@ class Response
 		void	setBody(std::string _body);
 
 		void 	do_default();
+		void	do_cgi(Request &request, std::string &path);
 		void	do_redirection(Request &request, std::string return_str);
 
 		void 	do_200_get_path(std::string &path);

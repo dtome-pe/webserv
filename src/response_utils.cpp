@@ -51,7 +51,8 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 			cout << "location root is " << loc->getRoot() << endl;
 			cout << "request target is " << request.request_line.target << endl;
 			path = loc->getRoot() + request.request_line.target;
-			return (removeDoubleSlashes(path));
+			path = removeDoubleSlashes(path);
+			return (path.substr(0, path.find('?')));
 		}
 		cout << "location has no root directive " << endl;
 	}
@@ -61,7 +62,8 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 	{
 		cout << "server root is " << serv->getRoot() << endl;
 		path = serv->getRoot() + request.request_line.target;
-		return (removeDoubleSlashes(path));
+		path = removeDoubleSlashes(path);
+		return (path.substr(0, path.find('?')));
 	}
 	else
 	{
@@ -96,14 +98,14 @@ std::string getLengthAsString(std::string &content)
 	return (lengthAsString);
 }
 
-bool	checkGood(std::string &path)
+bool	checkGood(const std::string &path)
 {
 	struct stat fileInfo;
 	//cout << "entra en checkGood" << endl;
     return stat(path.c_str(), &fileInfo) == 0;
 }
 
-std::string checkFileOrDir(std::string &path)
+std::string checkFileOrDir(const std::string &path)
 {
 	struct stat fileInfo;
 
@@ -264,13 +266,38 @@ void	makeDefault(Response &response, const std::string &file)
 }
 
 
-/* std::string findIndex(std::string &path, Server *serv, Locations *loc)
-{
-	if (loc)
-	{
-		for (std::vector<class Index>iterator it = loc->getVIndex().begin(); it != loc->getVIndex().end(); it++)
-		{
+std::string findIndex(std::string &path, const Server *serv, const Locations *loc)
+{	
+	std::string index_file = "";
 
+	if (loc)
+	{	
+		std::vector<std::string>indexVector = loc->getIndex();
+		for (std::vector<std::string>::iterator it = indexVector.begin(); it != indexVector.end(); it++)
+		{
+			if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
+			{
+				index_file = path + *it;
+				return (index_file);
+			}
 		}
 	}
-} */
+	std::vector<std::string>indexVector = serv->getVIndex();
+	for (std::vector<std::string>::const_iterator it = indexVector.begin(); it != indexVector.end(); it++)
+	{
+		if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
+		{
+			index_file = path + *it;
+			return (index_file);
+		}
+	}
+	return (index_file);
+}
+
+bool	checkCgi(std::string &path)
+{
+	if (path.length() >= 3 && path.substr(path.length() - 3) == ".py") 
+		return (true);
+	else 
+		return (false);
+}
