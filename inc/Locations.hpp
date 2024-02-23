@@ -16,6 +16,7 @@ class Locations {
 		std::string redirection;
 		std::string root;
 		std::string allurl;
+		std::string cgi;
 		std::vector<std::string> index;
 	public:
 		Locations();
