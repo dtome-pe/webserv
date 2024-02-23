@@ -61,7 +61,7 @@ void	ConfFile::parse_config()
 	}
 }
 
-std::string ConfFile::findInfo(std::string line, std::string tofind, std::string found)
+std::string ConfFile::findInfo(std::string line, std::string tofind)
 {
 	int tofindpos = line.find(tofind);
 	int semicolonpos = line.find(";");
@@ -69,8 +69,6 @@ std::string ConfFile::findInfo(std::string line, std::string tofind, std::string
 	std::size_t firstNS;
 	std::size_t lastNS;
 
-	if (!found.empty())
-		return (found);
 	if (tofindpos < 0 || semicolonpos < 0)
 		return ("");
 	result = line.substr(tofindpos + tofind.length(), semicolonpos);
@@ -145,7 +143,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 	}
 	else if (line.find("index ") != std::string::npos)
 	{
-		std::string index = findInfo(line, "index ", "");
+		std::string index = findInfo(line, "index ");
 		loc.setVIndex(splitString(index));
 	}
 	else if (line.find("allow_methods ") != std::string::npos)
@@ -211,20 +209,20 @@ int		ConfFile::parse_element(std::string &content, int i)
 	std::istringstream iss(newserv);
 	std::getline(iss, line, '\n');
 	while (std::getline(iss, line, '\n'))
-	{ 
+	{
 		if (line.find("server ") == 0)
 			break ;
 		if (line.find("listen ") != std::string::npos)
 			findIp(Serv, &line[line.find("listen ")]); 
 		if (line.find("server_name ") != std::string::npos)
-			Serv.addVServerName(findInfo(line, "server_name", ""));
+			Serv.addVServerName(findInfo(line, "server_name"));
 		if (line.find("error_page ") != std::string::npos)
-			Serv.setErrorPage(findInfo(line, "error_page ", Serv.getErrorPage()));
+			Serv.setErrorPage(findInfo(line, "error_page "));
 		if (line.find("root ") != std::string::npos)
-			Serv.setRoot(findInfo(line, "root ", ""));
+			Serv.setRoot(findInfo(line, "root "));
 		if (line.find("index ") != std::string::npos)
 		{
-			std::string index = findInfo(line, "index ", "");
+			std::string index = findInfo(line, "index ");
 			Serv.addVIndex(splitString(index));
 		}
 		if (line.find("location ") != std::string::npos)

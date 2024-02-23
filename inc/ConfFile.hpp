@@ -24,7 +24,7 @@ class ConfFile
 		void	parse_location(std::string line, Locations &loc);
 		int		parse_element(std::string& content, int i);
 		int		countServers(std::string content);
-		std::string findInfo(std::string line, std::string tofind, std::string found);
+		std::string findInfo(std::string line, std::string tofind);
 		void	findIp(Server& Serv, std::string newserv); // primero parseamos informacion en servers
 
 		int		check_info();
