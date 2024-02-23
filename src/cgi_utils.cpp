@@ -63,6 +63,7 @@ std::string bounceContent(int *pipe_fd)
 	std::string content;
 	while ((bytesRead = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
 		content.append(buffer,bytesRead);
+	cout << content << endl;
 	return (content);
 }
 
@@ -103,7 +104,7 @@ std::string getCgiHeader(const std::string& content, const std::string &header)
     return "";
 }
 
-std::string removeHeaders(std::string& content) 
+/* std::string removeHeaders(std::string& content) 
 {
     std::string target[3] = {"Content-Type:", "Location:", "Status:"};
 	for (unsigned int i = 0; i < 3; i++)
@@ -140,4 +141,29 @@ std::string removeHeaders(std::string& content)
     	}
 	}
 	return content;
+} */
+
+static bool isNewline(char c) 
+{
+    return c == '\n';
+}
+
+void removeHeaderLine(std::string& content) 
+{	
+	std::string header = "Content-Type: ";
+
+    std::string::iterator pos = std::search
+	(
+        content.begin(), content.end(),
+        header.begin(), header.end(),
+        caseInsensitiveCompare
+    );
+
+    if (pos != content.end()) {
+        // Find the end of the line containing the header
+         std::string::iterator endPos = std::find_if(pos, content.end(), isNewline);
+        
+        // Erase the line
+        content.erase(pos - content.begin(), endPos - pos);
+    }
 }
