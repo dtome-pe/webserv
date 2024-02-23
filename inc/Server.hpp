@@ -63,7 +63,7 @@ class Server
 		void	setLocation(Locations &loc);
 		const std::vector<Locations>& getLocations() const;
 		//setter/getter para vector index
-		std::vector<std::string>& getVIndex();
+		const std::vector<std::string>& getVIndex() const;
 		void	addVIndex(std::vector<std::string> idxvec);
 		void	printServer_Names();
 		void	printLocations();

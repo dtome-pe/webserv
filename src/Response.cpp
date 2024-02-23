@@ -1,5 +1,74 @@
 #include <webserv.hpp>
 
+void Response::do_cgi(Request &request, std::string &path)
+{
+	(void) path;
+	
+	int pipe_fd[2];
+	
+    if (pipe(pipe_fd) == -1) 
+	{
+        strerror(errno);
+        return do_500();
+    }
+	pid_t	pid = fork();
+	if (pid == -1)
+	{
+		strerror(errno);
+		return do_500();
+	}
+	if (pid == 0)
+	{
+		close(pipe_fd[0]);
+		if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
+		{
+			strerror(errno);
+			return do_500();
+		}
+		close(pipe_fd[1]);
+		execve(path.c_str(), setArgv(path), setEnvp(request, path));
+	}
+	else
+	{
+        close(pipe_fd[1]);
+		int	status;
+        int result = waitpid(pid, &status, 0);
+		if (result == -1)
+		{
+			strerror(errno);
+			return do_500();
+		}
+		else
+		{
+			if (WIFEXITED(status))
+       		{
+            	int exitStatus = WEXITSTATUS(status);
+				if (exitStatus == -1)
+					do_500();
+				else
+				{
+					/* char buffer[4096];
+        			ssize_t bytesRead;
+					std::string content;
+					while ((bytesRead = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
+					{
+						content.append(buffer,bytesRead);
+					} */
+					std::string content = bounceContent(pipe_fd);
+					std::string contentType = getCgiHeader(content, "Content-Type:");
+					content = removeHeaders(content);
+					cout << "content type value parsed was " << contentType << endl;
+					this->setStatusLine("HTTP/1.1 200 OK");
+					this->setHeader("Content-Type: " + contentType);
+					this->setHeader("Content-Length: " + getLengthAsString(content));
+					this->setBody(content);
+					close(pipe_fd[0]);  // Close read end in the parent
+				}
+       		}
+		}
+	}
+}
+
 void Response::do_default() // damos default.html si se accede al root del server pero no hay root directive
 {
 	cout << "entra en do default" << endl;
@@ -52,7 +121,7 @@ void Response::do_403()
 {
 	cout << "entra en 403 " << endl;
 	
-	this->setStatusLine("HTTP/1.1 404 Not Allowed");
+	this->setStatusLine("HTTP/1.1 403 Not Allowed");
 	makeDefault(*this, "/403.html");
 }
 
@@ -89,22 +158,17 @@ void Response::do_500()
 
 Response::Response(Request &request, const Server *serv, const Locations *loc)
 {
-	(void) serv;
 	
-	std::cout << "response: " <<  request.getMethod() << std::endl;
-
-	/*aqui habria que gestionar redireccion, antes que nada = check_return()*/
 	if (request.request_line.method == "GET")
 		this->do_get(request, serv, loc);
 }
 
 void Response::do_get(Request &request, const Server *serv, const Locations *loc)
 {
-	/*primero chequeamos directiva return, lo paramos todo y enviamos una nueva url a cliente mediante 301, u otros*/
 
-	/*luego ya comprobamos el path del request y realizamos comprobaciones pertinentes*/
-	std::string path = getPath(request, serv, loc);
-	//cout << "resolved path is " << path << endl;
+	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
+	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
+	cout << "resolved path is " << path << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (request.getTarget() == "/")
@@ -121,12 +185,12 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		}
 		if (checkFileOrDir(path) == "dir" && !checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
 			return do_301(request.ip + ":" + request.port + request.getTarget() + "/");
-		if (!check_method(request.getMethod(), loc))
+		if (!check_method(request.getMethod(), loc)) // si metodo no permitido, 405
 		{
 			this->do_405(loc);
 			return ;
 		}
-		std::string return_str = checkReturn(loc);
+		std::string return_str = checkReturn(loc); // luego se comprueban redirecciones
 		if (return_str != "")
 		{
 			do_redirection(request, return_str);
@@ -135,15 +199,23 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		if (checkFileOrDir(path) == "file")
 		{
 			cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
-			do_200_get_path(path);
+			if (checkCgi(path)) // chequearemos si location tiene activado el cgi y para que extensiones
+			{
+				do_cgi(request, path);
+				return ;
+			}
+			else
+				do_200_get_path(path); //sino servimos el recurso de manera normal
 		}
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{
 			cout << "path is good and it's a dir"  << endl;
-/* 			if (findIndex(path, serv, loc)) // checquearemos si hay un index directive, para intentar servir archivo index
+			std::string index_file = findIndex(path, serv, loc); // checquearemos si hay un index directive, para intentar servir archivo index
+			if (index_file != "")
 			{
-
-			} */
+				do_200_get_path(index_file);
+				return ;
+			}
 			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
 			{
 				path += "index.html";
