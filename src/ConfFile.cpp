@@ -304,14 +304,16 @@ void	ConfFile::init_poll()
 	{
 		i ++; // y los contamos 
 	}
- 	this->poll_ptr = new struct pollfd[i]; // reservamos tantos polls como sockets haya
 	this->fd_size = i;
 	this->fd_count = i;
 	i = 0;
 	for (x = 0; x < this->sock_vec.size(); x++) // recorremos todos los servers
-	{
-		this->poll_ptr[i].fd = this->sock_vec[x].s_fd; // asignamos el fd de cada socket a un poll
-		this->poll_ptr[i].events = POLLIN; // los ponemos a que "nos avisen" al detectar conexiones entrantes
+	{	
+		pollfd *node = new pollfd();
+
+		node->fd = this->sock_vec[x].s_fd;
+		node->events = POLLIN;
+		pollVec.push_back(*node);
 		i++;
 	}
 }

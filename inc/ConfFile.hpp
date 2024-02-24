@@ -12,11 +12,12 @@ class ConfFile
 		std::string file;
 		std::vector<class Server>	serv_vec;
 		std::vector<class Socket>	sock_vec;
-		int		fd_count;
 
 	public:
-		pollfd 	*poll_ptr;
+		std::vector<pollfd>			pollVec;
 		int		fd_size;
+		int		fd_count;
+
 		ConfFile(std::string _file);
 		~ConfFile();
 		void	parse_config(); 
@@ -37,6 +38,9 @@ class ConfFile
 		std::vector<std::string>	splitString(std::string& line);
 		const std::vector<class Server>& getServerVector() const {
 			return (serv_vec);
+		}
+		std::vector<class Socket>& getSocketVector() {
+			return (sock_vec);
 		}
 };
 

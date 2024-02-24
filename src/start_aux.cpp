@@ -25,7 +25,7 @@ void	get_addr_info(struct addrinfo **s_addr, const char *host, const char *port)
 	}
 }
 
-int create_s(int server_fd, struct addrinfo *s_addr)
+int create_s(int server_fd, struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen)
 {
 	server_fd = socket(s_addr->ai_family, s_addr->ai_socktype, s_addr->ai_protocol);
 	if (server_fd < 0)
@@ -39,6 +39,12 @@ int create_s(int server_fd, struct addrinfo *s_addr)
 		print_error(strerror(errno));
         close(server_fd);
         exit(EXIT_FAILURE);
+	}
+	sock_addrlen = sizeof(sock_addr);
+	if (getsockname(server_fd, (struct sockaddr *)&sock_addr, &sock_addrlen) == -1)
+	{
+		print_error("error getting sock name");
+		exit (1);
 	}
 	return (server_fd);
 }
