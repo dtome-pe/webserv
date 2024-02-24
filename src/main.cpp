@@ -28,8 +28,9 @@ void	main_vec(char *argv[])
 				// con misma direccion y puerto, no lo anadimos.
 	F.start_sockets(); // inicializamos los sockets y le pasamos ip y puerto a su server mediante puntero, como nuevo elemento
 						// de vector ip_port (ip ya resuelta del host)
+	F.print_sockets();
 	F.init_poll();
-	poll_loop(F.poll_ptr, F.fd_size, F);
+	poll_loop(F.pollVec, F);
 }
 
 int	main(int argc, char *argv[])

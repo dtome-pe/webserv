@@ -11,3 +11,13 @@ std::string ip_to_str(sockaddr_in *addr)
              << (ipAddress & 0xFF);
 	return (ipStream.str());	// volcamos ip de network byte order a string.
 }
+
+std::string port_to_str(sockaddr_in *addr)
+{
+	std::stringstream ss;
+	ss << ntohs(addr->sin_port);
+
+	std::string portStr = ss.str();
+
+	return (portStr);
+}

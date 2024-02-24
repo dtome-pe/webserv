@@ -42,11 +42,11 @@ class Server;
 	
 	/*start server*/
 	void						get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
-	int 						create_s(int server_fd, struct addrinfo *s_addr);
+	int 						create_s(int server_fd, struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen);
 	int 						bind_s(int server_fd, struct addrinfo *s_addr, std::string ip);
 	int 						listen_s(int server_fd);
 
-	int							handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_in &sock_addr);
+	int							handle_client(int new_socket, ConfFile &conf, Socket &listener, std::string &text);
 
 	const Server 				*find_serv_block(const std::vector<class Server> &serv, Request &request);
 
@@ -85,12 +85,13 @@ class Server;
 
 	/*poll*/
 	//void	poll_loop(t_data *data);
-	void						poll_loop(pollfd *poll, int size, ConfFile &conf);
+	void						poll_loop(std::vector<pollfd> &pollVec, ConfFile &conf);
 
 	/*print utils*/
 	void						print_error(const char *str);
 
 	/*ip utils*/
 	std::string					ip_to_str(sockaddr_in *addr);
+	std::string 				port_to_str(sockaddr_in *addr);
 
 #endif

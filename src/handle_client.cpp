@@ -1,40 +1,8 @@
 #include<webserv.hpp>
 
-static	int	receive_response(int new_socket, std::vector<unsigned char> *buff)
+int	handle_client(int new_socket, ConfFile &conf, Socket &listener, std::string &text)
 {
-	int	result;
-
-	result = recv(new_socket, buff->data(), 5000, 0);
-	if (result != -1)
-	{
-		(*buff).resize(result);
-		return (result);
-	}
-	else
-		return (result);
-}
-
-int	handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_in &sock_addr)
-{	
-	(void) conf;
-
-	int	nbytes;
-	std::vector<unsigned char> buff(5000);
-	nbytes = receive_response(new_socket, &buff); // recibimos respuesta (recv)
-	if (nbytes <= 0)
-	{
-		/*error o conexion cerrada*/
-		if (nbytes == 0)
-			cout << "connexion was closed with client" << endl;
-		if (nbytes == -1)
-			print_error("recv error");
-		return (1);
-	}
-	//print_request(buff);
-	std::string	text;
-	for (size_t i = 0; i < buff.size(); i++)
-		text += buff[i];
-	Request	req(text, c_addr, sock_addr);
+	Request	req(text, listener.sock_addr);
 
 	cout << req.getTarget() << endl;
 
