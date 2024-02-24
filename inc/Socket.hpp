@@ -18,10 +18,18 @@ class Socket
 		class Server 			*serv;
 		Socket(std::string host_port, Server *s_ptr);
 
-		int				s_fd;
-		struct addrinfo *s_addr;
-		Request			*request_ptr;
+		int					s_fd;
+		int					pointingTo;
+		int					listener;
+		struct addrinfo 	*s_addr;
+		struct sockaddr_in 	sock_addr;
+		socklen_t 			sock_addrlen;
+		Request				*request_ptr;
 		void	start();
+
+		/*if cliente*/
+		void					pointTo(int listener_fd);
+		void					setClientFd(int client_fd);
 
 		//getters
 		std::string	getPort() const;
