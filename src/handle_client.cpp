@@ -14,7 +14,7 @@ int	handle_client(int new_socket, ConfFile &conf, Socket &listener, std::string 
 
 	send(new_socket, response.c_str(), response.length(), 0);
 
-	cout << "sent response" << endl;
+	//cout << "sent response" << endl;
 
 	return (0);
 }

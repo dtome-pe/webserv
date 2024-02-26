@@ -199,7 +199,7 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		}
 		if (checkFileOrDir(path) == "file")
 		{
-			cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
+			//cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
 			if (checkCgi(path)) // chequearemos si location tiene activado el cgi y para que extensiones
 			{
 				do_cgi(request, path);
@@ -210,7 +210,7 @@ void Response::do_get(Request &request, const Server *serv, const Locations *loc
 		}
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{
-			cout << "path is good and it's a dir"  << endl;
+			//cout << "path is good and it's a dir"  << endl;
 			std::string index_file = findIndex(path, serv, loc); // checquearemos si hay un index directive, para intentar servir archivo index
 			if (index_file != "")
 			{
