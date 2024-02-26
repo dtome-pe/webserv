@@ -23,12 +23,12 @@ void	main_vec(char *argv[])
 		std::cout << "Error: The configuration file is invalid or incomplete." << std::endl;
 		exit(1);
 	}
-	F.print_servers(); // printamos la info de los servers
+	//F.print_servers(); // printamos la info de los servers
 	F.create_sockets(); // creamos sockets, hacemos getaddrinfo resolviendo hostname a ip, pero si hay un socket ya en el vector
 				// con misma direccion y puerto, no lo anadimos.
 	F.start_sockets(); // inicializamos los sockets y le pasamos ip y puerto a su server mediante puntero, como nuevo elemento
 						// de vector ip_port (ip ya resuelta del host)
-	F.print_sockets();
+	//F.print_sockets();
 	F.init_poll();
 	poll_loop(F.pollVec, F);
 }
