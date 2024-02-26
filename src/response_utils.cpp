@@ -113,12 +113,12 @@ std::string checkFileOrDir(const std::string &path)
 
 	if(fileInfo.st_mode & S_IFDIR )
     {
-		cout << "es dir" << endl;
+		//cout << "es dir" << endl;
         return ("dir");
     }
     else if(fileInfo.st_mode & S_IFREG )
     {	
-		cout << "es file" << endl;
+		//cout << "es file" << endl;
         return ("file");
     }
 	return ("");
