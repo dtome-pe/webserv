@@ -4,8 +4,6 @@ int	handle_client(int new_socket, ConfFile &conf, Socket &listener, std::string 
 {
 	Request	req(text, listener);
 
-	cout << "entra en handle_client. request target is: " << req.getTarget() << endl;
-
 	const Server *serv = find_serv_block(conf.getServerVector(), req);
 
 	const Locations *loc = find_loc_block(serv, req);
