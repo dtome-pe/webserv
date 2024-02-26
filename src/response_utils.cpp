@@ -48,27 +48,27 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 	{
 		if (loc->getRoot().length() > 0)
 		{
-			cout << "location root is " << loc->getRoot() << endl;
-			cout << "request target is " << request.request_line.target << endl;
+			//cout << "location root is " << loc->getRoot() << endl;
+			//cout << "request target is " << request.request_line.target << endl;
 			path = loc->getRoot() + request.request_line.target;
 			path = removeDoubleSlashes(path);
 			return (path.substr(0, path.find('?')));
 		}
-		cout << "location has no root directive " << endl;
+		//cout << "location has no root directive " << endl;
 	}
-	else
-		cout << "no location was selected" << endl;
+/* 	else
+		cout << "no location was selected" << endl; */
 	if (serv->getRoot().length() > 0)
 	{
-		cout << "server root is " << serv->getRoot() << endl;
+		//cout << "server root is " << serv->getRoot() << endl;
 		path = serv->getRoot() + request.request_line.target;
 		path = removeDoubleSlashes(path);
 		return (path.substr(0, path.find('?')));
 	}
 	else
 	{
-		cout << "server has no root directive " << endl;
-		cout << "request target is " << request.request_line.target << endl;
+		//cout << "server has no root directive " << endl;
+		//cout << "request target is " << request.request_line.target << endl;
 		return ("none"); // vacio, sin root directives no hay camino al filesystem del server
 					// y solo devolveremos una pagina de cortesia si se accede al mismo '/', como nginx
 	}
