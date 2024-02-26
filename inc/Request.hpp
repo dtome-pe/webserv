@@ -17,7 +17,7 @@ class Socket;
 class Request
 {
 	public:
-		Request(std::string buff, sockaddr_in &sock_addr);
+		Request(std::string buff, Socket &listener);
 		~Request();
 		Request_line	request_line;
 		HeaderHTTP	headers;
@@ -32,7 +32,7 @@ class Request
 		std::string getTarget();
 		std::string getVersion();
 
-		void setIpPortHost(sockaddr_in &sock_addr);
+		void setIpPortHost(Socket &listener);
 
 		std::string ip;
 		std::string host;
