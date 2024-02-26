@@ -5,6 +5,7 @@
 #include "Locations.hpp"
 #include <webserv.hpp>
 
+class Cluster;
 
 class ConfFile
 {
@@ -12,15 +13,13 @@ class ConfFile
 		std::string file;
 		std::vector<class Server>	serv_vec;
 		std::vector<class Socket>	sock_vec;
+		std::vector<pollfd>			pollVec;
 
 	public:
-		std::vector<pollfd>			pollVec;
-		int		fd_size;
-		int		fd_count;
-
+		ConfFile();
 		ConfFile(std::string _file);
 		~ConfFile();
-		void	parse_config(); 
+		void	parse_config(Cluster &cluster, char *file); 
 		void	parse_location(std::string line, Locations &loc);
 		int		parse_element(std::string& content, int i);
 		int		countServers(std::string content);
@@ -28,6 +27,7 @@ class ConfFile
 		void	findIp(Server& Serv, std::string newserv); // primero parseamos informacion en servers
 
 		int		check_info();
+		void	copyInfo(Cluster &cluster);
 
 		void	print_servers();
 		void	print_sockets();
@@ -41,6 +41,9 @@ class ConfFile
 		}
 		std::vector<class Socket>& getSocketVector() {
 			return (sock_vec);
+		}
+		std::vector<pollfd>& getPollVector() {
+			return (pollVec);
 		}
 };
 
