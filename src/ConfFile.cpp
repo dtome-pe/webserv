@@ -284,7 +284,8 @@ void ConfFile::print_sockets()
 {
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
-		cout << "Socket " << i + 1 << " is listener? " << sock_vec[i].listener << endl << "IP: " << sock_vec[i].getIp() << "Port: " << sock_vec[i].getPort() << endl;  
+		cout << "Socket " << i + 1 <<  " with fd " << sock_vec[i].s_fd  << ". Is listener? " << sock_vec[i].listener << endl
+		<< "IP: " << sock_vec[i].getIp() << " Port: " << sock_vec[i].getPort() << endl;  
 	}
 }
 

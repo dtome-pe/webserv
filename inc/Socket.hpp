@@ -30,6 +30,7 @@ class Socket
 		/*if cliente*/
 		void					pointTo(int listener_fd);
 		void					setClientFd(int client_fd);
+		void					setNonBlocking(int client_fd);
 
 		//getters
 		std::string	getPort() const;

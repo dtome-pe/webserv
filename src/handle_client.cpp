@@ -4,7 +4,7 @@ int	handle_client(int new_socket, ConfFile &conf, Socket &listener, std::string 
 {
 	Request	req(text, listener);
 
-	cout << req.getTarget() << endl;
+	cout << "entra en handle_client. request target is: " << req.getTarget() << endl;
 
 	const Server *serv = find_serv_block(conf.getServerVector(), req);
 
@@ -15,6 +15,8 @@ int	handle_client(int new_socket, ConfFile &conf, Socket &listener, std::string 
 	std::string response = msg.makeResponse(); // hacemos respuesta con los valores del clase Response
 
 	send(new_socket, response.c_str(), response.length(), 0);
+
+	cout << "sent response" << endl;
 
 	return (0);
 }

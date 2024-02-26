@@ -45,6 +45,16 @@ void	Socket::setClientFd(int client_fd)
 	s_fd = client_fd;
 }
 
+void	Socket::setNonBlocking(int client_fd)
+{
+	if (fcntl(client_fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
+	{
+		print_error(strerror(errno));
+        close(client_fd);
+        exit(EXIT_FAILURE);
+	}	
+}
+
 std::string Socket::getPort() const
 {
 	return (this->port);
