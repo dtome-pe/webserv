@@ -91,12 +91,13 @@ static string &bounceBuff(string &text, vector<unsigned char>&buff)
 
 void	poll_loop(std::vector<pollfd> &pollVec, ConfFile &conf)
 {	
-	conf.print_sockets();
+	//conf.print_sockets();
 	while (1)
-	{
-		cout << "poll call" << endl;
+	{	
+		//cout << "poll call" << endl;
+		
 		int poll_count = poll(&pollVec[0], pollVec.size(), -1); // ?
-		//cout << "poll count is " << poll_count << endl;
+		//cout << "poll size is: " << pollVec.size() << ". fds to poll is (are): " << poll_count << endl;
 		if (poll_count == -1)
 		{
 			print_error("poll error");
@@ -104,13 +105,14 @@ void	poll_loop(std::vector<pollfd> &pollVec, ConfFile &conf)
 		}
 		for (unsigned int i = 0; i < pollVec.size(); i++) // buscamos que socket esta listo para recibir cliente
 		{	
+			//cout << "i es: " << i << endl;
 			if (pollVec[i].revents == 0)
 				continue ;
 			else if (pollVec[i].revents & POLLIN) // hay alguien listo para leer = hay un intento de conexion
 			{
-				cout << "se entra en pollin. i es" << i << endl;
 				if (checkIfListener(pollVec[i].fd, conf.getSocketVector())) // si se trata de un listener, aceptamos conexion
 				{
+				//	cout << "se entra en pollin listener fd:" << pollVec[i].fd << " i es: " << i << endl;
 					while (true) 
 					{
 						/*datos para nueva conexion*/
@@ -136,13 +138,14 @@ void	poll_loop(std::vector<pollfd> &pollVec, ConfFile &conf)
 							client.setClientFd(c_fd);
 							client.setNonBlocking(c_fd);
 							add_pollfd(pollVec, conf.getSocketVector(), client, c_fd);
-							cout << "client added to pollfd. now socket configuration is" << endl;
-							conf.print_sockets();
+							//cout << "client added to pollfd. now socket configuration is" << endl;
+							//conf.print_sockets();
 						}
 					}
 				}
 				else
-				{
+				{	
+				//	cout << "se entra en pollin cliente fd:" << pollVec[i].fd << " i es" << i << endl;
 					string	text = "";
 					int		nbytes;
 					while (true)
@@ -158,22 +161,24 @@ void	poll_loop(std::vector<pollfd> &pollVec, ConfFile &conf)
 								close(pollVec[i].fd);
 								exit(1);
 							}
-							cout << "EAGAIN / EWOULDBLOCK" << endl;
+							//cout << "EAGAIN / EWOULDBLOCK" << endl;
 							break ;	
 						}
 						else if (nbytes == 0)
 						{
-							cout << "connexion was closed with client. socket config is: " << endl;
+							//cout << "connexion was closed with client. socket config is: " << endl;
 							remove_pollfd(pollVec, conf.getSocketVector(), pollVec[i].fd);
 							close(pollVec[i].fd);
-							conf.print_sockets();
+						//	conf.print_sockets();
 							break ;
 						}
 						bounceBuff(text, buff);
 					}
 					if (text != "")
+					{
 						handle_client(pollVec[i].fd, conf, findListener(conf.getSocketVector(), 
 							findSocket(pollVec[i].fd, conf.getSocketVector())),text);
+					}
 				}
 			}
 		}
