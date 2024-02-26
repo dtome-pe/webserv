@@ -2,7 +2,7 @@
 
 int	handle_client(int new_socket, ConfFile &conf, Socket &listener, std::string &text)
 {
-	Request	req(text, listener.sock_addr);
+	Request	req(text, listener);
 
 	cout << req.getTarget() << endl;
 
