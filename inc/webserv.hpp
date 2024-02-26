@@ -46,7 +46,7 @@ class Server;
 	int 						bind_s(int server_fd, struct addrinfo *s_addr, std::string ip);
 	int 						listen_s(int server_fd);
 
-	int							handle_client(int new_socket, ConfFile &conf, Socket &listener, std::string &text);
+	bool						look_for_same(Socket &sock, std::vector<Socket>&sock_vec);
 
 	const Server 				*find_serv_block(const std::vector<class Server> &serv, Request &request);
 
@@ -78,6 +78,15 @@ class Server;
 	std::string 				getCgiHeader(const std::string& content, const std::string &header);
 	std::string					removeHeaders(std::string &content);
 	void						removeHeaderLine(std::string& content);
+
+	/*poll utils*/
+	int							receive_response(int new_socket, std::vector<unsigned char> *buff);
+	bool						checkIfListener(int poll_fd, std::vector<class Socket> sock_vec);
+	Socket						&findSocket(int socket_to_find, std::vector<Socket> sock_vec);
+	Socket						&findListener(std::vector<Socket> sock_vec, Socket &client);
+	string						&bounceBuff(string &text, vector<unsigned char>&buff);
+	void						add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket &client, int fd);
+	void						remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, int fd);
 	
 	/*check GET path*/
 	bool						checkGood(const std::string &path);
