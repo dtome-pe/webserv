@@ -1,6 +1,11 @@
 #include<webserv.hpp>
 #include <poll.h>
 
+ConfFile::ConfFile()
+{
+	
+}
+
 ConfFile::ConfFile(std::string _file)
 {
 	file = _file;
@@ -22,8 +27,14 @@ int ConfFile::countServers(std::string content)
 	return (i);
 }
 
+void ConfFile::copyInfo(Cluster &cluster)
+{
+	cluster.getSocketVector() = this->getSocketVector();
+	cluster.getServerVector() = this->getServerVector();
+	cluster.getPollVector() = this->getPollVector();
+}
 
-void	ConfFile::parse_config()
+void	ConfFile::parse_config(Cluster &cluster, char *file)
 {
 	std::ifstream in;
 	std::string line;
@@ -32,7 +43,7 @@ void	ConfFile::parse_config()
 	int servers;
 
 
-	in.open(file.c_str(), std::ios::in);
+	in.open(file, std::ios::in);
  	if (!in.is_open())
 	{
 		print_error("File could not be found or opened.\n");
@@ -59,6 +70,7 @@ void	ConfFile::parse_config()
 			}
 		}
 	}
+	copyInfo(cluster);
 }
 
 std::string ConfFile::findInfo(std::string line, std::string tofind, std::string found)
@@ -284,133 +296,7 @@ void ConfFile::print_sockets()
 {
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
-		cout << "Socket " << i + 1 <<  " with fd " << sock_vec[i].s_fd  << ". Is listener? " << sock_vec[i].listener << endl
+		cout << "Socket " << i + 1 <<  " with fd " << sock_vec[i].getFd()  << ". Is listener? " << sock_vec[i].listener << endl
 		<< "IP: " << sock_vec[i].getIp() << " Port: " << sock_vec[i].getPort() << endl;  
 	}
 }
-
-void	ConfFile::start_sockets()
-{
-	for (std::vector<Socket>::iterator it = sock_vec.begin(); it != sock_vec.end(); it++)
-	{
-		it->start();
-	}
-}
-
-void	ConfFile::init_poll()
-{
-	size_t x = 0;
-	int i = 0;
-	for (x = 0; x < this->sock_vec.size(); x++) // recorremos todos los sockets
-	{
-		i ++; // y los contamos 
-	}
-	this->fd_size = i;
-	this->fd_count = i;
-	i = 0;
-	for (x = 0; x < this->sock_vec.size(); x++) // recorremos todos los servers
-	{	
-		pollfd *node = new pollfd();
-
-		node->fd = this->sock_vec[x].s_fd;
-		node->events = POLLIN;
-		pollVec.push_back(*node);
-		i++;
-	}
-}
-
-/*nginx puede tener varios server blocks escuchando en la misma direccion:puerto, pero dos sockets no pueden
-bindearse al mismo puerto. Entonces, nginx debe primero resolver ip y puerto de cada listen directive uno a uno, y
-en el momento que encuentra otro listen con la misma direccion exacta, se lo debe saltar. Ya que al final, solo
-un server block va a gestionar peticion, nginx simplemente abre un puerto, y luego lo redirige al server que toca. Por
-eso esta funcion va comprobando los Host:Port de cada server, si encuentra uno identico, no lo anade al vector y
-lo ignoraremos, para que no haya un socket duplicado y que no de error. si encuentra un socket que va a apuntar a 0.0.0.0
-y uno que va a apuntar a una direccion concreta y ambos al mismo puerto, el 0.0.0.0 tiene prioridad*/
-
-static bool look_for_same(Socket &sock, std::vector<Socket>&sock_vec)
-{
-	for (std::vector<Socket>::iterator it = sock_vec.begin(); it != sock_vec.end(); it++)
-	{
-		/*si encontramos un socket creado con misma direccion:puerto, retornamos true y no se anade al vector*/
-		if (it->getIp() == sock.getIp() && it->getPort() == sock.getPort())
-			return (true);
-		if (it->getPort() == sock.getPort() && it->getIp() == "0.0.0.0")
-			return (true);
-		if (it->getPort() == sock.getPort() && sock.getIp() == "0.0.0.0" && it->getIp() != "0.0.0.0")
-		{
-			sock_vec.erase(it);
-			return (false);
-		}
-	}
-	return (false);
-}
-
-void	ConfFile::create_sockets()
-{	
-	for (size_t i = 0; i < serv_vec.size(); i++)
-	{
-		for (size_t j = 0; j < serv_vec[i].host_port.size(); j++)
-		{
-			Socket s(serv_vec[i].host_port[j], &serv_vec[i]); // se crea socket, con host y puerto, se resuelve host a direccion ip 
-												// con getaddr info en constructor de socket.
-				
-			if (!look_for_same(s, sock_vec))	// buscamos socket creado con misma direccion:puerto
-			{
-				sock_vec.push_back(s); // si devuelve falso, introducimos socket en vector para posterior bind.	
-			}
-		}
-	}
-}
-
-/*
-void	ConfFile::poll_loop()
-{
-	//datos para nueva conexion//
-	int c_fd;
-    struct sockaddr_in c_addr;
-    socklen_t addrlen;
-	//datos para nueva conexion//
-
-	while (1)
-	{
-		//this->poll_ptr = NULL;
-		print_poll(poll_ptr, fd_size);
-		int poll_count = poll(this->poll_ptr, this->fd_size, -1); // ?
-		if (poll_count == -1)
-		{
-			print_error("poll error");
-			exit(EXIT_FAILURE);
-		}
-		for (int i = 0; i < this->fd_size; i++) // buscamos que socket esta listo para recibir cliente
-		{
-			if (this->poll_ptr[i].revents & POLLIN) // hay alguien listo para leer = hay un intento de conexion
-			{
-				//if (check_if_listener(this->poll[i].fd, list)) // comentamos de momento
-				//{
-					//aceptamos nueva conexion, y gestionamos inmediatamente peticion cliente, ya que subject
-					//especifica solo UN POLL, para I/O entre cliente y servidor
-				addrlen = sizeof (c_addr);
-				c_fd = accept(this->poll_ptr[i].fd, (struct sockaddr *) &c_addr, &addrlen); // el cliente acepta el socket
-
-				if (c_fd == -1)
-					print_error("client accept error");
-				else
-				{
-					handle_client(c_fd); // gestionamos cliente inmediatamente, efectuando I/O entre cliente y servidor en un poll
-					close(c_fd);
-				//	add_pollfd(&this->poll_ptr, c_fd, &this->fd_count, &this->fd_size);
-				//	cout << "pollserver: new connection" << endl;
-				}
-			}
-				//else //si no es listener, es peticion de cliente
-				//{
-				//	if (handle_client(this->poll_ptr[i].fd))
-				//	{	//devuelve uno, conexion terminada o error en recv
-				//		close(this->poll_ptr[i].fd);   //cerramos fd y eliminamos de array pollfd
-				//		remove_pollfd(&this->poll_ptr, i, &this->fd_count);
-				//	}
-					//si ha devuelto cero, peticion ha sido resuelta y la conexion sigue abierta
-				//}
-		}
-	}
-} */

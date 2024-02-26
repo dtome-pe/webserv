@@ -11,6 +11,7 @@
 # include <Response.hpp>
 # include <HeaderHTTP.hpp>
 # include <ConfFile.hpp>
+# include <Cluster.hpp>
 
 // Standard class
 #include <iostream>
