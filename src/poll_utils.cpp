@@ -1,6 +1,6 @@
 #include <webserv.hpp>
 
-int	receive_response(int new_socket, std::vector<unsigned char> *buff)
+int	receive_response(int new_socket, std::vector<unsigned char>*buff)
 {
 	int	result;
 
@@ -14,9 +14,9 @@ int	receive_response(int new_socket, std::vector<unsigned char> *buff)
 		return (result);
 }
 
-bool	checkIfListener(int poll_fd, std::vector<class Socket> sock_vec)
+bool	checkIfListener(int poll_fd, std::vector<class Socket>&sock_vec, unsigned int size)
 {
-	for (unsigned int i = 0; i < sock_vec.size(); i++)
+	for (unsigned int i = 0; i < size; i++)
 	{
 		if (poll_fd == sock_vec[i].getFd() && sock_vec[i].listener)
 			return (true);
@@ -24,8 +24,10 @@ bool	checkIfListener(int poll_fd, std::vector<class Socket> sock_vec)
 	return (false);
 }
 
-Socket &findSocket(int socket_to_find, std::vector<Socket> sock_vec)
-{
+Socket &findSocket(int socket_to_find, std::vector<Socket>&sock_vec, unsigned int size)
+{	
+	(void) size;
+
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
 		if (sock_vec[i].getFd() == socket_to_find)
@@ -34,8 +36,10 @@ Socket &findSocket(int socket_to_find, std::vector<Socket> sock_vec)
 	return (sock_vec[0]);
 }
 
-Socket &findListener(std::vector<Socket> sock_vec, Socket &client)
+Socket &findListener(std::vector<Socket>&sock_vec, Socket &client, unsigned int size)
 {	
+	(void) size;
+
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
 		if (sock_vec[i].getFd() == client.pointingTo)
@@ -61,8 +65,10 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 	sockVec.push_back(client);
 }
 
-void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, int fd)
+void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, int fd, unsigned int size)
 {
+	(void) size;
+
 	for (unsigned int i = 0; i < pollVec.size(); i++)
 	{
 		if (pollVec[i].fd == fd)
