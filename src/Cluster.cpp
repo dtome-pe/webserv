@@ -10,8 +10,23 @@ void Cluster::parseConfig(char *file)
 	_conf.parse_config(*this, file);
 }
 
-void Cluster::setup()
-{	
+void static tester(std::vector<Socket>&_sockVec, std::vector<pollfd>&_pollVec)
+{
+	for (unsigned int i = 0; i < _sockVec.size(); i++)
+	{
+		_sockVec[i].start(); // se crean, se hace bind, se hace listen. cada socket.
+
+		pollfd node;  // se genera nuevo nodo en vector de pollfd, que son los fds que poll 
+										// va investigando si tienen algo que leer o no
+
+		node.fd = _sockVec[i].getFd();
+		node.events = POLLIN; // esto es lo que determina que estamos interesados en eventos de lectura. recv.
+		_pollVec.push_back(node);
+	}
+}
+
+void static tester_1(std::vector<Server>&_servVec, std::vector<Socket>&_sockVec)
+{
 	for (size_t i = 0; i < _servVec.size(); i++)
 	{
 		for (size_t j = 0; j < _servVec[i].host_port.size(); j++)
@@ -27,24 +42,32 @@ void Cluster::setup()
 			// y nginx no da error, simplemente solo abre uno.
 		}
 	}
-	for (unsigned int i = 0; i < _sockVec.size(); i++)
-	{
-		_sockVec[i].start(); // se crean, se hace bind, se hace listen. cada socket.
+}
 
-		pollfd *node = new pollfd();  // se genera nuevo nodo en vector de pollfd, que son los fds que poll 
-										// va investigando si tienen algo que leer o no
+void Cluster::setup()
+{	
+	tester_1(_servVec, _sockVec);
+	tester(_sockVec, _pollVec);
 
-		node->fd = _sockVec[i].getFd();
-		node->events = POLLIN; // esto es lo que determina que estamos interesados en eventos de lectura. recv.
-		_pollVec.push_back(*node);
+}
+
+static void	handler(int sig)
+{
+	if (sig == SIGINT)
+	{	
+		cout << "closing webserv..." << endl;
+		exit(0);
 	}
 }
 
 void	Cluster::run()
 {
+	signal(SIGINT, handler);
+	signal(SIGPIPE, SIG_IGN);
 	while (1)
 	{
-		int poll_count = poll(&_pollVec[0], _pollVec.size(), -1); 
+		unsigned int size = _pollVec.size();
+		int poll_count = poll(&_pollVec[0], size, -1); 
 		/*se hace el poll. el retorno es cuantos fds se han mostrado dispuestos a recibir informacion.
 		es decir, o una nueva conexion (si es un fd listener, server) o algo a recibir si es un fd de un cliente conectado.*/
 		if (poll_count == -1)
@@ -52,15 +75,13 @@ void	Cluster::run()
 			print_error("poll error");
 			exit(EXIT_FAILURE);
 		}
-		unsigned int size = _pollVec.size();
 		for (unsigned int i = 0; i < size; i++) // iteramos a todo el vector
-		{	
-			//cout << "i es: " << i << endl;
+		{
 			if (_pollVec[i].revents == 0) // buscamos que socket esta listo para recibir cliente
 				continue ;
 			if (_pollVec[i].revents & POLLIN) // hay alguien listo para leer = hay un intento de conexion
 			{
-				if (checkIfListener(_pollVec[i].fd, _sockVec)) // si se trata de un listener, aceptamos conexion
+				if (checkIfListener(_pollVec[i].fd, _sockVec, size)) // si se trata de un listener, aceptamos conexion
 				{
 				//	cout << "se entra en pollin listener fd:" << pollVec[i].fd << " i es: " << i << endl;
 					while (true) 
@@ -99,6 +120,7 @@ void	Cluster::run()
 					//cout << "se entra en pollin cliente fd:" << pollVec[i].fd << " i es" << i << endl;
 					string	text = "";
 					int		nbytes;
+					int		flag = 1;
 					while (true)
 					{
 						std::vector<unsigned char> buff(5000);
@@ -111,7 +133,9 @@ void	Cluster::run()
 								close(_pollVec[i].fd);    // no obstante, si es otro -1, es un error, y quitamos cliente de vectores.
 											// es decir, cerramos conexion.
 								//cout << "recv: " << strerror(errno) << endl;
-								remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd);
+								remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd, size);
+								size--; // si se quita un elemento del vector, reducimos size para buen funcionamiento
+								flag = 0;
 								break ;
 							}
 							//cout << "EAGAIN / EWOULDBLOCK" << endl; salimos en caso EAGAIN para gestionar informacion
@@ -121,16 +145,18 @@ void	Cluster::run()
 						{	
 							close(_pollVec[i].fd);
 						//	cout << "connexion with fd: " << pollVec[i].fd << " was closed with client. socket config is: " << endl;
-							remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd);
+							remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd, size);
+							size--; // si se quita un elemento del vector, reducimos size para buen funcionamiento
+							flag = 0;
 							//conf.print_sockets();
 							break ;
 						}
 						bounceBuff(text, buff); // vamos bounceando el buffer en una string, mientras siga el loop.
 					}
-					if (text != "") //  si texto no es vacio, gestionamos la peticion del cliente.
+					if (flag) //  si no ha habido un break por error o cierre de conexion, gestionamos peticion.
 					{
 						this->handle_client(_pollVec[i].fd, _servVec, findListener(_sockVec, 
-							findSocket(_pollVec[i].fd, _sockVec)),text);
+							findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size),text);
 					}
 				}
 			}
@@ -156,6 +182,14 @@ int	Cluster::handle_client(int new_socket, const std::vector<Server>&servVec, So
 	send(new_socket, response.c_str(), response.length(), 0);
 	
 	return (0);
+}
+
+void Cluster::clean()
+{
+/* 	for (std::vector<pollfd>::iterator it = getPollVector().begin(); it != getPollVector().end(); it++)
+	{
+		delete *it;
+	} */
 }
 
 std::vector<Server>& Cluster::getServerVector()
