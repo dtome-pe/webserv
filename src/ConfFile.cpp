@@ -104,7 +104,7 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
 	}
 	if (hasip == std::string::npos)
 	{	
-		host = "0.0.0.0"; // si no hay ip, escucha en todas direcciones
+		host = "0.0.0.0";
 		res = line.substr(pos + 6, line.find(";"));
 	}
 	else
@@ -113,9 +113,7 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
  	lastNonSpace = res.find_last_not_of(" \t\n\r;");
 	res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
 	port = res;
-	Serv.setHostPort(host, port);  // indicamos host y puerto en nuevo vector de server host_port, 
-		// porque direccion y puerto van unidos, host es direccion previa resolucion por parte de 
-		// funcion getaddrinfo que ponemos en constructor de socket.
+	Serv.setHostPort(host, port);
 }
 
 void	ConfFile::parse_location(std::string line, Locations& loc)
@@ -199,7 +197,6 @@ int		ConfFile::parse_element(std::string &content, int i)
 
 	Serv.id = id;
 	id++;
-
 	while (i > 0)
 	{
 		servpos = content.find("server ", servpos + 1);
@@ -295,15 +292,15 @@ void	ConfFile::init_poll()
 {
 	size_t x = 0;
 	int i = 0;
-	for (x = 0; x < this->sock_vec.size(); x++) // recorremos todos los sockets
+	for (x = 0; x < this->sock_vec.size(); x++)
 	{
-		i ++; // y los contamos 
+		i ++; 
 	}
- 	this->poll_ptr = new struct pollfd[i]; // reservamos tantos polls como sockets haya
+ 	this->poll_ptr = new struct pollfd[i];
 	this->fd_size = i;
 	this->fd_count = i;
 	i = 0;
-	for (x = 0; x < this->sock_vec.size(); x++) // recorremos todos los servers
+	for (x = 0; x < this->sock_vec.size(); x++)
 	{
 		this->poll_ptr[i].fd = this->sock_vec[x].s_fd; // asignamos el fd de cada socket a un poll
 		this->poll_ptr[i].events = POLLIN; // los ponemos a que "nos avisen" al detectar conexiones entrantes
