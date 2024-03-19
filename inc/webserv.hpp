@@ -42,11 +42,11 @@ class Server;
 	
 	/*start server*/
 	void						get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
-	int 						create_s(int server_fd, struct addrinfo *s_addr);
+	int 						create_s(int server_fd, struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen);
 	int 						bind_s(int server_fd, struct addrinfo *s_addr, std::string ip);
 	int 						listen_s(int server_fd);
 
-	int							handle_client(int new_socket, ConfFile &conf, sockaddr_in &c_addr, sockaddr_in &sock_addr);
+	bool						look_for_same(Socket &sock, std::vector<Socket>&sock_vec);
 
 	const Server 				*find_serv_block(const std::vector<class Server> &serv, Request &request);
 
@@ -64,6 +64,8 @@ class Server;
 	bool						checkTrailingSlash(std::string &path);
 	std::string 				checkReturn(const Locations *loc);
 
+	void						setResponse(int code, Response &response, std::string arg, const Locations *loc);
+
 	bool 						checkDefaultPath();
 	std::string 				getDefaultPath();
 	std::string 				getDefaultFile(const std::string &file);
@@ -77,6 +79,16 @@ class Server;
 	std::string 				bounceContent(int *pipe_fd);
 	std::string 				getCgiHeader(const std::string& content, const std::string &header);
 	std::string					removeHeaders(std::string &content);
+	void						removeHeaderLine(std::string& content);
+
+	/*poll utils*/
+	int							receive_response(int new_socket, std::vector<unsigned char> *buff);
+	bool						checkIfListener(int poll_fd, std::vector<class Socket>&sock_vec, unsigned int size);
+	Socket						&findSocket(int socket_to_find, std::vector<Socket>&sock_vec,  unsigned int size);
+	Socket						&findListener(std::vector<Socket>&sock_vec, Socket &client, unsigned int size);
+	string						&bounceBuff(string &text, vector<unsigned char>&buff);
+	void						add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket &client, int fd);
+	void						remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, int fd, unsigned int size);
 	
 	/*check GET path*/
 	bool						checkGood(const std::string &path);
@@ -84,12 +96,13 @@ class Server;
 
 	/*poll*/
 	//void	poll_loop(t_data *data);
-	void						poll_loop(pollfd *poll, int size, ConfFile &conf);
+	void						poll_loop(std::vector<pollfd> &pollVec, ConfFile &conf);
 
 	/*print utils*/
 	void						print_error(const char *str);
 
 	/*ip utils*/
 	std::string					ip_to_str(sockaddr_in *addr);
+	std::string 				port_to_str(sockaddr_in *addr);
 
 #endif

@@ -4,7 +4,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-
+#include <lib.hpp>
 
 
 /* 
@@ -39,11 +39,11 @@ void	print_str(std::string str)
 		std::cout << std::endl;
 }
 
-Request::Request(std::string buff, sockaddr_in &c_addr, sockaddr_in &sock_addr)
+Request::Request(std::string buff, Socket &listener)
 {	
 	splitRequest(buff);
 	//headers.printHeaders();
-	setIpPortHost(c_addr, sock_addr);
+	setIpPortHost(listener);
 }
 
 Request::~Request()
@@ -114,15 +114,10 @@ void	Request::setBody(std::string _body)
 	this->body = _body;
 }
 
-void	Request::setIpPortHost(sockaddr_in &c_addr, sockaddr_in &sock_addr)
+void	Request::setIpPortHost(Socket &listener)
 {
-	(void) c_addr;
-
-	ip = ip_to_str(&sock_addr);						 
-
-	std::ostringstream portStream;
-                    portStream << ntohs(sock_addr.sin_port);
-    port = portStream.str();
+	ip = listener.getIp();
+	port = listener.getPort();
 
 	std::string host_value = headers.getHeader("Host");
 
