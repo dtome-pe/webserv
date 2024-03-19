@@ -68,6 +68,7 @@ void	ConfFile::parse_config(Cluster &cluster, char *file)
 	{
 		while (std::getline(iss, line, '\n'))
 		{
+			trimSpaces(line);
 			if (line.find("server ") == 0)
 			{
 				parse_element(content, i);
@@ -103,13 +104,17 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
 	std::string res;
 	std::string host;
 	std::istringstream iss(newserv);
-	size_t hasip;
-	int pos;
+	std::size_t hasip;
+	size_t pos;
 
 	std::getline(iss, line, '\n');
-	std::getline(iss, line, '\n');
+	pos = line.find(";");
+	if (pos == std::string::npos)
+		throw std::runtime_error("invalid configuration file");
 	hasip = line.find(":");
 	pos = line.find("listen ");
+	if (pos == std::string::npos)
+		throw std::runtime_error("invalid configuration file");
 	if (hasip != std::string::npos)
 	{
 		res = line.substr(pos + 6, hasip - (pos + 6));
@@ -126,23 +131,26 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
 	else
 		res = line.substr(hasip + 1, line.find(";"));
 	firstNonSpace = res.find_first_not_of(" \t\n\r");
- 	lastNonSpace = res.find_last_not_of(" \t\n\r;");
+	lastNonSpace = res.find_last_not_of(" \t\n\r;");
 	res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
 	Serv.setHostPort(host, res);
 }
 
 void	ConfFile::parse_location(std::string line, Locations& loc)
 {
-	size_t pos;
-	size_t fpos;
+	std::size_t pos;
+	std::size_t fpos;
 	std::string res;
 
 	trimSpaces(line);
-
+	if (line[0] == '#')
+		return ;
 	if (line.find(" /") != std::string::npos && loc.getLocation().empty())
 	{
 		pos = line.find("/");
 		fpos = line.find(" {");
+		if (pos == std::string::npos || fpos == std::string::npos)
+			throw std::runtime_error("invalid configuration file");
 		res = line.substr(pos, fpos - pos);
 		trimSpaces(res);
 		loc.setLocation(res);
@@ -151,7 +159,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 	{
 		fpos = line.find(";");
 		if (fpos == std::string::npos)
-			throw std::logic_error("falta coma");
+			throw std::logic_error("invalid configuration file");
 		if (line.find("autoindex ") != std::string::npos)
 		{
 			pos = line.find("autoindex ");
@@ -197,13 +205,15 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 			res = line.substr(pos + 4, fpos - pos);
 			pos = res.find(" /");
 			fpos = res.find(";");
+			if (fpos == std::string::npos)
+				throw std::runtime_error("invalid configuration file");
 			std::string execute = res.substr(0, pos);
 			trimSpaces(execute);
 			std::string path = res.substr(pos, fpos);
 			trimSpaces(path);
 		}
 		else
-			throw std::logic_error(line + " => parametro incorrecto");
+			throw std::logic_error(line + " => invalid line");
 	}
 }
 
@@ -242,40 +252,45 @@ int		ConfFile::parse_element(std::string &content, int i)
 	std::getline(iss, line, '\n');
 	while (std::getline(iss, line, '\n'))
 	{
-		if (line.find("server ") == 0)
-			break ;
-		else if (line.find("listen ") != std::string::npos)
-			findIp(Serv, &line[line.find("listen ")]); 
-		else if (line.find("server_name ") != std::string::npos)
-			Serv.addVServerName(findInfo(line, "server_name"));
-		else if (line.find("error_page ") != std::string::npos)
-			Serv.setErrorPage(findInfo(line, "error_page "));
-		else if (line.find("root ") != std::string::npos)
-			Serv.setRoot(findInfo(line, "root "));
-		else if (line.find("index ") != std::string::npos)
+		trimSpaces(line);
+		if (line[0] != '#')
 		{
-			std::string index = findInfo(line, "index ");
-			Serv.addVIndex(splitString(index));
-		}
-		else if (line.find("location ") != std::string::npos)
-		{
-			Locations loc;
-			while (line.find("}") == std::string::npos)
+			std::cout << line << std::endl;
+			if (line.find("server ") == 0)
+				break ;
+			else if (line.find("listen ") != std::string::npos)
+				findIp(Serv, &line[line.find("listen ")]); 
+			else if (line.find("server_name ") != std::string::npos)
+				Serv.addVServerName(findInfo(line, "server_name"));
+			else if (line.find("error_page ") != std::string::npos)
+				Serv.setErrorPage(findInfo(line, "error_page "));
+			else if (line.find("root ") != std::string::npos)
+				Serv.setRoot(findInfo(line, "root "));
+			else if (line.find("index ") != std::string::npos)
 			{
-				parse_location(line, loc);
-				std::getline(iss, line, '\n');
+				std::string index = findInfo(line, "index ");
+				Serv.addVIndex(splitString(index));
 			}
-			if (loc.getRoot().empty())
+			else if (line.find("location ") != std::string::npos)
 			{
-				std::string res = loc.getLocation();
-				res = res.erase(0, 1);
-				loc.setAllUrl(Serv.getRoot() + res);
+				Locations loc;
+				while (line.find("}") == std::string::npos)
+				{
+					parse_location(line, loc);
+					std::getline(iss, line, '\n');
+				}
+				if (loc.getRoot().empty())
+				{
+					std::string res = loc.getLocation();
+					res = res.erase(0, 1);
+					loc.setAllUrl(Serv.getRoot() + res);
+				}
+				else
+				{
+					loc.setAllUrl(removeDoubleSlashes(loc.getRoot() + loc.getLocation()));
+				}
+				Serv.setLocation(loc);
 			}
-			else
-			{
-				loc.setAllUrl(removeDoubleSlashes(loc.getRoot() + loc.getLocation()));
-			}
-			Serv.setLocation(loc);
 		}
 	}
 	if (!Serv.host_port.size())
