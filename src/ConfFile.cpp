@@ -1,6 +1,11 @@
 #include<webserv.hpp>
 #include <poll.h>
 
+ConfFile::ConfFile()
+{
+	
+}
+
 ConfFile::ConfFile(std::string _file)
 {
 	file = _file;
@@ -14,6 +19,8 @@ int ConfFile::countServers(std::string content)
 {
 	int i = 0;
 	size_t pos = content.find("server ");
+	if (pos == std::string::npos)
+		return (i);
 	while (pos != std::string::npos)
 	{
 		i++;
@@ -28,8 +35,15 @@ void ConfFile::trimSpaces(std::string& str)
 
 	str.erase(str.find_last_not_of(" \t") + 1);
 }
+	
+void ConfFile::copyInfo(Cluster &cluster)
+{
+	cluster.getSocketVector() = this->getSocketVector();
+	cluster.getServerVector() = this->getServerVector();
+	cluster.getPollVector() = this->getPollVector();
+}
 
-void	ConfFile::parse_config()
+void	ConfFile::parse_config(Cluster &cluster, char *file)
 {
 	std::ifstream in;
 	std::string line;
@@ -37,8 +51,7 @@ void	ConfFile::parse_config()
 	std::string result;
 	int servers;
 
-
-	in.open(file.c_str(), std::ios::in);
+	in.open(file, std::ios::in);
  	if (!in.is_open())
 	{
 		print_error("File could not be found or opened.\n");
@@ -48,10 +61,7 @@ void	ConfFile::parse_config()
 		content += line + "\n";
 	servers = countServers(content);
 	if (servers == 0)
-	{
-		std::cout << "Error in configuration file" << std::endl;
-		exit(1);
-	}
+		throw std::runtime_error("at least one server needed.");
 	std::istringstream iss(content);
 	int i = 0;
 	while (i < servers)
@@ -65,6 +75,7 @@ void	ConfFile::parse_config()
 			}
 		}
 	}
+	copyInfo(cluster);
 }
 
 std::string ConfFile::findInfo(std::string line, std::string tofind)
@@ -76,7 +87,7 @@ std::string ConfFile::findInfo(std::string line, std::string tofind)
 	std::size_t lastNS;
 
 	if (tofindpos < 0 || semicolonpos < 0)
-		return ("");
+		throw std::runtime_error("invalid configuration file.");
 	result = line.substr(tofindpos + tofind.length(), semicolonpos);
 	firstNS = result.find_first_not_of(" \t\n\r");
     lastNS = result.find_last_not_of(" \t\n\r;");
@@ -91,7 +102,6 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
 	std::string line;
 	std::string res;
 	std::string host;
-	std::string port;
 	std::istringstream iss(newserv);
 	size_t hasip;
 	int pos;
@@ -118,8 +128,7 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
 	firstNonSpace = res.find_first_not_of(" \t\n\r");
  	lastNonSpace = res.find_last_not_of(" \t\n\r;");
 	res = res.substr(firstNonSpace, lastNonSpace - firstNonSpace + 1);
-	port = res;
-	Serv.setHostPort(host, port);
+	Serv.setHostPort(host, res);
 }
 
 void	ConfFile::parse_location(std::string line, Locations& loc)
@@ -129,6 +138,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 	std::string res;
 
 	trimSpaces(line);
+
 	if (line.find(" /") != std::string::npos && loc.getLocation().empty())
 	{
 		pos = line.find("/");
@@ -137,76 +147,64 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		trimSpaces(res);
 		loc.setLocation(res);
 	}
-	else if (line.find("autoindex ") != std::string::npos)
-	{
-		pos = line.find("autoindex ");
-		fpos = line.find(";");
-		if (fpos == std::string::npos)
-			throw std::logic_error("falta coma");
-		res = line.substr(pos + 10, fpos - pos);
-		trimSpaces(res);
-		if (res == "on;" || res == "on")
-			loc.setAutoindex(1);
-		if (res == "off" || res == "off;")
-			loc.setAutoindex(0);
-	}
-	else if (line.find("index ") != std::string::npos)
-	{
-		std::string index = findInfo(line, "index ");
-		loc.setVIndex(splitString(index));
-	}
-	else if (line.find("allow_methods ") != std::string::npos)
-	{
-		int methods[3] = {0, 0, 0};
-		pos = line.find("allow_methods ");
-		fpos = line.find(";");
-		if (fpos == std::string::npos)
-			throw std::logic_error("falta coma");
-		res = (line.substr(pos + 14, fpos - pos));
-		if (res.find("GET") != std::string::npos)
-			methods[0] = 1;
-		if (res.find("POST") != std::string::npos)
-			methods[1] = 1;
-		if (res.find("DELETE") != std::string::npos)
-			methods[2] = 1;
-		loc.setMethods(methods);
-	}
-	else if (line.find("return ") != std::string::npos)
-	{
-		pos = line.find("return ");
-		fpos = line.find(";");
-		if (fpos == std::string::npos)
-			throw std::logic_error("falta coma");
-		res = line.substr(pos + 7, fpos - pos);
-		trimSpaces(res);
-		loc.setRedirection(res.erase(res.size() - 1));
-	}
-	else if (line.find("root ") != std::string::npos)
-	{
-		pos = line.find("root ");
-		fpos = line.find(";");
-		if (fpos == std::string::npos)
-			throw std::logic_error("falta coma");
-		res = line.substr(pos + 5, fpos - pos - 4);
-		trimSpaces(res);
-		loc.setRoot(res.erase(res.size() - 1));
-	}
-	else if (line.find("cgi ") != std::string::npos)
-	{
-		pos = line.find("cgi ");
-		fpos = line.find(";");
-		if (fpos == std::string::npos)
-			throw std::logic_error("falta coma");
-		res = line.substr(pos + 4, fpos - pos);
-		pos = res.find(" /");
-		fpos = res.find(";");
-		std::string execute = res.substr(0, pos);
-		trimSpaces(execute);
-		std::string path = res.substr(pos, fpos);
-		trimSpaces(path);
-	}
 	else
-		throw std::logic_error(line + " => parametro incorrecto");
+	{
+		fpos = line.find(";");
+		if (fpos == std::string::npos)
+			throw std::logic_error("falta coma");
+		if (line.find("autoindex ") != std::string::npos)
+		{
+			pos = line.find("autoindex ");
+			res = line.substr(pos + 10, fpos - pos);
+			if (res == "on;" || res == "on")
+				loc.setAutoindex(1);
+			if (res == "off" || res == "off;")
+				loc.setAutoindex(0);
+		}
+		else if (line.find("index ") != std::string::npos)
+		{
+			std::string index = findInfo(line, "index ");
+			loc.setVIndex(splitString(index));
+		}
+		else if (line.find("allow_methods ") != std::string::npos)
+		{
+			int methods[3] = {0, 0, 0};
+			pos = line.find("allow_methods ");
+			res = (line.substr(pos + 14, fpos - pos));
+			if (res.find("GET") != std::string::npos)
+				methods[0] = 1;
+			if (res.find("POST") != std::string::npos)
+				methods[1] = 1;
+			if (res.find("DELETE") != std::string::npos)
+				methods[2] = 1;
+			loc.setMethods(methods);
+		}
+		else if (line.find("return ") != std::string::npos)
+		{
+			pos = line.find("return ");
+			res = line.substr(pos + 7, fpos - pos);
+			loc.setRedirection(res.erase(res.size() - 1));
+		}
+		else if (line.find("root ") != std::string::npos)
+		{
+			pos = line.find("root ");
+			res = line.substr(pos + 5, fpos - pos - 4);
+			loc.setRoot(res.erase(res.size() - 1));
+		}
+		else if (line.find("cgi ") != std::string::npos)
+		{
+			pos = line.find("cgi ");
+			res = line.substr(pos + 4, fpos - pos);
+			pos = res.find(" /");
+			fpos = res.find(";");
+			std::string execute = res.substr(0, pos);
+			trimSpaces(execute);
+			std::string path = res.substr(pos, fpos);
+			trimSpaces(path);
+		}
+		else
+			throw std::logic_error(line + " => parametro incorrecto");
+	}
 }
 
 std::vector<std::string> ConfFile::splitString(std::string& input)
@@ -224,7 +222,7 @@ std::vector<std::string> ConfFile::splitString(std::string& input)
 
 int		ConfFile::parse_element(std::string &content, int i)
 {
-	int servpos = content.find("server ");
+	size_t servpos = content.find("server ");
 	static int id = 1;
 	std::string newserv;
 	std::string line;
@@ -232,6 +230,8 @@ int		ConfFile::parse_element(std::string &content, int i)
 
 	Serv.id = id;
 	id++;
+	if (servpos == std::string::npos)
+		throw std::runtime_error("at least one server needed");
 	while (i > 0)
 	{
 		servpos = content.find("server ", servpos + 1);
@@ -244,23 +244,23 @@ int		ConfFile::parse_element(std::string &content, int i)
 	{
 		if (line.find("server ") == 0)
 			break ;
-		if (line.find("listen ") != std::string::npos)
+		else if (line.find("listen ") != std::string::npos)
 			findIp(Serv, &line[line.find("listen ")]); 
-		if (line.find("server_name ") != std::string::npos)
+		else if (line.find("server_name ") != std::string::npos)
 			Serv.addVServerName(findInfo(line, "server_name"));
-		if (line.find("error_page ") != std::string::npos)
+		else if (line.find("error_page ") != std::string::npos)
 			Serv.setErrorPage(findInfo(line, "error_page "));
-		if (line.find("root ") != std::string::npos)
+		else if (line.find("root ") != std::string::npos)
 			Serv.setRoot(findInfo(line, "root "));
-		if (line.find("index ") != std::string::npos)
+		else if (line.find("index ") != std::string::npos)
 		{
 			std::string index = findInfo(line, "index ");
 			Serv.addVIndex(splitString(index));
 		}
-		if (line.find("location ") != std::string::npos)
+		else if (line.find("location ") != std::string::npos)
 		{
 			Locations loc;
-			while(line.find("}") == std::string::npos)
+			while (line.find("}") == std::string::npos)
 			{
 				parse_location(line, loc);
 				std::getline(iss, line, '\n');
@@ -272,7 +272,9 @@ int		ConfFile::parse_element(std::string &content, int i)
 				loc.setAllUrl(Serv.getRoot() + res);
 			}
 			else
+			{
 				loc.setAllUrl(removeDoubleSlashes(loc.getRoot() + loc.getLocation()));
+			}
 			Serv.setLocation(loc);
 		}
 	}
@@ -311,19 +313,12 @@ void ConfFile::print_sockets()
 {
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
-		cout << "Socket " << i + 1 << endl << "IP: " << sock_vec[i].getIp() << "Port: " << sock_vec[i].getPort() << endl;  
+		cout << "Socket " << i + 1 <<  " with fd " << sock_vec[i].getFd()  << ". Is listener? " << sock_vec[i].listener << endl
+		<< "IP: " << sock_vec[i].getIp() << " Port: " << sock_vec[i].getPort() << endl;  
 	}
 }
 
-void	ConfFile::start_sockets()
-{
-	for (std::vector<Socket>::iterator it = sock_vec.begin(); it != sock_vec.end(); it++)
-	{
-		it->start();
-	}
-}
-
-void	ConfFile::init_poll()
+/*void	ConfFile::init_poll()
 {
 	size_t x = 0;
 	int i = 0;
@@ -331,9 +326,9 @@ void	ConfFile::init_poll()
 	{
 		i ++; 
 	}
- 	this->poll_ptr = new struct pollfd[i];
-	this->fd_size = i;
-	this->fd_count = i;
+// 	this->poll_ptr = new struct pollfd[i];
+//	this->fd_size = i;
+//	this->fd_count = i;
 	i = 0;
 	for (x = 0; x < this->sock_vec.size(); x++)
 	{
@@ -341,13 +336,13 @@ void	ConfFile::init_poll()
 		this->poll_ptr[i].events = POLLIN; // los ponemos a que "nos avisen" al detectar conexiones entrantes
 		i++;
 	}
-}
-
+}*/
+/*
 static bool look_for_same(Socket &sock, std::vector<Socket>&sock_vec)
 {
 	for (std::vector<Socket>::iterator it = sock_vec.begin(); it != sock_vec.end(); it++)
 	{
-		/*si encontramos un socket creado con misma direccion:puerto, retornamos true y no se anade al vector*/
+		si encontramos un socket creado con misma direccion:puerto, retornamos true y no se anade al vector
 		if (it->getIp() == sock.getIp() && it->getPort() == sock.getPort())
 			return (true);
 		if (it->getPort() == sock.getPort() && it->getIp() == "0.0.0.0")
@@ -359,7 +354,7 @@ static bool look_for_same(Socket &sock, std::vector<Socket>&sock_vec)
 		}
 	}
 	return (false);
-}
+}*/
 
 void	ConfFile::create_sockets()
 {	
@@ -377,3 +372,4 @@ void	ConfFile::create_sockets()
 		}
 	}
 }
+
