@@ -22,6 +22,12 @@ int ConfFile::countServers(std::string content)
 	return (i);
 }
 
+void ConfFile::trimSpaces(std::string& str)
+{
+	str.erase(0, str.find_first_not_of(" \t"));
+
+	str.erase(str.find_last_not_of(" \t") + 1);
+}
 
 void	ConfFile::parse_config()
 {
@@ -122,18 +128,23 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 	size_t fpos;
 	std::string res;
 
+	trimSpaces(line);
 	if (line.find(" /") != std::string::npos && loc.getLocation().empty())
 	{
 		pos = line.find("/");
 		fpos = line.find(" {");
 		res = line.substr(pos, fpos - pos);
+		trimSpaces(res);
 		loc.setLocation(res);
 	}
 	else if (line.find("autoindex ") != std::string::npos)
 	{
 		pos = line.find("autoindex ");
 		fpos = line.find(";");
+		if (fpos == std::string::npos)
+			throw std::logic_error("falta coma");
 		res = line.substr(pos + 10, fpos - pos);
+		trimSpaces(res);
 		if (res == "on;" || res == "on")
 			loc.setAutoindex(1);
 		if (res == "off" || res == "off;")
@@ -149,6 +160,8 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		int methods[3] = {0, 0, 0};
 		pos = line.find("allow_methods ");
 		fpos = line.find(";");
+		if (fpos == std::string::npos)
+			throw std::logic_error("falta coma");
 		res = (line.substr(pos + 14, fpos - pos));
 		if (res.find("GET") != std::string::npos)
 			methods[0] = 1;
@@ -162,16 +175,38 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 	{
 		pos = line.find("return ");
 		fpos = line.find(";");
+		if (fpos == std::string::npos)
+			throw std::logic_error("falta coma");
 		res = line.substr(pos + 7, fpos - pos);
+		trimSpaces(res);
 		loc.setRedirection(res.erase(res.size() - 1));
 	}
 	else if (line.find("root ") != std::string::npos)
 	{
 		pos = line.find("root ");
 		fpos = line.find(";");
+		if (fpos == std::string::npos)
+			throw std::logic_error("falta coma");
 		res = line.substr(pos + 5, fpos - pos - 4);
+		trimSpaces(res);
 		loc.setRoot(res.erase(res.size() - 1));
 	}
+	else if (line.find("cgi ") != std::string::npos)
+	{
+		pos = line.find("cgi ");
+		fpos = line.find(";");
+		if (fpos == std::string::npos)
+			throw std::logic_error("falta coma");
+		res = line.substr(pos + 4, fpos - pos);
+		pos = res.find(" /");
+		fpos = res.find(";");
+		std::string execute = res.substr(0, pos);
+		trimSpaces(execute);
+		std::string path = res.substr(pos, fpos);
+		trimSpaces(path);
+	}
+	else
+		throw std::logic_error(line + " => parametro incorrecto");
 }
 
 std::vector<std::string> ConfFile::splitString(std::string& input)
@@ -308,14 +343,6 @@ void	ConfFile::init_poll()
 	}
 }
 
-/*nginx puede tener varios server blocks escuchando en la misma direccion:puerto, pero dos sockets no pueden
-bindearse al mismo puerto. Entonces, nginx debe primero resolver ip y puerto de cada listen directive uno a uno, y
-en el momento que encuentra otro listen con la misma direccion exacta, se lo debe saltar. Ya que al final, solo
-un server block va a gestionar peticion, nginx simplemente abre un puerto, y luego lo redirige al server que toca. Por
-eso esta funcion va comprobando los Host:Port de cada server, si encuentra uno identico, no lo anade al vector y
-lo ignoraremos, para que no haya un socket duplicado y que no de error. si encuentra un socket que va a apuntar a 0.0.0.0
-y uno que va a apuntar a una direccion concreta y ambos al mismo puerto, el 0.0.0.0 tiene prioridad*/
-
 static bool look_for_same(Socket &sock, std::vector<Socket>&sock_vec)
 {
 	for (std::vector<Socket>::iterator it = sock_vec.begin(); it != sock_vec.end(); it++)
@@ -350,56 +377,3 @@ void	ConfFile::create_sockets()
 		}
 	}
 }
-
-/*
-void	ConfFile::poll_loop()
-{
-	//datos para nueva conexion//
-	int c_fd;
-    struct sockaddr_in c_addr;
-    socklen_t addrlen;
-	//datos para nueva conexion//
-
-	while (1)
-	{
-		//this->poll_ptr = NULL;
-		print_poll(poll_ptr, fd_size);
-		int poll_count = poll(this->poll_ptr, this->fd_size, -1); // ?
-		if (poll_count == -1)
-		{
-			print_error("poll error");
-			exit(EXIT_FAILURE);
-		}
-		for (int i = 0; i < this->fd_size; i++) // buscamos que socket esta listo para recibir cliente
-		{
-			if (this->poll_ptr[i].revents & POLLIN) // hay alguien listo para leer = hay un intento de conexion
-			{
-				//if (check_if_listener(this->poll[i].fd, list)) // comentamos de momento
-				//{
-					//aceptamos nueva conexion, y gestionamos inmediatamente peticion cliente, ya que subject
-					//especifica solo UN POLL, para I/O entre cliente y servidor
-				addrlen = sizeof (c_addr);
-				c_fd = accept(this->poll_ptr[i].fd, (struct sockaddr *) &c_addr, &addrlen); // el cliente acepta el socket
-
-				if (c_fd == -1)
-					print_error("client accept error");
-				else
-				{
-					handle_client(c_fd); // gestionamos cliente inmediatamente, efectuando I/O entre cliente y servidor en un poll
-					close(c_fd);
-				//	add_pollfd(&this->poll_ptr, c_fd, &this->fd_count, &this->fd_size);
-				//	cout << "pollserver: new connection" << endl;
-				}
-			}
-				//else //si no es listener, es peticion de cliente
-				//{
-				//	if (handle_client(this->poll_ptr[i].fd))
-				//	{	//devuelve uno, conexion terminada o error en recv
-				//		close(this->poll_ptr[i].fd);   //cerramos fd y eliminamos de array pollfd
-				//		remove_pollfd(&this->poll_ptr, i, &this->fd_count);
-				//	}
-					//si ha devuelto cero, peticion ha sido resuelta y la conexion sigue abierta
-				//}
-		}
-	}
-} */
