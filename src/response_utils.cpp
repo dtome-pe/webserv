@@ -224,7 +224,7 @@ std::string checkReturn(const Locations *loc)
 	
 	if (loc)
 	{
-		cout << "entra en checkReturn: " << loc->getRedirection()  << endl;
+		//cout << "entra en checkReturn: " << loc->getRedirection()  << endl;
 		if (loc->getRedirection() != "")
 			return (loc->getRedirection());
 	}
