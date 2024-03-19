@@ -78,7 +78,8 @@ void Response::do_cgi(Request &request, std::string &path)
 }
 
 void Response::do_redirection(Request &request, std::string return_str)
-{
+{	
+	(void) request;
 	cout << "entra en redirection. return str is " << return_str << endl;
 
 	std::string code = return_str.substr(0, return_str.find(" "));
@@ -96,14 +97,14 @@ void Response::do_redirection(Request &request, std::string return_str)
 		makeReturnCode(c, *this);
 	} */
 	if (code == "301")
-		setResponse(301, *this, request.ip + ":" + request.port + location, NULL);
+		setResponse(301, *this, location, NULL);
 }
 
 Response::Response(Request &request, const Server *serv, const Locations *loc)
 {
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
 	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
-	cout << "resolved path is " << path << endl;
+	cout << path << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (request.getTarget() == "/")
@@ -119,6 +120,7 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 			return ;
 		}
 		std::string return_str = checkReturn(loc); // luego se comprueban redirecciones
+		cout << "return str: " << return_str << endl;
 		if (return_str != "")
 		{
 			do_redirection(request, return_str);
@@ -131,7 +133,7 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 		}
 		if (checkFileOrDir(path) == "dir" && !checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
 		{
-			setResponse(301, *this, request.ip + ":" + request.port + request.getTarget() + "/", NULL);
+			setResponse(301, *this, request.getTarget() + "/", NULL);
 			return ;
 		}
 		if (checkFileOrDir(path) == "file")
@@ -151,7 +153,7 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 			std::string index_file = findIndex(path, serv, loc); // checquearemos si hay un index directive, para intentar servir archivo index
 			if (index_file != "")
 			{
-				setResponse(200, *this, readFileContents(path), NULL);
+				setResponse(200, *this, readFileContents(index_file), NULL);
 				return ;
 			}
 			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
@@ -165,7 +167,7 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 				if (!loc || !loc->getAutoindex()) // si no tiene autoindex (como solo lo puede tener un location, de momento), devolvemos 403 ya que no esta activado el directorylisting
 											// y no tenemos permiso para coger ningun archivo de directorio
 				{
-					setResponse(403, *this, "", NULL);;
+					setResponse(403, *this, "", NULL);
 					return ;
 				}
 				else
@@ -181,7 +183,6 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 		}
 	}
 }
-
 
 Response::~Response()
 {
