@@ -1,10 +1,7 @@
 NAME = webserv
 
-#FILES = main.cpp Socket.cpp handle_client.cpp start_aux.cpp utils_print.cpp parse_config.cpp \
-		utils_list_socket.cpp parse_aux.cpp utils_list_server.cpp Server.cpp poll.cpp Response.cpp
-
 FILES = main  Socket Server   \
-		Response  Request  HeaderHTTP  ConfFile find_serv_block utils \
+		Response  Request  HeaderHTTP  ConfFile find_serv_block utils cgi \
 		Locations find_loc_block response_utils cgi_utils poll_utils Cluster setResponse
 
 SRC = $(addprefix $(DIR_SRC), $(addsuffix .cpp, $(FILES)))
