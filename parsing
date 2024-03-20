@@ -20,4 +20,5 @@ falta:
 
 - client_max_body_size
 - que solo se pueda poner un codigo para cada pagina de error
-- map para el cgi
+- check si hay alguna cosa random en server
+- return con int y string

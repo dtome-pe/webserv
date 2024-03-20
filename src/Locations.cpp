@@ -58,6 +58,11 @@ bool	Locations::getAutoindex() const
 	return (this->autoindex);
 }
 
+void	Locations::setCGI(std::string ext, std::string path)
+{
+	cgi[ext] = path;
+}
+
 std::vector<std::string>	Locations::getIndex() const
 {
 	return (index);
@@ -86,4 +91,9 @@ const std::string Locations::getRoot() const
 std::string Locations::getAllUrl()
 {
 	return (this->allurl);
+}
+
+std::map<std::string, std::string> Locations::getCGI() const
+{
+	return (this->cgi);
 }
