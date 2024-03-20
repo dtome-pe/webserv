@@ -33,14 +33,10 @@ std::string Server::getServerName()
 	return (this->server_name);
 }
 
-std::vector<std::map<int, std::string>>& Server::getErrorPage()
+std::vector<std::map<int, std::string> >& Server::getErrorPage()
 {
-	return (this->verror_page);
+	return (verror_page);
 }
-
-    const std::vector<std::map<int, std::string>>& getVecOfMaps() const {
-        return vecOfMaps;
-    }
 
 std::string Server::getAllowMethods()
 {
@@ -64,6 +60,7 @@ void	Server::setIp(std::string ip)
 
 void	Server::setHostPort(std::string host, std::string port)
 {
+
 	host_port.push_back(host + ":" + port);
 }
 
@@ -77,11 +74,15 @@ void	Server::setServerName(std::string serverName)
 	this->server_name = serverName;
 }
 
-void	Server::setErrorPage(int key, std::string& error_page)
+void	Server::setErrorPage(std::string error_page)
 {
+	size_t pos = error_page.find(" ");
+	int key = std::atoi(error_page.substr(0, pos).c_str());
+	size_t fpos = error_page.find(";");
+	error_page = error_page.substr(pos + 1, fpos);
 	std::map<int, std::string> errPage;
-	errPage[key] = value;
-	vserver_name.push_back(errPage);
+	errPage[key] = error_page;
+	verror_page.push_back(errPage);
 }
 
 void	Server::setAllowMethods(std::string allow)
@@ -156,12 +157,6 @@ void	Server::printRoot()
 	std::cout << "Root: " << this->root << std::endl;
 }
 
-void	Server::printErrorPages()
-{
-	std::cout << "Error Page: ";
-	std::cout << this->error_page << std::endl;
-}
-
 void	Server::printindex()
 {
 	std::cout << "Index:" << std::endl;
@@ -185,7 +180,7 @@ void	Server::printLocations()
 		std::cout << "Index:" << std::endl;
 		std::vector<std::string>aux = locations[i].getIndex();
 		for (size_t i = 0; i < aux.size(); i++)
-			std::cout << aux[i] << std::ndl;
+			std::cout << aux[i] << std::endl;
 		std::cout << "Allow methods: ";
 		std::cout << "GET: ";
 		if (locations[i].getMethods()[0] == 1)
@@ -204,6 +199,21 @@ void	Server::printLocations()
 			std::cout << "no" << std::endl;
 		std::cout << "Root: " << locations[i].getRoot() << std::endl;
 		std::cout << "All url: " << locations[i].getAllUrl() << std::endl;
+	}
+}
+
+void Server::printErrorPages()
+{
+	std::cout << "Error pages: " << std::endl;
+	std::vector<std::map<int, std::string> >& vecOfMaps = getErrorPage();
+	for (size_t i = 0; i < vecOfMaps.size(); ++i)
+	{
+		std::map<int, std::string>::const_iterator iter;
+		for (iter = vecOfMaps[i].begin(); iter != vecOfMaps[i].end(); ++iter)
+		{
+			std::cout << iter->first << " => " << iter->second << std::endl;
+		}
+		std::cout << std::endl;
 	}
 }
 
