@@ -27,13 +27,13 @@ void	setResponse(int code, Response &response, std::string arg, const Server *se
 		case 403:
 		{
 			response.setStatusLine("HTTP/1.1 403 Forbidden");
-			makeDefault(response, "/403.html", serv);
+			makeDefault(403, response, "/403.html", serv);
 			break;
 		}
 		case 404:
 		{
 			response.setStatusLine("HTTP/1.1 404 Not Found");
-			makeDefault(response, "/404.html", serv);
+			makeDefault(404, response, "/404.html", serv);
 			break;
 		}
 		case 405:
@@ -48,7 +48,7 @@ void	setResponse(int code, Response &response, std::string arg, const Server *se
 			if (loc->getMethods()[2] == 1)
 				allow_header += "DELETE";
 			response.setHeader(allow_header);
-			makeDefault(response, "/405.html", serv);
+			makeDefault(405, response, "/405.html", serv);
 			break;
 		}
 	}

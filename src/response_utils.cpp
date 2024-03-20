@@ -240,28 +240,28 @@ bool checkDefaultPath()
 		return (false);
 }
 
-std::string getDefaultPath()
-{
-	return (std::getenv("DEFAULT_DIR"));
-}
-
 std::string getDefaultFile(const std::string &file)
 {
 	std::string default_path;
 
-	if (checkDefaultPath())
-		default_path = getDefaultPath() + file;
-	else
-		default_path = "../default" + file;
+	default_path = "../default" + file;
 	
 	return (default_path);
 }
 
-void	makeDefault(Response &response, const std::string &file, const Server *serv)
-{	
-	(void) serv;
+void	makeDefault(int code, Response &response, const std::string &file, const Server *serv)
+{
 	/*comprobariamos si serv tiene un error page establecido en conf file*/
-	std::string content = readFileContents(getDefaultFile(file));
+	std::string	content = "";
+	std::map<int, std::string>::const_iterator it = serv->getErrorPage().find(code);
+	if (it != serv->getErrorPage().end())
+	{
+		std::string path = serv->getRoot() + it->second;
+		if (checkGood(path))
+			content = readFileContents(path);
+	}
+	else
+		 content = readFileContents("default" + file);
 	response.setHeader("Content-Length: " + getLengthAsString(content));
 	response.setHeader("Content-Type: text/html");
 	response.setBody(content);
