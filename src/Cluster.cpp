@@ -8,7 +8,7 @@ Cluster::Cluster()
 void Cluster::parseConfig(char *file)
 {
 	_conf.parse_config(*this, file);
-//	_conf.print_servers();
+	_conf.print_servers();
 }
 
 void static tester(std::vector<Socket>&_sockVec, std::vector<pollfd>&_pollVec)

@@ -150,7 +150,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		pos = line.find("/");
 		fpos = line.find(" {");
 		if (pos == std::string::npos || fpos == std::string::npos)
-			throw std::runtime_error("invalid configuration file");
+			throw std::runtime_error("invalid configuration file.");
 		res = line.substr(pos, fpos - pos);
 		trimSpaces(res);
 		loc.setLocation(res);
@@ -255,7 +255,6 @@ int		ConfFile::parse_element(std::string &content, int i)
 		trimSpaces(line);
 		if (line[0] != '#')
 		{
-			std::cout << line << std::endl;
 			if (line.find("server ") == 0)
 				break ;
 			else if (line.find("listen ") != std::string::npos)
