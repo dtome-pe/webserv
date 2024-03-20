@@ -159,7 +159,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 	{
 		fpos = line.find(";");
 		if (fpos == std::string::npos)
-			throw std::logic_error("invalid configuration file. Semicolon missing");
+			throw std::logic_error("invalid configuration file. Semicolon or curly brace missing");
 		if (line.find("autoindex ") != std::string::npos)
 		{
 			pos = line.find("autoindex ");
@@ -199,21 +199,20 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 			res = line.substr(pos + 5, fpos - pos - 4);
 			loc.setRoot(res.erase(res.size() - 1));
 		}
-		else if (line.find("cgi ") != std::string::npos)
+		else if (line.find("cgi") != std::string::npos)
 		{
 			pos = line.find("cgi ");
 			res = line.substr(pos + 4, fpos - pos);
 			pos = res.find(" /");
 			fpos = res.find(";");
-			if (fpos == std::string::npos)
-				throw std::runtime_error("invalid configuration file. Please check semicolon.");
 			std::string execute = res.substr(0, pos);
 			trimSpaces(execute);
 			std::string path = res.substr(pos, fpos);
 			trimSpaces(path);
+			loc.setCGI(execute, path);
 		}
 		else
-			throw std::logic_error(line + " => invalid line");
+			throw std::logic_error(line + " => invalid line or curly brace missing");
 	}
 }
 
@@ -253,7 +252,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 	while (std::getline(iss, line, '\n'))
 	{
 		trimSpaces(line);
-		if (line[0] != '#')
+		if (line[0] != '#' && line[0] != '\n')
 		{
 			if (line.find("server ") == 0)
 				break ;
@@ -265,11 +264,15 @@ int		ConfFile::parse_element(std::string &content, int i)
 				Serv.setErrorPage(findInfo(line, "error_page "));
 			else if (line.find("root ") != std::string::npos)
 				Serv.setRoot(findInfo(line, "root "));
+			else if (line.find("host ") != std::string::npos)
+				continue ;
 			else if (line.find("index ") != std::string::npos)
 			{
 				std::string index = findInfo(line, "index ");
 				Serv.addVIndex(splitString(index));
 			}
+			else if (line.find("client_max_body_size ") != std::string::npos)
+				Serv.setMaxBodySize(findInfo(line, "client_max_body_size "));
 			else if (line.find("location ") != std::string::npos)
 			{
 				Locations loc;
@@ -298,16 +301,6 @@ int		ConfFile::parse_element(std::string &content, int i)
 	return (0);
 }
 
-int	ConfFile::check_info()
-{
-	for (size_t i = 0; i < this->serv_vec.size(); i++)
-	{
-
-	}
-	return (0);
-}
-
-
 void	ConfFile::print_servers()
 {
 	for (size_t i = 0; i < this->serv_vec.size(); i++)
@@ -317,6 +310,7 @@ void	ConfFile::print_servers()
 		this->serv_vec[i].printIpPort();
 		this->serv_vec[i].printServer_Names();
 		this->serv_vec[i].printRoot();
+		this->serv_vec[i].printBodySize();
 		this->serv_vec[i].printErrorPages();
 		this->serv_vec[i].printindex();
 		this->serv_vec[i].printLocations();
