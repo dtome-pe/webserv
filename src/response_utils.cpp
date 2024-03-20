@@ -252,13 +252,15 @@ std::string getDefaultFile(const std::string &file)
 	if (checkDefaultPath())
 		default_path = getDefaultPath() + file;
 	else
-		default_path = "/home/theonewhoknew/repos/CURSUS/webserv/default" + file;
+		default_path = "../default" + file;
 	
 	return (default_path);
 }
 
-void	makeDefault(Response &response, const std::string &file)
-{
+void	makeDefault(Response &response, const std::string &file, const Server *serv)
+{	
+	(void) serv;
+	/*comprobariamos si serv tiene un error page establecido en conf file*/
 	std::string content = readFileContents(getDefaultFile(file));
 	response.setHeader("Content-Length: " + getLengthAsString(content));
 	response.setHeader("Content-Type: text/html");
@@ -270,8 +272,8 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 {	
 	std::string index_file = "";
 
-	if (loc)
-	{	
+	if (loc && loc->getIndex().size() > 0)
+	{
 		std::vector<std::string>indexVector = loc->getIndex();
 		for (std::vector<std::string>::iterator it = indexVector.begin(); it != indexVector.end(); it++)
 		{
@@ -284,7 +286,8 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	}
 	std::vector<std::string>indexVector = serv->getVIndex();
 	for (std::vector<std::string>::const_iterator it = indexVector.begin(); it != indexVector.end(); it++)
-	{
+	{	
+		cout << path + *it << endl;
 		if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
 		{
 			index_file = path + *it;
