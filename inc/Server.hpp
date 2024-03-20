@@ -41,7 +41,7 @@ class Server
 		std::string	getPort(const std::string &ip_port) const;
 		std::string	getIp(const std::string &ip_port) const;
 		std::string getServerName();
-		std::map<int, std::string>& getErrorPage();
+		const std::map<int, std::string>& getErrorPage() const;
 		std::string getAllowMethods();
 		std::string getRoot() const;
 		//setters
