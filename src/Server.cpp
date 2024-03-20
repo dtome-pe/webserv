@@ -33,9 +33,9 @@ std::string Server::getServerName()
 	return (this->server_name);
 }
 
-std::map<int, std::string>& Server::getErrorPage()
+const std::map<int, std::string>& Server::getErrorPage() const
 {
-	return (merror_page);
+	return (this->merror_page);
 }
 
 std::string Server::getAllowMethods()
