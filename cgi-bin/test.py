@@ -1,7 +1,7 @@
-  import sys
+import sys
 import os
 # sys.stderr.write("Executing python start->\n")
-
+print("Content-type: text/html\n")
 def getBody():
 	env = ""
 	for var in os.environ:
