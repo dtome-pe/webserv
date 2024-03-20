@@ -241,7 +241,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 	Serv.id = id;
 	id++;
 	if (servpos == std::string::npos)
-		throw std::runtime_error("at least one server needed");
+		throw std::runtime_error("server is missing or the file structure is incorrect.");
 	while (i > 0)
 	{
 		servpos = content.find("server ", servpos + 1);
