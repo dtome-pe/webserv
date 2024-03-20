@@ -51,7 +51,7 @@ class Server;
 	bool 						checkDefaultPath();
 	std::string 				getDefaultPath();
 	std::string 				getDefaultFile(const std::string &file);
-	void						makeDefault(Response &response, const std::string &file, const Server *serv);
+	void						makeDefault(int code, Response &response, const std::string &file, const Server *serv);
 
 	/*cgi*/
 
