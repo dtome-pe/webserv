@@ -1,4 +1,5 @@
 #include "../inc/Server.hpp"
+#include <climits>
 
 Server::Server()
 {

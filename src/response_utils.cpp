@@ -297,9 +297,14 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	return (index_file);
 }
 
-bool	checkCgi(std::string &path)
+bool	checkCgi(std::string &path, const Locations *loc)
 {
-	if (path.length() >= 3 && path.substr(path.length() - 3) == ".py") 
+	/* if (path.length() >= 3 && path.substr(path.length() - 3) == ".py") 
+		return (true);
+	else 
+		return (false); */
+	/*si existe loc, y si encontramos una extension igual en el map de cgi, aprobamos.*/
+	if (loc && loc->getCGI().find(path.substr(path.length() - 3)) != loc->getCGI().end()) 
 		return (true);
 	else 
 		return (false);
