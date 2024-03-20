@@ -63,7 +63,6 @@ std::string bounceContent(int *pipe_fd)
 	std::string content;
 	while ((bytesRead = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
 		content.append(buffer,bytesRead);
-	cout << content << endl;
 	return (content);
 }
 
@@ -87,6 +86,7 @@ std::string getCgiHeader(const std::string& content, const std::string &header)
         ++pos;
     }
 
+	cout << "sale de primer loop" << endl;
     if (pos != content.end()) {
         // Extract the value of the "Content-Type" header
         std::string::const_iterator start = pos + header.size(); // Move past "Content-Type:"
