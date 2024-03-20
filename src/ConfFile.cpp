@@ -223,9 +223,7 @@ std::vector<std::string> ConfFile::splitString(std::string& input)
     std::string token;
 
     while (iss >> token)
-	{
         tokens.push_back(token);
-    } 
     return tokens;
 }
 
