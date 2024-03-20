@@ -33,10 +33,14 @@ std::string Server::getServerName()
 	return (this->server_name);
 }
 
-std::string Server::getErrorPage()
+std::vector<std::map<int, std::string>>& Server::getErrorPage()
 {
-	return (this->error_page);
+	return (this->verror_page);
 }
+
+    const std::vector<std::map<int, std::string>>& getVecOfMaps() const {
+        return vecOfMaps;
+    }
 
 std::string Server::getAllowMethods()
 {
@@ -73,9 +77,11 @@ void	Server::setServerName(std::string serverName)
 	this->server_name = serverName;
 }
 
-void	Server::setErrorPage(std::string errorPage)
+void	Server::setErrorPage(int key, std::string& error_page)
 {
-	this->error_page = errorPage;
+	std::map<int, std::string> errPage;
+	errPage[key] = value;
+	vserver_name.push_back(errPage);
 }
 
 void	Server::setAllowMethods(std::string allow)

@@ -22,6 +22,7 @@ class Server
 		std::vector<std::string> vserver_name;
 		std::vector<std::string> vports;
 		std::vector<std::string> vindex;
+		std::vector<std::map<int, std::string>> verror_page;
 		std::vector<class Locations> locations;
 	public:
 		int		active;
