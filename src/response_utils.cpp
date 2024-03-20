@@ -299,13 +299,16 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 
 bool	checkCgi(std::string &path, const Locations *loc)
 {
-	/* if (path.length() >= 3 && path.substr(path.length() - 3) == ".py") 
+	cout << path.substr(path.length() - 3, 3) << endl;
+	std::map<std::string, std::string>::iterator it = loc->getCGI().find(path.substr(path.length() - 3, 3));
+	if (loc && loc->getCGI().size() > 0 && it != loc->getCGI().end())
+	{	
+		//cout << "true" << endl;
 		return (true);
+	}
 	else 
-		return (false); */
-	/*si existe loc, y si encontramos una extension igual en el map de cgi, aprobamos.*/
-	if (loc && loc->getCGI().find(path.substr(path.length() - 3)) != loc->getCGI().end()) 
-		return (true);
-	else 
+	{
+		//cout << "false" << endl;
 		return (false);
+	}
 }
