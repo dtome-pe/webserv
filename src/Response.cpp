@@ -1,82 +1,5 @@
 #include <webserv.hpp>
 
-void Response::do_cgi(Request &request, std::string &path)
-{
-	(void) path;
-	
-	int pipe_fd[2];
-	
-    if (pipe(pipe_fd) == -1) 
-	{
-        strerror(errno);
-        setResponse(500, *this, "", NULL, NULL);
-		return ;
-    }
-	pid_t	pid = fork();
-	if (pid == -1)
-	{
-		strerror(errno);
-		setResponse(500, *this, "", NULL, NULL);
-		return ;
-	}
-	if (pid == 0)
-	{
-		close(pipe_fd[0]);
-		if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
-		{
-			strerror(errno);
-			setResponse(500, *this, "", NULL, NULL);
-			return ;
-		}
-		close(pipe_fd[1]);
-		execve(path.c_str(), setArgv(path), setEnvp(request, path));
-	}
-	else
-	{
-        close(pipe_fd[1]);
-		int	status;
-        int result = waitpid(pid, &status, 0);
-		if (result == -1)
-		{
-			strerror(errno);
-			setResponse(500, *this, "", NULL, NULL);
-			return ;
-		}
-		else
-		{
-			if (WIFEXITED(status))
-       		{
-            	int exitStatus = WEXITSTATUS(status);
-				if (exitStatus == -1)
-				{
-					setResponse(500, *this, "", NULL, NULL);
-					return ;
-				}
-				else
-				{
-					/* char buffer[4096];
-        			ssize_t bytesRead;
-					std::string content;
-					while ((bytesRead = read(pipe_fd[0], buffer, sizeof(buffer))) > 0)
-					{
-						content.append(buffer,bytesRead);
-					} */
-					std::string content = bounceContent(pipe_fd);
-					std::string contentType = getCgiHeader(content, "Content-Type:");
-					removeHeaderLine(content);
-					cout << "content type value parsed was " << contentType << endl;
-					this->setStatusLine("HTTP/1.1 200 OK");
-					this->setHeader("Content-Type: " + contentType);
-					this->setHeader("Content-Length: " + getLengthAsString(content));
-					this->setBody(content);
-					cout << content << endl;
-					close(pipe_fd[0]);  // Close read end in the parent
-				}
-       		}
-		}
-	}
-}
-
 void Response::do_redirection(Request &request, std::string return_str)
 {	
 	(void) request;
@@ -140,7 +63,7 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 			//cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
 			if (checkCgi(path)) // chequearemos si location tiene activado el cgi y para que extensiones
 			{
-				do_cgi(request, path);
+				cgi(*this, request, path);
 				return ;
 			}
 			else
@@ -150,7 +73,6 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 		{
 			if (serv->getVIndex().size() > 0 || (loc && loc->getIndex().size() > 0)) // si hay index directive
 			{
-				cout << "entra aqui" << endl;
 				std::string index_file = findIndex(path, serv, loc); // localizamos si el camino lleva a un archivo
 				if (index_file != "")  // en caso afirmativo, se sirve
 				{
