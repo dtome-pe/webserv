@@ -33,9 +33,9 @@ std::string Server::getServerName()
 	return (this->server_name);
 }
 
-std::vector<std::map<int, std::string> >& Server::getErrorPage()
+std::map<int, std::string>& Server::getErrorPage()
 {
-	return (verror_page);
+	return (merror_page);
 }
 
 std::string Server::getAllowMethods()
@@ -80,9 +80,7 @@ void	Server::setErrorPage(std::string error_page)
 	int key = std::atoi(error_page.substr(0, pos).c_str());
 	size_t fpos = error_page.find(";");
 	error_page = error_page.substr(pos + 1, fpos);
-	std::map<int, std::string> errPage;
-	errPage[key] = error_page;
-	verror_page.push_back(errPage);
+	merror_page[key] = error_page;
 }
 
 void	Server::setAllowMethods(std::string allow)
@@ -205,16 +203,10 @@ void	Server::printLocations()
 void Server::printErrorPages()
 {
 	std::cout << "Error pages: " << std::endl;
-	std::vector<std::map<int, std::string> >& vecOfMaps = getErrorPage();
-	for (size_t i = 0; i < vecOfMaps.size(); ++i)
-	{
-		std::map<int, std::string>::const_iterator iter;
-		for (iter = vecOfMaps[i].begin(); iter != vecOfMaps[i].end(); ++iter)
-		{
-			std::cout << iter->first << " => " << iter->second << std::endl;
-		}
-		std::cout << std::endl;
-	}
+    std::map<int, std::string>::iterator it;
+    for (it = merror_page.begin(); it != merror_page.end(); ++it) {
+        std::cout << it->first << " => " << it->second << std::endl;
+    }
 }
 
 void	Server::setLocation(Locations& loc)
