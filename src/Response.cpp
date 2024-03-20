@@ -42,10 +42,9 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 			setResponse(405, *this, "", serv, loc);
 			return ;
 		}
-		std::string return_str = checkReturn(loc); // luego se comprueban redirecciones
-		if (return_str != "")
+		if (loc && loc->getRedirection().length() > 0) // comprobar si hay directive return
 		{
-			do_redirection(request, return_str);
+			do_redirection(request, loc->getRedirection()); // pasaremos setResponse cuando tengamos map<int,string>
 			return ;
 		}
 		if (!checkGood(path))  // si el path que ha resultado no existe, 404
@@ -61,7 +60,7 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 		if (checkFileOrDir(path) == "file")
 		{
 			//cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
-			if (checkCgi(path)) // chequearemos si location tiene activado el cgi y para que extensiones
+			if (checkCgi(path, loc)) // chequearemos si location tiene activado el cgi y para que extensiones
 			{
 				cgi(*this, request, path);
 				return ;
