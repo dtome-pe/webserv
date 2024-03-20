@@ -185,7 +185,7 @@ void	Server::printLocations()
 		std::cout << "Index:" << std::endl;
 		std::vector<std::string>aux = locations[i].getIndex();
 		for (size_t i = 0; i < aux.size(); i++)
-			std::cout << aux[i] << std::endl;
+			std::cout << aux[i] << std::ndl;
 		std::cout << "Allow methods: ";
 		std::cout << "GET: ";
 		if (locations[i].getMethods()[0] == 1)
