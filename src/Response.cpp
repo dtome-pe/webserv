@@ -9,14 +9,14 @@ void Response::do_cgi(Request &request, std::string &path)
     if (pipe(pipe_fd) == -1) 
 	{
         strerror(errno);
-        setResponse(500, *this, "", NULL);
+        setResponse(500, *this, "", NULL, NULL);
 		return ;
     }
 	pid_t	pid = fork();
 	if (pid == -1)
 	{
 		strerror(errno);
-		setResponse(500, *this, "", NULL);
+		setResponse(500, *this, "", NULL, NULL);
 		return ;
 	}
 	if (pid == 0)
@@ -25,7 +25,7 @@ void Response::do_cgi(Request &request, std::string &path)
 		if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
 		{
 			strerror(errno);
-			setResponse(500, *this, "", NULL);
+			setResponse(500, *this, "", NULL, NULL);
 			return ;
 		}
 		close(pipe_fd[1]);
@@ -39,7 +39,7 @@ void Response::do_cgi(Request &request, std::string &path)
 		if (result == -1)
 		{
 			strerror(errno);
-			setResponse(500, *this, "", NULL);
+			setResponse(500, *this, "", NULL, NULL);
 			return ;
 		}
 		else
@@ -49,7 +49,7 @@ void Response::do_cgi(Request &request, std::string &path)
             	int exitStatus = WEXITSTATUS(status);
 				if (exitStatus == -1)
 				{
-					setResponse(500, *this, "", NULL);
+					setResponse(500, *this, "", NULL, NULL);
 					return ;
 				}
 				else
@@ -97,7 +97,7 @@ void Response::do_redirection(Request &request, std::string return_str)
 		makeReturnCode(c, *this);
 	} */
 	if (code == "301")
-		setResponse(301, *this, location, NULL);
+		setResponse(301, *this, location, NULL, NULL);
 }
 
 Response::Response(Request &request, const Server *serv, const Locations *loc)
@@ -108,19 +108,18 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (request.getTarget() == "/")
-			setResponse(200, *this, readFileContents(getDefaultFile("/default.html")), NULL);
+			setResponse(200, *this, readFileContents(getDefaultFile("/default.html")), NULL, NULL);
 		else
-			setResponse(404, *this, "", NULL);
+			setResponse(404, *this, "", serv, NULL);
 	}
 	else
 	{
 		if (!check_method(request.getMethod(), loc)) // si metodo no permitido, 405
 		{
-			setResponse(405, *this, "", loc);
+			setResponse(405, *this, "", serv, loc);
 			return ;
 		}
 		std::string return_str = checkReturn(loc); // luego se comprueban redirecciones
-		cout << "return str: " << return_str << endl;
 		if (return_str != "")
 		{
 			do_redirection(request, return_str);
@@ -128,12 +127,12 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 		}
 		if (!checkGood(path))  // si el path que ha resultado no existe, 404
 		{
-			setResponse(404, *this, "", NULL);
+			setResponse(404, *this, "", serv, NULL);
 			return ;
 		}
 		if (checkFileOrDir(path) == "dir" && !checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
 		{
-			setResponse(301, *this, request.getTarget() + "/", NULL);
+			setResponse(301, *this, request.getTarget() + "/", NULL, NULL);
 			return ;
 		}
 		if (checkFileOrDir(path) == "file")
@@ -145,21 +144,29 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 				return ;
 			}
 			else
-				setResponse(200, *this, readFileContents(path), NULL); //sino servimos el recurso de manera normal
+				setResponse(200, *this, readFileContents(path), NULL, NULL); //sino servimos el recurso de manera normal
 		}
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{
-			//cout << "path is good and it's a dir"  << endl;
-			std::string index_file = findIndex(path, serv, loc); // checquearemos si hay un index directive, para intentar servir archivo index
-			if (index_file != "")
+			if (serv->getVIndex().size() > 0 || (loc && loc->getIndex().size() > 0)) // si hay index directive
 			{
-				setResponse(200, *this, readFileContents(index_file), NULL);
-				return ;
+				cout << "entra aqui" << endl;
+				std::string index_file = findIndex(path, serv, loc); // localizamos si el camino lleva a un archivo
+				if (index_file != "")  // en caso afirmativo, se sirve
+				{
+					setResponse(200, *this, readFileContents(index_file), NULL, NULL);
+					return ;
+				}
+				else // si no, damos un forbidden, como nginx
+				{
+					setResponse(403, *this, "", serv, NULL);
+					return ;
+				}
 			}
 			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
 			{
 				path += "index.html";
-				setResponse(200, *this, readFileContents(path), NULL);
+				setResponse(200, *this, readFileContents(path), NULL, NULL);
 				return ;
 			}
 			else // sino, comprobamos si tiene autoindex activado para mostrar listado directorio
@@ -167,16 +174,16 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 				if (!loc || !loc->getAutoindex()) // si no tiene autoindex (como solo lo puede tener un location, de momento), devolvemos 403 ya que no esta activado el directorylisting
 											// y no tenemos permiso para coger ningun archivo de directorio
 				{
-					setResponse(403, *this, "", NULL);
+					setResponse(403, *this, "", serv, NULL);
 					return ;
 				}
 				else
 				{
 					std::string content = generateDirectoryListing(path);
 					if (content == "Error 500") // por si da algun error interno el server.
-						setResponse(200, *this, "", NULL);
+						setResponse(200, *this, "", NULL, NULL);
 					else
-						setResponse(200, *this, content, NULL);
+						setResponse(200, *this, content, NULL, NULL);
 					return ;
 				}
 			}		
