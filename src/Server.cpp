@@ -8,6 +8,7 @@ Server::Server()
 	server_name = "";
 	error_page = "";
 	methods = "";
+	body_size = UINT_MAX;
 }
 
 void	Server::start()
@@ -48,6 +49,11 @@ std::string Server::getRoot() const
 	return (this->root);
 }
 
+unsigned int Server::getMaxBodySize() const
+{
+	return (this->body_size);
+}
+
 void	Server::setPort(std::string port)
 {
 	this->port = port;
@@ -72,6 +78,15 @@ void	Server::setIpPort(std::string ip, std::string port)
 void	Server::setServerName(std::string serverName)
 {
 	this->server_name = serverName;
+}
+
+void	Server::setMaxBodySize(std::string maxBody)
+{
+	std::cout << "entra" << std::endl;
+	if (std::atol(maxBody.c_str()) > UINT_MAX)
+		throw std::runtime_error("body size too large");
+	else
+		this->body_size = static_cast<unsigned int>(std::atoi(maxBody.c_str()));
 }
 
 void	Server::setErrorPage(std::string error_page)
@@ -207,6 +222,11 @@ void Server::printErrorPages()
     for (it = merror_page.begin(); it != merror_page.end(); ++it) {
         std::cout << it->first << " => " << it->second << std::endl;
     }
+}
+
+void	Server::printBodySize()
+{
+	std::cout << "Max body size: " << this->body_size << std::endl;
 }
 
 void	Server::setLocation(Locations& loc)
