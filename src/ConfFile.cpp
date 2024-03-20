@@ -199,7 +199,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 			res = line.substr(pos + 5, fpos - pos - 4);
 			loc.setRoot(res.erase(res.size() - 1));
 		}
-		else if (line.find("cgi ") != std::string::npos)
+		else if (line.find("cgi") != std::string::npos)
 		{
 			pos = line.find("cgi ");
 			res = line.substr(pos + 4, fpos - pos);
@@ -209,6 +209,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 			trimSpaces(execute);
 			std::string path = res.substr(pos, fpos);
 			trimSpaces(path);
+			loc.setCGI(execute, path);
 		}
 		else
 			throw std::logic_error(line + " => invalid line or curly brace missing");

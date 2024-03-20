@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <map>
 
 class Locations {
 	private:
@@ -16,7 +17,7 @@ class Locations {
 		std::string redirection;
 		std::string root;
 		std::string allurl;
-	//	std::string cgi;
+		std::map<std::string, std::string> cgi;
 		std::vector<std::string> index;
 	public:
 		Locations();
@@ -28,6 +29,8 @@ class Locations {
 		void setRedirection(std::string red);
 		void setRoot(std::string rt);
 		void setAllUrl(std::string url);
+		void setCGI(std::string ext, std::string path);
+		std::map<std::string, std::string> getCGI() const;
 		bool getAutoindex() const;
 		std::vector<std::string> getIndex() const;
 		const int *getMethods() const;
