@@ -202,8 +202,9 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		else if (line.find("cgi") != std::string::npos)
 		{
 			pos = line.find("cgi ");
-			res = line.substr(pos + 4, fpos - pos);
-			pos = res.find(" /");
+			res = line.substr(pos + 4, fpos - pos - 4);
+			cout << "res: " << res << endl;
+			pos = res.find(" ");
 			fpos = res.find(";");
 			std::string execute = res.substr(0, pos);
 			trimSpaces(execute);

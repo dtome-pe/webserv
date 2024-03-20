@@ -27,7 +27,6 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 {
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
 	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
-	//cout << path << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (request.getTarget() == "/")
