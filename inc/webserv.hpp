@@ -64,12 +64,12 @@ class Server;
 	bool						checkTrailingSlash(std::string &path);
 	std::string 				checkReturn(const Locations *loc);
 
-	void						setResponse(int code, Response &response, std::string arg, const Locations *loc);
+	void						setResponse(int code, Response &response, std::string arg, const Server *serv, const Locations *loc);
 
 	bool 						checkDefaultPath();
 	std::string 				getDefaultPath();
 	std::string 				getDefaultFile(const std::string &file);
-	void						makeDefault(Response &response, const std::string &file);
+	void						makeDefault(Response &response, const std::string &file, const Server *serv);
 
 	bool						checkCgi(std::string &path);
 
