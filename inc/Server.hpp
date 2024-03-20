@@ -22,7 +22,7 @@ class Server
 		std::vector<std::string> vserver_name;
 		std::vector<std::string> vports;
 		std::vector<std::string> vindex;
-		std::vector<std::map<int, std::string> > verror_page;
+		std::map<int, std::string> merror_page;
 		std::vector<class Locations> locations;
 	public:
 		int		active;
@@ -41,7 +41,7 @@ class Server
 		std::string	getPort(const std::string &ip_port) const;
 		std::string	getIp(const std::string &ip_port) const;
 		std::string getServerName();
-		std::vector<std::map<int, std::string> >& getErrorPage();
+		std::map<int, std::string>& getErrorPage();
 		std::string getAllowMethods();
 		std::string getRoot() const;
 		//setters
