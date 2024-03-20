@@ -88,7 +88,7 @@ std::string ConfFile::findInfo(std::string line, std::string tofind)
 	std::size_t lastNS;
 
 	if (tofindpos < 0 || semicolonpos < 0)
-		throw std::runtime_error("invalid configuration file.");
+		throw std::runtime_error("invalid configuration file. Semicolon missing");
 	result = line.substr(tofindpos + tofind.length(), semicolonpos);
 	firstNS = result.find_first_not_of(" \t\n\r");
     lastNS = result.find_last_not_of(" \t\n\r;");
@@ -110,11 +110,11 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
 	std::getline(iss, line, '\n');
 	pos = line.find(";");
 	if (pos == std::string::npos)
-		throw std::runtime_error("invalid configuration file");
+		throw std::runtime_error("invalid configuration file. Semicolon missing");
 	hasip = line.find(":");
 	pos = line.find("listen ");
 	if (pos == std::string::npos)
-		throw std::runtime_error("invalid configuration file");
+		throw std::runtime_error("invalid configuration file. Listen directive missing");
 	if (hasip != std::string::npos)
 	{
 		res = line.substr(pos + 6, hasip - (pos + 6));
@@ -150,7 +150,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		pos = line.find("/");
 		fpos = line.find(" {");
 		if (pos == std::string::npos || fpos == std::string::npos)
-			throw std::runtime_error("invalid configuration file.");
+			throw std::runtime_error("invalid configuration file. Semicolon or curly brace missing");
 		res = line.substr(pos, fpos - pos);
 		trimSpaces(res);
 		loc.setLocation(res);
@@ -159,7 +159,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 	{
 		fpos = line.find(";");
 		if (fpos == std::string::npos)
-			throw std::logic_error("invalid configuration file");
+			throw std::logic_error("invalid configuration file. Semicolon missing");
 		if (line.find("autoindex ") != std::string::npos)
 		{
 			pos = line.find("autoindex ");
@@ -206,7 +206,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 			pos = res.find(" /");
 			fpos = res.find(";");
 			if (fpos == std::string::npos)
-				throw std::runtime_error("invalid configuration file");
+				throw std::runtime_error("invalid configuration file. Please check semicolon.");
 			std::string execute = res.substr(0, pos);
 			trimSpaces(execute);
 			std::string path = res.substr(pos, fpos);

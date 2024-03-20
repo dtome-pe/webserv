@@ -22,6 +22,7 @@ class Server
 		std::vector<std::string> vserver_name;
 		std::vector<std::string> vports;
 		std::vector<std::string> vindex;
+		std::vector<std::map<int, std::string> > verror_page;
 		std::vector<class Locations> locations;
 	public:
 		int		active;
@@ -30,12 +31,8 @@ class Server
 		//vector host:puerto, (listen previo getaddrinfo resuelva dominio, si lo hay)
 		std::vector<std::string> host_port;
 		void	setHostPort(std::string host, std::string port); // funcion que anada un elemento en el vector de ip:puertos
-		void 	printHostPort();
-
-		//vector ip:puerto (ip ya resuelta)
 		std::vector<std::string> ip_port;
 		void	setIpPort(std::string ip, std::string port);
-		void 	printIpPort();
 
 		Server();
 		int id;
@@ -44,14 +41,14 @@ class Server
 		std::string	getPort(const std::string &ip_port) const;
 		std::string	getIp(const std::string &ip_port) const;
 		std::string getServerName();
-		std::string getErrorPage();
+		std::vector<std::map<int, std::string> >& getErrorPage();
 		std::string getAllowMethods();
 		std::string getRoot() const;
 		//setters
 		void	setPort(std::string port);
 		void	setIp(std::string ip);
 		void	setServerName(std::string serverName);
-		void	setErrorPage(std::string errorPage);
+		void	setErrorPage(std::string error_page);
 		void	setAllowMethods(std::string allow);
 		void	setRoot(std::string rt);
 		//setter/getter para vector server_name
@@ -70,6 +67,8 @@ class Server
 		void	printErrorPages();
 		void	printindex();
 		void	printRoot();
+		void	printIpPort();
+		void	printHostPort();
 
 
 };
