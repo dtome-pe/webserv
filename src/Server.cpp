@@ -3,13 +3,17 @@
 
 Server::Server()
 {
-	sock_list	= NULL;
+	sock_list = NULL;
 	active = 1;
 	ip = "";
 	server_name = "";
 	error_page = "";
 	methods = "";
 	body_size = 1;
+	methods[0] = 1;
+	methods[1] = 0;
+	methods[2] = 0;
+	methods[3] = 0;
 }
 
 void	Server::start()
