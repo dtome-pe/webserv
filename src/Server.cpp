@@ -8,7 +8,7 @@ Server::Server()
 	server_name = "";
 	error_page = "";
 	methods = "";
-	body_size = UINT_MAX;
+	body_size = 1;
 }
 
 void	Server::start()
@@ -82,10 +82,23 @@ void	Server::setServerName(std::string serverName)
 
 void	Server::setMaxBodySize(std::string maxBody)
 {
-	if (std::atol(maxBody.c_str()) > UINT_MAX)
+	std::string numStr;
+	for (size_t i = 0; i < maxBody.length(); ++i)
+	{
+        if (std::isdigit(maxBody[i])) {
+			numStr += maxBody[i];
+		} else {
+			if (maxBody[i] != 'm')
+				throw std::runtime_error("the letter in max body must be m");
+            break;
+        }
+    }
+    unsigned long num = 0;
+    std::istringstream(numStr) >> num;
+	if (num > UINT_MAX)
 		throw std::runtime_error("body size too large");
 	else
-		this->body_size = static_cast<unsigned int>(std::atoi(maxBody.c_str()));
+		this->body_size = static_cast<unsigned int>(num);
 }
 
 void	Server::setErrorPage(std::string error_page)
@@ -183,7 +196,9 @@ void	Server::printLocations()
 	{
 		std::cout << std::endl << BOLD GREEN "Location " << i + 1 << ": " RESET << locations[i].getLocation() << std::endl;
 		if (!locations[i].getRedirection().empty())
-			std::cout << GREEN "Redirection to: " RESET << locations[i].getRedirection() << std::endl;
+		{
+			std::cout << GREEN "Redirection to: " RESET << "Number: " << locations[i].getRedirectionNumber() << " | Redirect: " << locations[i].getRedirection() << std::endl;
+		}
 		std::cout << GREEN "Autoindex: " RESET;
 		if (locations[i].getAutoindex() == true)
 			std::cout << "on" << std::endl;
