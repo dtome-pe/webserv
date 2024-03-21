@@ -12,6 +12,7 @@
 class Server
 {
 	private:
+		int	methods[4];
 		std::string ip;
 		std::string port;
 		std::string server_name;
