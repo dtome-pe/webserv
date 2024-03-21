@@ -25,7 +25,7 @@ class Locations {
 		~Locations();
 		void setAutoindex(bool autoin);
 		void setVIndex(std::vector<std::string> idx);
-		void setMethods(int met[3]);
+		void setMethods(int met[4]);
 		void setLocation(std::string loc);
 		void setRedirection(std::string red);
 		void setRoot(std::string rt);
