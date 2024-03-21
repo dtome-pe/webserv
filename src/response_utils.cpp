@@ -1,7 +1,8 @@
 #include<webserv.hpp>
 
-bool check_method(std::string method, const Locations *loc)
+bool check_method(std::string method, const Locations *loc, const Server *serv)
 {	
+	(void) serv;
 	int idx;
 
 	if (method == "GET")
@@ -10,13 +11,18 @@ bool check_method(std::string method, const Locations *loc)
 		idx = 1;
 	else if (method == "DELETE")
 		idx = 2;
+	else if (method == "PUT")
+		idx = 3;
 	else
 		return (true);
 	if (loc)
 	{
 		if (loc->getMethods()[idx] == 0)
 			return (false);
+		return (true);
 	}
+	/* if (serv->getMethods()[idx] == 0)
+		return (false); */
 	return (true);
 }
 
