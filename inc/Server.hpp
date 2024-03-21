@@ -17,7 +17,6 @@ class Server
 		std::string port;
 		std::string server_name;
 		std::string error_page;
-		std::string methods;
 		std::string root;
 		unsigned int body_size;
 		//vectores
@@ -44,7 +43,7 @@ class Server
 		std::string	getIp(const std::string &ip_port) const;
 		std::string getServerName();
 		const std::map<int, std::string>& getErrorPage() const;
-		std::string getAllowMethods();
+		const int *getMethods() const;
 		std::string getRoot() const;
 		unsigned int getMaxBodySize() const;
 		//setters
@@ -52,7 +51,7 @@ class Server
 		void	setIp(std::string ip);
 		void	setServerName(std::string serverName);
 		void	setErrorPage(std::string error_page);
-		void	setAllowMethods(std::string allow);
+		void	setMethods(int met[4]);
 		void	setRoot(std::string rt);
 		void	setMaxBodySize(std::string maxBody);
 		//setter/getter para vector server_name
