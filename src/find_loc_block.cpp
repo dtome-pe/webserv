@@ -46,9 +46,10 @@ const Locations *find_loc_block(const Server *serv, Request &req)
 	for (unsigned int i = 0; i < locations.size(); i++)
 	{
 		int len = locations[i].getLocation().length();
-	//	cout << locations[i].getLocation() << " len is " << len << endl;
 		if (!req.request_line.target.compare(0, len, locations[i].getLocation()))
+		{
 			matches.push_back(&locations[i]);
+		}
 	}
 	for (unsigned int i = 0; i < matches.size(); i++)
 	{

@@ -2,7 +2,7 @@
 
 void	setResponse(int code, Response &response, std::string arg, const Server *serv, const Locations *loc)
 {
-	cout << "code: " << code << " arg: " << arg << endl;
+	cout << "code: " << code << endl;
 	switch (code)
 	{
 		case 200:
@@ -20,6 +20,20 @@ void	setResponse(int code, Response &response, std::string arg, const Server *se
 		case 301:
 		{
 			response.setStatusLine("HTTP/1.1 301 Moved Permanently");
+			response.setHeader("Location: " + arg);
+			response.setHeader("Connection: keep-alive");
+			break;
+		}
+		case 302:
+		{
+			response.setStatusLine("HTTP/1.1 302 Found");
+			response.setHeader("Location: " + arg);
+			response.setHeader("Connection: keep-alive");
+			break;
+		}
+		case 303:
+		{
+			response.setStatusLine("HTTP/1.1 303 See Other");
 			response.setHeader("Location: " + arg);
 			response.setHeader("Connection: keep-alive");
 			break;
