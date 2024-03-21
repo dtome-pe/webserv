@@ -35,7 +35,7 @@ class Server;
 	const Locations 			*find_loc_block(const Server *serv, Request &req);
 
 	/*response utils*/
-	bool 						check_method(std::string method, const Locations *loc);
+	bool 						check_method(std::string method, const Locations *loc, const Server *serv);
 	std::string 				getPath(Request &request, const Server *serv, const Locations *loc);
 	std::string 				removeDoubleSlashes(const std::string& input);
 	std::string 				readFileContents(const std::string& filename);
