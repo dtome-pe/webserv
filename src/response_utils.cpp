@@ -21,8 +21,8 @@ bool check_method(std::string method, const Locations *loc, const Server *serv)
 			return (false);
 		return (true);
 	}
-	/* if (serv->getMethods()[idx] == 0)
-		return (false); */
+	if (serv->getMethods()[idx] == 0)
+		return (false);
 	return (true);
 }
 
