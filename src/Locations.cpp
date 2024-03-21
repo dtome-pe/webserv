@@ -40,7 +40,11 @@ void	Locations::setLocation(std::string loc)
 
 void	Locations::setRedirection(std::string red)
 {
-	redirection = red;
+	size_t pos = red.find(" ");
+	size_t fpos = red.find(";");
+
+	redirectNum = std::atoi(red.substr(0, pos).c_str());
+	redirection = red.substr(pos + 1, fpos);
 }
 
 void	Locations::setRoot(std::string rt)
@@ -81,6 +85,11 @@ const std::string Locations::getLocation() const
 const std::string Locations::getRedirection() const
 {
 	return (this->redirection);
+}
+
+int Locations::getRedirectionNumber() const
+{
+	return (this->redirectNum);
 }
 
 const std::string Locations::getRoot() const

@@ -15,6 +15,7 @@ class Locations {
 //		std::string index;
 		int methods[3]; //[0] = GET, [1] = POST, [2] = DELETE. Si es 0 no permitido si es 1 permitido.
 		std::string redirection;
+		int	redirectNum;
 		std::string root;
 		std::string allurl;
 		std::map<std::string, std::string> cgi;
@@ -36,6 +37,7 @@ class Locations {
 		const int *getMethods() const;
 		const std::string getLocation() const;
 		const std::string getRedirection() const;
+		int getRedirectionNumber() const;
 		const std::string getRoot() const;
 		std::string getAllUrl();
 };
