@@ -29,6 +29,12 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
+		if (!check_method(request.getMethod(), NULL, serv)) // bloqueamos toda peticion que no sea GET, 405
+		{
+			setResponse(405, *this, "", serv, loc);
+			return ;
+		}
+		/*Si la peticion es al root, damos pagina default, si no 404*/
 		if (request.getTarget() == "/")
 			setResponse(200, *this, readFileContents("default/default.html"), NULL, NULL);
 		else
@@ -36,7 +42,7 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 	}
 	else
 	{
-		if (!check_method(request.getMethod(), loc)) // si metodo no permitido, 405
+		if (!check_method(request.getMethod(), loc, serv)) // si metodo no permitido, 405
 		{
 			setResponse(405, *this, "", serv, loc);
 			return ;
