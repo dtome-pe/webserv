@@ -55,7 +55,7 @@ class Server;
 
 	/*cgi*/
 
-	bool						checkCgi(std::string &path);
+	bool						checkCgi(std::string &path, const Locations *loc);
 	void						cgi(Response &response, Request &request, std::string &path);
 
 	char* const* 				setEnvp(Request &request, std::string &path);
