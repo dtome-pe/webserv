@@ -297,10 +297,18 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	return (index_file);
 }
 
-bool	checkCgi(std::string &path)
+bool	checkCgi(std::string &path, const Locations *loc)
 {
-	if (path.length() >= 3 && path.substr(path.length() - 3) == ".py") 
+	cout << path.substr(path.length() - 3, 3) << endl;
+	std::map<std::string, std::string>::iterator it = loc->getCGI().find(path.substr(path.length() - 3, 3));
+	if (loc && loc->getCGI().size() > 0 && it != loc->getCGI().end())
+	{	
+		//cout << "true" << endl;
 		return (true);
+	}
 	else 
+	{
+		//cout << "false" << endl;
 		return (false);
+	}
 }

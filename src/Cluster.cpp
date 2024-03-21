@@ -11,23 +11,8 @@ void Cluster::parseConfig(char *file)
 	_conf.print_servers();
 }
 
-void static tester(std::vector<Socket>&_sockVec, std::vector<pollfd>&_pollVec)
-{
-	for (unsigned int i = 0; i < _sockVec.size(); i++)
-	{
-		_sockVec[i].start(); // se crean, se hace bind, se hace listen. cada socket.
-
-		pollfd node;  // se genera nuevo nodo en vector de pollfd, que son los fds que poll 
-										// va investigando si tienen algo que leer o no
-
-		node.fd = _sockVec[i].getFd();
-		node.events = POLLIN; // esto es lo que determina que estamos interesados en eventos de lectura. recv.
-		_pollVec.push_back(node);
-	}
-}
-
-void static tester_1(std::vector<Server>&_servVec, std::vector<Socket>&_sockVec)
-{
+void Cluster::setup()
+{	
 	for (size_t i = 0; i < _servVec.size(); i++)
 	{
 		for (size_t j = 0; j < _servVec[i].host_port.size(); j++)
@@ -43,13 +28,17 @@ void static tester_1(std::vector<Server>&_servVec, std::vector<Socket>&_sockVec)
 			// y nginx no da error, simplemente solo abre uno.
 		}
 	}
-}
+	for (unsigned int i = 0; i < _sockVec.size(); i++)
+	{
+		_sockVec[i].start(); // se crean, se hace bind, se hace listen. cada socket.
 
-void Cluster::setup()
-{	
-	tester_1(_servVec, _sockVec);
-	tester(_sockVec, _pollVec);
+		pollfd node;  // se genera nuevo nodo en vector de pollfd, que son los fds que poll 
+										// va investigando si tienen algo que leer o no
 
+		node.fd = _sockVec[i].getFd();
+		node.events = POLLIN; // esto es lo que determina que estamos interesados en eventos de lectura. recv.
+		_pollVec.push_back(node);
+	}
 }
 
 static void	handler(int sig)
