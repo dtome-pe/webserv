@@ -10,14 +10,22 @@ HeaderHTTP::~HeaderHTTP()
 
 }
 
-void		HeaderHTTP::setHeader(std::string _header)
+int		HeaderHTTP::setHeader(std::string _header)
 {
 	this->header_vec.push_back(_header);
 	
 	int n = _header.find(':');
 	std::string name = _header.substr(0, n);
 	std::string value = _header.substr(n + 2, _header.length());
+	if (name == "Host")
+	{
+		if (this->header_map.find(name) != this->header_map.end())
+		{
+			return (1);
+		}
+	}
 	this->header_map[name] = value;
+	return (0);
 	//std::cout << name << ": " << this->headers[name] << std::endl;
 }
 
@@ -36,16 +44,7 @@ std::string	HeaderHTTP::getHeader(std::string name)
 			return (this->header_vec[i]); */
 	return (NULL);
 }
-/* 
-std::string	HeaderHTTP::getHeaderValue(std::string name)
-{
-	for (size_t i = 0; i < this->header.size(); i++)
-		if (this->header[i].substr(0, this->header[i].find(':') - 1) == name)
-			return (this->header[i].substr(this->header[i].find(':')
-				, this->header[i].length()));
-	return (NULL);
-}
- */
+
 std::string	HeaderHTTP::makeHeader()
 {
 	std::string text;

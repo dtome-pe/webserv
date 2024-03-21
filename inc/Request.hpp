@@ -26,8 +26,8 @@ class Request
 		void		setRequestLine(std::string _request_line);
 		void		setHeader(std::string _header);
 		void		setBody(std::string _body);
-		void		printLine(std::string line);
-		void		splitRequest(std::string buff);
+
+		void		splitRequest(std::string buff, Socket &listener);
 		std::string getMethod();
 		std::string getTarget();
 		std::string getVersion();
@@ -37,6 +37,10 @@ class Request
 		std::string ip;
 		std::string host;
 		std::string port;
+
+		bool		good;
+
+		void		printRequest();
 };
 
 #endif

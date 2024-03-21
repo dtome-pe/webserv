@@ -81,7 +81,8 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 }
 
 std::string readFileContents(const std::string& filename) 
-{
+{	
+	cout << filename << endl;
     std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
     if (!file) {
         std::cerr << "Error opening file: " << filename << std::endl;
@@ -261,7 +262,8 @@ void	makeDefault(int code, Response &response, const std::string &file, const Se
 	std::string	content = "";
 	std::map<int, std::string>::const_iterator it = serv->getErrorPage().find(code);
 	if (it != serv->getErrorPage().end())
-	{
+	{	
+		cout << "entra en el if" << endl;
 		std::string path = serv->getRoot() + it->second;
 		if (checkGood(path))
 			content = readFileContents(path);

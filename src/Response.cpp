@@ -23,7 +23,17 @@ void Response::do_redirection(Request &request, std::string return_str)
 		setResponse(301, *this, location, NULL, NULL);
 }
 
-Response::Response(Request &request, const Server *serv, const Locations *loc)
+Response::Response()
+{	
+
+}
+
+Response::~Response()
+{
+
+}
+
+void	Response::handleRequest(Request &request, const Server *serv, const Locations *loc)
 {
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
 	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
@@ -115,11 +125,6 @@ Response::Response(Request &request, const Server *serv, const Locations *loc)
 			}		
 		}
 	}
-}
-
-Response::~Response()
-{
-
 }
 
 std::string Response::makeResponse()

@@ -38,6 +38,12 @@ void	setResponse(int code, Response &response, std::string arg, const Server *se
 			response.setHeader("Connection: keep-alive");
 			break;
 		}
+		case 400:
+		{
+			response.setStatusLine("HTTP/1.1 400 Bad Request");
+			makeDefault(400, response, "/400.html", serv);
+			break;
+		}
 		case 403:
 		{
 			response.setStatusLine("HTTP/1.1 403 Forbidden");
