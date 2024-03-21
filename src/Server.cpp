@@ -198,7 +198,7 @@ void	Server::printLocations()
 		std::cout << std::endl << BOLD GREEN "Location " << i + 1 << ": " RESET << locations[i].getLocation() << std::endl;
 		if (!locations[i].getRedirection().empty())
 		{
-			std::cout << GREEN "Redirection to: " RESET << "Number: " << locations[i].getRedirectionNumber() << " | Redirect: " << locations[i].getRedirection() << std::endl;
+			std::cout << GREEN "Return to: " RESET << "Number: " << locations[i].getRedirectionNumber() << " | Redirect: " << locations[i].getRedirection() << std::endl;
 		}
 		std::cout << GREEN "Autoindex: " RESET;
 		if (locations[i].getAutoindex() == true)
