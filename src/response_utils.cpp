@@ -303,18 +303,16 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	return (index_file);
 }
 
-bool	checkCgi(std::string &path, const Locations *loc)
-{
-	cout << path.substr(path.length() - 3, 3) << endl;
-	std::map<std::string, std::string>::iterator it = loc->getCGI().find(path.substr(path.length() - 3, 3));
-	if (loc && loc->getCGI().size() > 0 && it != loc->getCGI().end())
-	{	
-		//cout << "true" << endl;
-		return (true);
-	}
-	else 
-	{
-		//cout << "false" << endl;
-		return (false);
-	}
+bool checkCgi(std::string &path, const Locations *loc) {
+    if (loc) {
+        const std::map<std::string, std::string>& cgiMap = loc->getCGI();
+        if (!cgiMap.empty()) {
+            std::map<std::string, std::string>::const_iterator it = cgiMap.find(path.substr(path.length() - 3, 3));
+            if (it != cgiMap.end()) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
+
