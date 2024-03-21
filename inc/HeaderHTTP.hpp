@@ -18,7 +18,7 @@ class HeaderHTTP
 
 		std::string						getHeader(std::string name); // devuelve header concreto con nombre
 	//	std::string						getHeaderValue(std::string name); // devuelve header concreto sin nombre
-		void							setHeader(std::string header); // introducir nuevo header (con nombre)
+		int								setHeader(std::string header); // introducir nuevo header (con nombre)
 		std::string						makeHeader(); // devuelve el texto del header con el formato completo
 		static std::vector<std::string>	split(const std::string& input, const std::string& delimiters);
 		void							printHeaders();
