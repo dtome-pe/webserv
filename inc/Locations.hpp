@@ -13,7 +13,7 @@ class Locations {
 		bool autoindex;
 		std::string location;
 //		std::string index;
-		int methods[3]; //[0] = GET, [1] = POST, [2] = DELETE. Si es 0 no permitido si es 1 permitido.
+		int methods[4]; //[0] = GET, [1] = POST, [2] = DELETE. [3] = PUT. Si es 0 no permitido si es 1 permitido.
 		std::string redirection;
 		int	redirectNum;
 		std::string root;

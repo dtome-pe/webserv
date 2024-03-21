@@ -9,6 +9,7 @@ Locations::Locations()
 	methods[0] = 1;
 	methods[1] = 0;
 	methods[2] = 0;
+	methods[3] = 0;
 }
 
 Locations::~Locations()
