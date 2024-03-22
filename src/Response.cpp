@@ -1,28 +1,5 @@
 #include <webserv.hpp>
 
-void Response::do_redirection(Request &request, std::string return_str)
-{	
-	(void) request;
-	cout << "entra en redirection. return str is " << return_str << endl;
-
-	std::string code = return_str.substr(0, return_str.find(" "));
-	cout << "code is: " << code << endl;
-
-	std::string location = return_str.substr(return_str.find(" ") + 1, return_str.length());
-
-	cout << "url is: " << location << endl;
-
-/* 	if (code == location) // solo hay un código
-	{
-		int c;
-		stringstream(code) >> c;
-
-		makeReturnCode(c, *this);
-	} */
-	if (code == "301")
-		setResponse(301, *this, location, NULL, NULL);
-}
-
 Response::Response()
 {	
 
@@ -59,7 +36,7 @@ void	Response::handleRequest(Request &request, const Server *serv, const Locatio
 		}
 		if (loc && loc->getRedirection().length() > 0) // comprobar si hay directive return
 		{
-			do_redirection(request, loc->getRedirection()); // pasaremos setResponse cuando tengamos map<int,string>
+			setResponse(loc->getRedirectionNumber(), *this, loc->getRedirection(), NULL, NULL); // pasaremos setResponse cuando tengamos map<int,string>
 			return ;
 		}
 		if (!checkGood(path))  // si el path que ha resultado no existe, 404
