@@ -158,7 +158,7 @@ int	Cluster::handle_client(int new_socket, const std::vector<Server>&servVec, So
 {
 	Request	req(text, listener); //se construye request con el texto y con el socket listener, para que nos de informacion
 		// de a que ip y puerto iba destinado esta peticion
-	req.printRequest();
+	//req.printRequest();
 	Response	rsp; // declaramos response
 	/*determinamos a que server block y que location block son los responsables de aplicar
 	sus diferentes reglas y configuraciones para gestionar dicha peticion*/
