@@ -1,9 +1,15 @@
 #include <webserv.hpp>
 
+static	void	setBasicHeaders(Response &response)
+{
+	response.setHeader("Server: Webserv");
+	response.setHeader("Date: " + getCurrentTime());
+}
+
 void	setResponse(int code, Response &response, std::string arg, const Server *serv, const Locations *loc)
 {
 	cout << "code: " << code << endl;
-	response.setHeader("Server: Webserv" );
+	setBasicHeaders(response);
 	switch (code)
 	{
 		case 200:
