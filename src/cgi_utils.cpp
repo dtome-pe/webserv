@@ -17,13 +17,28 @@ static char* strdup_cpp98(const char* str)
 char* const*	setEnvp(Request &request, std::string &path)
 {	
 	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
-	std::string query_string = "QUERY_STRING=" + file.substr(file.find("?") + 1, file.length());
-	std::string path_info = "PATH_INFO=" + path;
-
 	std::vector<std::string>env;
 
-	env.push_back(query_string);
-	env.push_back(path_info);
+    if (request.getHeaders().map.find("Authorization") != request.getHeaders().map.end())
+        env.push_back("AUTH_TYPE = " + request.getHeader("Authorization").substr(0, request.getHeader("Authorization").find(" ")));
+    if (request.getBody().length() > 0)
+    {
+        env.push_back("CONTENT_LENGTH = " + int_to_str(request.getBody().length()));
+        if (request.getHeaders().map.find("Content-Type") != request.getHeaders().map.end())
+            env.push_back("CONTENT_TYPE = " + request.getHeader("Content-Type"));
+    }
+    env.push_back("GATEWAY_INTERFACE = CGI/1.1");
+    env.push_back("PATH_INFO = " + path);
+	env.push_back("QUERY_STRING = " + file.substr(file.find("?") + 1, file.length()));
+    env.push_back("REMOTE_ADDR = " + request.ip);
+    if (request.host.length() > 0)
+        env.push_back("REMOTE_HOST = " + request.host);
+    env.push_back("REQUEST_METHOD = " + request.getMethod());
+    env.push_back("SCRIPT_NAME = " + path);
+    env.push_back("SERVER_NAME = " + request.host);
+    env.push_back("SERVER_PORT = " + request.port);
+    env.push_back("SERVER_PROTOCOL = " + request.getVersion());
+    env.push_back("SERVER_SOFTWARE = Webserv");
 
 	char** envp = new char*[env.size() + 1];
 

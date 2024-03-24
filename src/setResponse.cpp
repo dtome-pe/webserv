@@ -3,6 +3,7 @@
 void	setResponse(int code, Response &response, std::string arg, const Server *serv, const Locations *loc)
 {
 	cout << "code: " << code << endl;
+	response.setHeader("Server: Webserv" );
 	switch (code)
 	{
 		case 200:

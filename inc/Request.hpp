@@ -31,6 +31,8 @@ class Request
 		std::string getTarget();
 		std::string getVersion();
 		std::string	getRequestLine();
+		std::string	getHeader(std::string header);
+		HeaderHTTP	getHeaders();
 		std::string getBody();
 
 		void setIpPortHost(Socket &listener);

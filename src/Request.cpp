@@ -103,6 +103,16 @@ std::string Request::getRequestLine()
 	return (request_line);
 }
 
+std::string	Request::getHeader(std::string header)
+{
+	return (headers.getHeader(header));
+}
+
+HeaderHTTP	Request::getHeaders()
+{
+	return (headers);
+}
+
 std::string Request::getBody()
 {
 	return (body);
