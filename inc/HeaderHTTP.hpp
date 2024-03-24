@@ -10,15 +10,15 @@ class HeaderHTTP
 	public:
 		HeaderHTTP();
 		~HeaderHTTP();
-		std::vector<std::string> vec;
+		std::vector<std::string> 			vec;
 		std::map<std::string, std::string>	map; // map de headers
 
-		std::string						getHeader(std::string name); // devuelve valor del header
-		int								setHeader(std::string header); // introducir nuevo header (con nombre)
+		std::string							getHeader(std::string name); // devuelve valor del header
+		int									setHeader(std::string header); // introducir nuevo header (con nombre)
 
-		static std::vector<std::string>	split(const std::string& input, const std::string& delimiters);
-		void							printHeaders();
-		std::string						makeHeader();
+		static std::vector<std::string>		split(const std::string& input, const std::string& delimiters);
+		void								printHeaders();
+		std::string							makeHeader();
 };
 
 #endif

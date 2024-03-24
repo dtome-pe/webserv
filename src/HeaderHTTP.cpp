@@ -25,7 +25,7 @@ int		HeaderHTTP::setHeader(std::string _header)
 	}
 	this->map[name] = value;
 	return (0);
-	//std::cout << name << ": " << this->headers[name] << std::endl;
+	
 }
 
 std::string	HeaderHTTP::getHeader(std::string name)

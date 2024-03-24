@@ -17,14 +17,16 @@ static char* strdup_cpp98(const char* str)
 char* const*	setEnvp(Request &request, std::string &path)
 {	
 	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
-	std::vector<std::string>env;
+    std::vector<std::string>env;
 
-    if (request.getHeaders().map.find("Authorization") != request.getHeaders().map.end())
+    if (request.getHeaders().map.count("Authorization") > 0)
+    {
         env.push_back("AUTH_TYPE = " + request.getHeader("Authorization").substr(0, request.getHeader("Authorization").find(" ")));
+    }
     if (request.getBody().length() > 0)
     {
         env.push_back("CONTENT_LENGTH = " + int_to_str(request.getBody().length()));
-        if (request.getHeaders().map.find("Content-Type") != request.getHeaders().map.end())
+        if (request.getHeaders().map.count("Content-Type") > 0)
             env.push_back("CONTENT_TYPE = " + request.getHeader("Content-Type"));
     }
     env.push_back("GATEWAY_INTERFACE = CGI/1.1");
@@ -45,6 +47,7 @@ char* const*	setEnvp(Request &request, std::string &path)
 
     for (size_t i = 0; i < env.size(); ++i)
     {
+        cout << env[i] << endl;
         envp[i] = strdup_cpp98(env[i].c_str());
     }
 	envp[env.size()] = NULL;
@@ -102,7 +105,6 @@ std::string getCgiHeader(const std::string& content, const std::string &header)
         ++pos;
     }
 
-	cout << "sale de primer loop" << endl;
     if (pos != content.end()) {
         // Extract the value of the "Content-Type" header
         std::string::const_iterator start = pos + header.size(); // Move past "Content-Type:"
