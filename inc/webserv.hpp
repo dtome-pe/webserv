@@ -83,5 +83,6 @@ class Server;
 	/*ip utils*/
 	std::string					ip_to_str(sockaddr_in *addr);
 	std::string 				port_to_str(sockaddr_in *addr);
+	std::string					int_to_str(int n);
 
 #endif
