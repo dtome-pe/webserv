@@ -4,6 +4,13 @@
 // defines
 #define _XOPEN_SOURCE_EXTENDED 1
 
+// String headers
+#include <cstring>
+#include <string>
+#include <algorithm>
+#include <vector>
+#include <map>
+
 // Our classes
 # include <Server.hpp>
 # include <Socket.hpp>
@@ -26,12 +33,6 @@
 #include <dirent.h>
 #include <iomanip>
 #include <sys/wait.h>
-
-// String headers
-#include <cstring>
-#include <string.h>
-#include <string>
-#include <algorithm>
 
 // Memory headers
 #include <cstdlib>

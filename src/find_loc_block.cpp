@@ -37,7 +37,7 @@ const Locations *find_loc_block(const Server *serv, Request &req)
 {
 	const Locations *ret = NULL;
 
-	std::string decoded_str = decode(req.request_line.target); // decodificamos posibles %xx de URI
+	std::string decoded_str = decode(req.getTarget()); // decodificamos posibles %xx de URI
 	
 	const std::vector<Locations>&locations = serv->getLocations();
 	
@@ -46,7 +46,7 @@ const Locations *find_loc_block(const Server *serv, Request &req)
 	for (unsigned int i = 0; i < locations.size(); i++)
 	{
 		int len = locations[i].getLocation().length();
-		if (!req.request_line.target.compare(0, len, locations[i].getLocation()))
+		if (!req.getTarget().compare(0, len, locations[i].getLocation()))
 		{
 			matches.push_back(&locations[i]);
 		}
