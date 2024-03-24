@@ -1,4 +1,5 @@
 <?php
+
 // Check if POST data is received
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if CONTENT_LENGTH is set
