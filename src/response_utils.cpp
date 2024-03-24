@@ -299,7 +299,8 @@ bool checkCgi(std::string &path, const Locations *loc) {
     if (loc) {
         const std::map<std::string, std::string>& cgiMap = loc->getCGI();
         if (!cgiMap.empty()) {
-            std::map<std::string, std::string>::const_iterator it = cgiMap.find(path.substr(path.length() - 3, 3));
+			size_t dotPos = path.find_last_of('.');
+            std::map<std::string, std::string>::const_iterator it = cgiMap.find(path.substr(dotPos, path.length()));
             if (it != cgiMap.end()) {
                 return true;
             }

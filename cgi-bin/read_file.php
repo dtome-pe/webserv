@@ -2,6 +2,7 @@
 // Check if POST data is received
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Check if CONTENT_LENGTH is set
+        echo "test\n";
     if (isset($_SERVER['CONTENT_LENGTH'])) {
         // Read the specified number of bytes from stdin
         $contentLength = (int)$_SERVER['CONTENT_LENGTH'];
