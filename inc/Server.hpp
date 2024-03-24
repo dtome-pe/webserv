@@ -2,11 +2,7 @@
 # define SERVER_HPP
 
 # include "webserv.hpp"
-# include <iostream>
 # include <netinet/in.h>
-# include "Request.hpp"
-# include "Socket.hpp"
-# include "Locations.hpp"
 # include <poll.h>
 
 class Server

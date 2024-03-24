@@ -56,7 +56,7 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 		{
 			//cout << "location root is " << loc->getRoot() << endl;
 			//cout << "request target is " << request.request_line.target << endl;
-			path = loc->getRoot() + request.request_line.target;
+			path = loc->getRoot() + request.getTarget();
 			path = removeDoubleSlashes(path);
 			return (path.substr(0, path.find('?')));
 		}
@@ -67,7 +67,7 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 	if (serv->getRoot().length() > 0)
 	{
 		//cout << "server root is " << serv->getRoot() << endl;
-		path = serv->getRoot() + request.request_line.target;
+		path = serv->getRoot() + request.getTarget();
 		path = removeDoubleSlashes(path);
 		return (path.substr(0, path.find('?')));
 	}
