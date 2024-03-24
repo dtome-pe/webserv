@@ -77,12 +77,11 @@ class Server;
 	bool						checkGood(const std::string &path);
 	std::string 				checkFileOrDir(const std::string &path);
 
-	/*print utils*/
+	/*utils*/
 	void						print_error(const char *str);
-
-	/*ip utils*/
 	std::string					ip_to_str(sockaddr_in *addr);
 	std::string 				port_to_str(sockaddr_in *addr);
 	std::string					int_to_str(int n);
+	std::string					getCurrentTime();
 
 #endif
