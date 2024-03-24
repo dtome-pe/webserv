@@ -44,7 +44,7 @@ void	cgi(Response &response, Request &request, std::string &path)
 	{	
 		if (request.getMethod() == "POST")
 		{
-			cout << "entra aqui" << endl;
+			//cout << "entra aqui" << endl;
 			ssize_t bytes_written = write(pipe_fd[1], request.getBody().c_str(), request.getBody().size());
 			if (bytes_written == -1)
 			{
