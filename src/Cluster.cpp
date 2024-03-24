@@ -156,6 +156,9 @@ void	Cluster::run()
 
 int	Cluster::handle_client(int new_socket, const std::vector<Server>&servVec, Socket &listener, std::string &text)
 {
+	ofstream file("log.txt");
+	file << text;
+	file.close();
 	Request	req(text, listener); //se construye request con el texto y con el socket listener, para que nos de informacion
 		// de a que ip y puerto iba destinado esta peticion
 	//req.printRequest();
@@ -179,10 +182,7 @@ int	Cluster::handle_client(int new_socket, const std::vector<Server>&servVec, So
 
 void Cluster::clean()
 {
-/* 	for (std::vector<pollfd>::iterator it = getPollVector().begin(); it != getPollVector().end(); it++)
-	{
-		delete *it;
-	} */
+
 }
 
 std::vector<Server>& Cluster::getServerVector()

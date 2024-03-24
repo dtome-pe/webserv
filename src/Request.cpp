@@ -24,9 +24,8 @@ void	Request::splitRequest(std::string buff, Socket &listener)
 	if (buff[finish - 1] == '\r')
 		rec = 1;
 	setRequestLine(buff.substr(0, finish - rec));
-//	print_str(this->request_line.line);
 	buff = buff.substr(finish + 1, buff.length());
-	while (buff != "\r\n")
+	while (buff.substr(0, 2) != "\r\n")
 	{
 		try
 		{

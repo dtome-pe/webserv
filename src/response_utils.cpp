@@ -54,27 +54,19 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 	{
 		if (loc->getRoot().length() > 0)
 		{
-			//cout << "location root is " << loc->getRoot() << endl;
-			//cout << "request target is " << request.request_line.target << endl;
 			path = loc->getRoot() + request.getTarget();
 			path = removeDoubleSlashes(path);
 			return (path.substr(0, path.find('?')));
 		}
-		//cout << "location has no root directive " << endl;
 	}
-/* 	else
-		cout << "no location was selected" << endl; */
 	if (serv->getRoot().length() > 0)
 	{
-		//cout << "server root is " << serv->getRoot() << endl;
 		path = serv->getRoot() + request.getTarget();
 		path = removeDoubleSlashes(path);
 		return (path.substr(0, path.find('?')));
 	}
 	else
 	{
-		//cout << "server has no root directive " << endl;
-		//cout << "request target is " << request.request_line.target << endl;
 		return ("none"); // vacio, sin root directives no hay camino al filesystem del server
 					// y solo devolveremos una pagina de cortesia si se accede al mismo '/', como nginx
 	}
@@ -82,7 +74,7 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 
 std::string readFileContents(const std::string& filename) 
 {	
-	cout << filename << endl;
+	//cout << filename << endl;
     std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
     if (!file) {
         std::cerr << "Error opening file: " << filename << std::endl;
@@ -108,7 +100,6 @@ std::string getLengthAsString(std::string &content)
 bool	checkGood(const std::string &path)
 {
 	struct stat fileInfo;
-	//cout << "entra en checkGood" << endl;
     return stat(path.c_str(), &fileInfo) == 0;
 }
 
@@ -294,8 +285,7 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	}
 	std::vector<std::string>indexVector = serv->getVIndex();
 	for (std::vector<std::string>::const_iterator it = indexVector.begin(); it != indexVector.end(); it++)
-	{	
-		cout << path + *it << endl;
+	{
 		if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
 		{
 			index_file = path + *it;
