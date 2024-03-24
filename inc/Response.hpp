@@ -30,10 +30,6 @@ class Response
 		void	setStatusLine(std::string _status_line);
 		void	setHeader(std::string _header);
 		void	setBody(std::string _body);
-
-		void	do_cgi(Request &request, std::string &path);
-		void	do_redirection(Request &request, std::string return_str);
-
 };
 
 #endif

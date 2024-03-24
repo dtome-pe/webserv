@@ -11,9 +11,11 @@ Response::~Response()
 }
 
 void	Response::handleRequest(Request &request, const Server *serv, const Locations *loc)
-{
+{	
+	cout << "entra en handle request ";
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
 	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
+	cout << "con path: " << path << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (!check_method(request.getMethod(), NULL, serv)) // bloqueamos toda peticion que no sea GET, 405
@@ -114,17 +116,10 @@ void	Response::setStatusLine(std::string _status_line)
 {
 	this->status_line.line = _status_line + "\r\n";
 	std::vector<std::string> split = HeaderHTTP::split(_status_line, " ");
-//	for (size_t i = 0; i < split.size(); i++)
-//		std::cout << split[i] << std::endl;
 
 	this->status_line.protocol = split[0];
 	this->status_line.code = split[1];
 	this->status_line.text = split[2];
-
-/* 	std::cout << "Response line elements:" << std::endl;
-	std::cout << this->status_line.protocl << std::endl;
-	std::cout << this->status_line.code << std::endl;
-	std::cout << this->status_line.text << std::endl; */
 }
 
 void	Response::setHeader(std::string _header)

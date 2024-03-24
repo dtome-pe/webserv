@@ -29,7 +29,8 @@ char* const*	setEnvp(Request &request, std::string &path)
     }
     env.push_back("GATEWAY_INTERFACE = CGI/1.1");
     env.push_back("PATH_INFO = " + path);
-	env.push_back("QUERY_STRING = " + file.substr(file.find("?") + 1, file.length()));
+    if (request.getMethod() == "GET")
+	    env.push_back("QUERY_STRING = " + file.substr(file.find("?") + 1, file.length()));
     env.push_back("REMOTE_ADDR = " + request.ip);
     if (request.host.length() > 0)
         env.push_back("REMOTE_HOST = " + request.host);

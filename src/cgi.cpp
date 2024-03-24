@@ -24,18 +24,36 @@ void	cgi(Response &response, Request &request, std::string &path)
 	}
 	if (pid == 0)
 	{
-		close(pipe_fd[0]);
+		if (dup2(pipe_fd[0], STDIN_FILENO) == -1)
+		{
+			strerror(errno);
+			setResponse(500, response, "", NULL, NULL);
+			return ;
+		}
 		if (dup2(pipe_fd[1], STDOUT_FILENO) == -1)
 		{
 			strerror(errno);
 			setResponse(500, response, "", NULL, NULL);
 			return ;
 		}
+		close(pipe_fd[0]);
 		close(pipe_fd[1]);
 		execve(path.c_str(), setArgv(path), setEnvp(request, path));
 	}
 	else
-	{
+	{	
+		if (request.getMethod() == "POST")
+		{
+			cout << "entra aqui" << endl;
+			ssize_t bytes_written = write(pipe_fd[1], request.getBody().c_str(), request.getBody().size());
+			if (bytes_written == -1)
+			{
+				strerror(errno);
+				setResponse(500, response, "", NULL, NULL);
+				return;
+			}
+		}
+		close(pipe_fd[0]);
         close(pipe_fd[1]);
 		int	status;
         int result = waitpid(pid, &status, 0);
