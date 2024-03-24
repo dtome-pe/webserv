@@ -22,9 +22,15 @@ std::string port_to_str(sockaddr_in *addr)
 	std::stringstream ss;
 	ss << ntohs(addr->sin_port);
 
-	std::string portStr = ss.str();
+	return (ss.str());
+}
 
-	return (portStr);
+std::string int_to_str(int n)
+{
+	std::stringstream ss;
+	ss << n;
+
+	return (ss.str());
 }
 
 /*nginx puede tener varios server blocks escuchando en la misma direccion:puerto, pero dos sockets no pueden
