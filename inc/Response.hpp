@@ -12,7 +12,7 @@ typedef struct
 }	Status_line;
 
 class Server;
-class Locations;
+class Location;
 
 class Response
 {
@@ -25,7 +25,7 @@ class Response
 		std::string body;
 		std::string makeResponse(); // devuelve el texto con el formato completo
 
-		void	handleRequest(Request &request, const Server *serv, const Locations *loc);
+		void	handleRequest(Request &request, const Server *serv, const Location *loc);
 
 		void	setStatusLine(std::string _status_line);
 		void	setHeader(std::string _header);

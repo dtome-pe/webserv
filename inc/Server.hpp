@@ -20,7 +20,7 @@ class Server
 		std::vector<std::string> vports;
 		std::vector<std::string> vindex;
 		std::map<int, std::string> merror_page;
-		std::vector<class Locations> locations;
+		std::vector<class Location> locations;
 	public:
 		int		active;
 		struct socket_list	*sock_list;
@@ -56,8 +56,8 @@ class Server
 		//setter/getter para vector ports
 		void	addVPort(std::string str);
 		std::vector<std::string>& getVPort();
-		void	setLocation(Locations &loc);
-		const std::vector<Locations>& getLocations() const;
+		void	setLocation(Location &loc);
+		const std::vector<Location>& getLocations() const;
 		//setter/getter para vector index
 		const std::vector<std::string>& getVIndex() const;
 		void	addVIndex(std::vector<std::string> idxvec);
