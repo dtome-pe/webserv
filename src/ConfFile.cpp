@@ -247,7 +247,6 @@ int		ConfFile::parse_element(std::string &content, int i)
 	newserv = content.substr(servpos, content.length());
 	std::istringstream iss(newserv);
 	std::getline(iss, line, '\n');
-	int a = 0;
 	while (std::getline(iss, line, '\n'))
 	{
 		trimSpaces(line);
@@ -298,7 +297,6 @@ int		ConfFile::parse_element(std::string &content, int i)
 				Serv.setLocation(loc);
 			}
 		}
-		a++;
 	}
 	if (!Serv.host_port.size())
 		Serv.setHostPort("0.0.0.0", "8080"); 
