@@ -27,9 +27,9 @@ void	Locations::setVIndex(std::vector<std::string> idx)
 	index = idx;
 }
 
-void Locations::setMethods(int met[3])
+void Locations::setMethods(int met[4])
 {
-	for (int i = 0; i < 3; ++i) {
+	for (int i = 0; i < 4; ++i) {
 		methods[i] = met[i];
 	}
 }
