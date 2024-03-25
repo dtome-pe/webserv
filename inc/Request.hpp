@@ -17,6 +17,9 @@ class Request
 		HeaderHTTP	headers;
 		std::string body;
 
+		std::string	cgiExtension;
+		std::string	cgiBinary;
+
 	public:
 		Request(std::string buff, Socket &listener);
 		~Request();
@@ -35,7 +38,13 @@ class Request
 		HeaderHTTP	getHeaders();
 		std::string getBody();
 
-		void setIpPortHost(Socket &listener);
+		std::string getCgiExtension();
+		std::string getCgiBinary();
+
+		void		setCgiExtension(std::string &extension);
+		void		setCgiBinary(std::string &binary);
+
+		void 		setIpPortHost(Socket &listener);
 
 		std::string ip;
 		std::string host;

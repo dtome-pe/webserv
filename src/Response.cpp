@@ -15,7 +15,7 @@ void	Response::handleRequest(Request &request, const Server *serv, const Locatio
 	cout << "entra en handle request ";
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
 	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
-	cout << "con path: " << path << endl;
+	cout << "con path: " << path << " con method " << request.getMethod() << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (!check_method(request.getMethod(), NULL, serv)) // bloqueamos toda peticion que no sea GET, 405
@@ -54,7 +54,7 @@ void	Response::handleRequest(Request &request, const Server *serv, const Locatio
 		if (checkFileOrDir(path) == "file")
 		{
 			//cout << "path is good and it's a file"  << endl; // si corresponde a un archivo, lo servimos con un 200
-			if (checkCgi(path, loc)) // chequearemos si location tiene activado el cgi y para que extensiones
+			if (checkCgi(request, path, loc)) // chequearemos si location tiene activado el cgi y para que extensiones
 			{
 				cgi(*this, request, path);
 				return ;

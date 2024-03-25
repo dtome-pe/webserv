@@ -82,6 +82,16 @@ void	Request::setIpPortHost(Socket &listener)
 	port = listener.getPort();
 }
 
+void	Request::setCgiExtension(std::string &extension)
+{
+	cgiExtension = extension;
+}
+
+void	Request::setCgiBinary(std::string &binary)
+{
+	cgiBinary = binary;
+}
+
 std::string Request::getMethod()
 {
 	return (method);
@@ -115,6 +125,16 @@ HeaderHTTP	Request::getHeaders()
 std::string Request::getBody()
 {
 	return (body);
+}
+
+std::string Request::getCgiExtension()
+{
+	return (cgiExtension);
+}
+
+std::string Request::getCgiBinary()
+{
+	return (cgiBinary);
 }
 
 std::string Request::makeRequest()
