@@ -19,6 +19,7 @@
 # include <HeaderHTTP.hpp>
 # include <ConfFile.hpp>
 # include <Cluster.hpp>
+# include <Location.hpp>
 
 // Standard class
 #include <iostream>
