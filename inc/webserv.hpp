@@ -61,7 +61,7 @@ class Server;
 	char* const* 				setEnvp(Request &request, std::string &path);
 	char* const*				setArgv(Request &request, std::string &path);
 	std::string 				bounceContent(int fd);
-	std::string 				getCgiHeader(const std::string& content, const std::string &header);
+	std::string	 				parseCgiHeader(Response &response, const std::string& content);
 	void						removeHeaderLine(std::string& content);
 
 	/*poll utils*/
