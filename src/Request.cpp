@@ -42,7 +42,7 @@ void	Request::splitRequest(std::string buff, Socket &listener)
 	}
 	try
 	{
-		this->body = buff.substr(finish + 1, buff.length());
+		this->body = buff.substr(0, buff.length());
 	}
 	catch(const std::exception& e)
 	{	}

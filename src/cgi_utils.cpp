@@ -14,7 +14,7 @@ static char* strdup_cpp98(const char* str)
     return (newStr);
 }
 
-char* const*	setEnvp(Request &request, std::string &path)
+char* const*	setEnvp(Request &request, std::string &path, std::string &method)
 {	
 	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
     std::vector<std::string>env;
@@ -43,6 +43,11 @@ char* const*	setEnvp(Request &request, std::string &path)
     env.push_back("SERVER_PROTOCOL=" + request.getVersion());
     env.push_back("SERVER_SOFTWARE=Webserv");
 
+    if (method == "PUT")
+    {
+        env.push_back("FILENAME=" + path.substr(path.find_last_of("/"), path.length()));
+        env.push_back("UPLOAD_LOCATION=" + path.substr(0, path.find_last_of("/")));
+    }
 	char** envp = new char*[env.size() + 1];
 
     for (size_t i = 0; i < env.size(); ++i)
@@ -54,19 +59,34 @@ char* const*	setEnvp(Request &request, std::string &path)
 	return (envp);
 }
 
-char* const* 	setArgv(Request &request, std::string &path)
+char* const* 	setArgv(Request &request, std::string &path, std::string &method)
 {	
-	std::vector<std::string> arg;
-    arg.push_back(request.getCgiBinary());
-    arg.push_back(path);
+    std::vector<std::string> arg;
+    if (method == "DELETE")
+    {   
+        arg.push_back("/usr/bin/php8.1");
+        arg.push_back("./cgi-bin/delete.php");
+        arg.push_back(path);
+    }
+    else if (method == "PUT")
+    {
+        arg.push_back("/usr/bin/php8.1");
+        arg.push_back("./cgi-bin/put.php");
+        arg.push_back(path);
+    }
+    else
+    {
+        arg.push_back(request.getCgiBinary());
+        arg.push_back(path);
+    }
 
-	char** argv = new char*[arg.size() + 1];
+    char** argv = new char*[arg.size() + 1];
 
     for (size_t i = 0; i < arg.size(); ++i)
     {
         argv[i] = strdup_cpp98(arg[i].c_str());
     }
-	argv[arg.size()] = NULL;
+    argv[arg.size()] = NULL;
 
 	return (argv);
 }
@@ -102,4 +122,18 @@ std::string parseCgiHeader(Response &response, const std::string& content)
     std::ostringstream oss;
     oss << iss.rdbuf();  // Copy the remaining content to the output string stream
     return oss.str();
+}
+
+bool    checkPut(std::string &path)
+{
+    if (checkFileOrDir(path) == "dir")
+        return (true);
+    return (false);
+}
+
+bool    checkPutFile(std::string &path)
+{
+    if (path[path.length() - 1] != '/' && checkGood(path.substr(0, path.find_last_of("/"))))
+        return (true);
+    return (false);
 }

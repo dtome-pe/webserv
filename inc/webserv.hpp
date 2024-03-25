@@ -32,7 +32,7 @@ class Server;
 	/*find blocks*/
 	bool						look_for_same(Socket &sock, std::vector<Socket>&sock_vec);
 	const Server 				*find_serv_block(const std::vector<class Server> &serv, Request &request);
-	const Location 			*find_loc_block(const Server *serv, Request &req);
+	const Location 				*find_loc_block(const Server *serv, Request &req);
 
 	/*response utils*/
 	bool 						check_method(std::string method, const Location *loc, const Server *serv);
@@ -56,13 +56,16 @@ class Server;
 	/*cgi*/
 
 	bool						checkCgi(Request &request, std::string &path, const Location *loc);
-	void						cgi(Response &response, Request &request, std::string &path);
+	void						cgi(Response &response, Request &request, std::string &path, std::string method);
+	void						setDel(Response &response, Request &request, std::string &path, std::string method);
+	void						setPut(Response &response, Request &request, std::string &path, std::string method);
+	bool						checkPut(std::string &path);
+	bool						checkPutFile(std::string &path);
 
-	char* const* 				setEnvp(Request &request, std::string &path);
-	char* const*				setArgv(Request &request, std::string &path);
+	char* const* 				setEnvp(Request &request, std::string &path, std::string &method);
+	char* const*				setArgv(Request &request, std::string &path, std::string &method);
 	std::string 				bounceContent(int fd);
 	std::string	 				parseCgiHeader(Response &response, const std::string& content);
-	void						removeHeaderLine(std::string& content);
 
 	/*poll utils*/
 	int							receive_response(int new_socket, std::vector<unsigned char> *buff);
