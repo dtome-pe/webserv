@@ -1,4 +1,5 @@
 #include "../inc/webserv.hpp"
+#include <ctime>
 
 void print_error(const char *str)
 {
@@ -22,9 +23,29 @@ std::string port_to_str(sockaddr_in *addr)
 	std::stringstream ss;
 	ss << ntohs(addr->sin_port);
 
-	std::string portStr = ss.str();
+	return (ss.str());
+}
 
-	return (portStr);
+std::string int_to_str(int n)
+{
+	std::stringstream ss;
+	ss << n;
+
+	return (ss.str());
+}
+
+// Function to get the current time in RFC 1123 format
+std::string getCurrentTime() 
+{
+    std::time_t rawtime;
+    std::tm* timeinfo;
+    char buffer[80];
+
+    std::time(&rawtime);
+    timeinfo = std::gmtime(&rawtime);
+    std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
+
+    return buffer;
 }
 
 /*nginx puede tener varios server blocks escuchando en la misma direccion:puerto, pero dos sockets no pueden

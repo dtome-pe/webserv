@@ -156,19 +156,25 @@ void	Cluster::run()
 
 int	Cluster::handle_client(int new_socket, const std::vector<Server>&servVec, Socket &listener, std::string &text)
 {
+	ofstream file("log.txt");
+	file << text;
+	file.close();
 	Request	req(text, listener); //se construye request con el texto y con el socket listener, para que nos de informacion
 		// de a que ip y puerto iba destinado esta peticion
-
-	/*y con esa informacion determinar a que server block y que location block son los responsables de aplicar
+	//req.printRequest();
+	Response	rsp; // declaramos response
+	/*determinamos a que server block y que location block son los responsables de aplicar
 	sus diferentes reglas y configuraciones para gestionar dicha peticion*/
 	const Server *serv = find_serv_block(servVec, req);
-
 	const Locations *loc = find_loc_block(serv, req);
- 	
-	/*se construye respuesta con toda la informacion conseguida,*/
-	Response	msg(req, serv, loc);
 	
-	std::string response = msg.makeResponse(); // hacemos respuesta con los valores del clase Response
+	if (!req.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
+		setResponse(400, rsp, "", serv, NULL);
+	else
+		/*iniciamos el flow para gestionar la peticion*/
+		rsp.handleRequest(req, serv, loc);
+
+	std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
 	send(new_socket, response.c_str(), response.length(), 0);
 	
 	return (0);
@@ -176,10 +182,7 @@ int	Cluster::handle_client(int new_socket, const std::vector<Server>&servVec, So
 
 void Cluster::clean()
 {
-/* 	for (std::vector<pollfd>::iterator it = getPollVector().begin(); it != getPollVector().end(); it++)
-	{
-		delete *it;
-	} */
+
 }
 
 std::vector<Server>& Cluster::getServerVector()

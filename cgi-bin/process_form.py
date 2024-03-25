@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import cgi
+import os
 
 # Set the content type to HTML
 print("Content-type: text/html\n")
@@ -13,6 +14,9 @@ email = form.getvalue('email')
 message = form.getvalue('message')
 
 # HTML response
+
+print(os.environ)
+
 print("<html>")
 print("<head>")
 print("<title>Form Submission Result</title>")

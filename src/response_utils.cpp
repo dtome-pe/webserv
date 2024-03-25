@@ -21,8 +21,8 @@ bool check_method(std::string method, const Locations *loc, const Server *serv)
 			return (false);
 		return (true);
 	}
-	/* if (serv->getMethods()[idx] == 0)
-		return (false); */
+	if (serv->getMethods()[idx] == 0)
+		return (false);
 	return (true);
 }
 
@@ -54,34 +54,27 @@ std::string getPath(Request &request, const Server *serv, const Locations *loc)
 	{
 		if (loc->getRoot().length() > 0)
 		{
-			//cout << "location root is " << loc->getRoot() << endl;
-			//cout << "request target is " << request.request_line.target << endl;
-			path = loc->getRoot() + request.request_line.target;
+			path = loc->getRoot() + request.getTarget();
 			path = removeDoubleSlashes(path);
 			return (path.substr(0, path.find('?')));
 		}
-		//cout << "location has no root directive " << endl;
 	}
-/* 	else
-		cout << "no location was selected" << endl; */
 	if (serv->getRoot().length() > 0)
 	{
-		//cout << "server root is " << serv->getRoot() << endl;
-		path = serv->getRoot() + request.request_line.target;
+		path = serv->getRoot() + request.getTarget();
 		path = removeDoubleSlashes(path);
 		return (path.substr(0, path.find('?')));
 	}
 	else
 	{
-		//cout << "server has no root directive " << endl;
-		//cout << "request target is " << request.request_line.target << endl;
 		return ("none"); // vacio, sin root directives no hay camino al filesystem del server
 					// y solo devolveremos una pagina de cortesia si se accede al mismo '/', como nginx
 	}
 }
 
 std::string readFileContents(const std::string& filename) 
-{
+{	
+	//cout << filename << endl;
     std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
     if (!file) {
         std::cerr << "Error opening file: " << filename << std::endl;
@@ -107,7 +100,6 @@ std::string getLengthAsString(std::string &content)
 bool	checkGood(const std::string &path)
 {
 	struct stat fileInfo;
-	//cout << "entra en checkGood" << endl;
     return stat(path.c_str(), &fileInfo) == 0;
 }
 
@@ -261,7 +253,8 @@ void	makeDefault(int code, Response &response, const std::string &file, const Se
 	std::string	content = "";
 	std::map<int, std::string>::const_iterator it = serv->getErrorPage().find(code);
 	if (it != serv->getErrorPage().end())
-	{
+	{	
+		cout << "entra en el if" << endl;
 		std::string path = serv->getRoot() + it->second;
 		if (checkGood(path))
 			content = readFileContents(path);
@@ -292,8 +285,7 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	}
 	std::vector<std::string>indexVector = serv->getVIndex();
 	for (std::vector<std::string>::const_iterator it = indexVector.begin(); it != indexVector.end(); it++)
-	{	
-		cout << path + *it << endl;
+	{
 		if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
 		{
 			index_file = path + *it;
@@ -303,12 +295,18 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	return (index_file);
 }
 
-bool checkCgi(std::string &path, const Locations *loc) {
+bool checkCgi(Request &request, std::string &path, const Locations *loc) {
     if (loc) {
         const std::map<std::string, std::string>& cgiMap = loc->getCGI();
         if (!cgiMap.empty()) {
-            std::map<std::string, std::string>::const_iterator it = cgiMap.find(path.substr(path.length() - 3, 3));
-            if (it != cgiMap.end()) {
+			size_t dotPos = path.find_last_of('.');
+            std::map<std::string, std::string>::const_iterator it = cgiMap.find(path.substr(dotPos, path.length()));
+            if (it != cgiMap.end()) 
+			{	
+				std::string ext = it->first;
+				request.setCgiExtension(ext);
+				std::string binary = it->second;
+				request.setCgiBinary(binary);	
                 return true;
             }
         }
