@@ -203,7 +203,6 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		{
 			pos = line.find("cgi ");
 			res = line.substr(pos + 4, fpos - pos - 4);
-			cout << "res: " << res << endl;
 			pos = res.find(" ");
 			fpos = res.find(";");
 			std::string execute = res.substr(0, pos);
@@ -248,6 +247,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 	newserv = content.substr(servpos, content.length());
 	std::istringstream iss(newserv);
 	std::getline(iss, line, '\n');
+	int a = 0;
 	while (std::getline(iss, line, '\n'))
 	{
 		trimSpaces(line);
@@ -272,6 +272,11 @@ int		ConfFile::parse_element(std::string &content, int i)
 			}
 			else if (line.find("client_max_body_size ") != std::string::npos)
 				Serv.setMaxBodySize(findInfo(line, "client_max_body_size "));
+			else if (line.find("location ") == std::string::npos && line.find("}") == std::string::npos)
+			{
+				if (!line.empty())
+					throw std::runtime_error("incorrect param in config file => " + line);
+			}
 			else if (line.find("location ") != std::string::npos)
 			{
 				Locations loc;
@@ -293,6 +298,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 				Serv.setLocation(loc);
 			}
 		}
+		a++;
 	}
 	if (!Serv.host_port.size())
 		Serv.setHostPort("0.0.0.0", "8080"); 
