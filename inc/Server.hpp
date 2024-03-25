@@ -2,11 +2,7 @@
 # define SERVER_HPP
 
 # include "webserv.hpp"
-# include <iostream>
 # include <netinet/in.h>
-# include "Request.hpp"
-# include "Socket.hpp"
-# include "Locations.hpp"
 # include <poll.h>
 
 class Server
@@ -43,7 +39,7 @@ class Server
 		std::string	getIp(const std::string &ip_port) const;
 		std::string getServerName();
 		const std::map<int, std::string>& getErrorPage() const;
-		std::string getAllowMethods();
+		const int *getMethods() const;
 		std::string getRoot() const;
 		unsigned int getMaxBodySize() const;
 		//setters
@@ -51,7 +47,7 @@ class Server
 		void	setIp(std::string ip);
 		void	setServerName(std::string serverName);
 		void	setErrorPage(std::string error_page);
-		void	setAllowMethods(std::string allow);
+		void	setMethods(int met[4]);
 		void	setRoot(std::string rt);
 		void	setMaxBodySize(std::string maxBody);
 		//setter/getter para vector server_name

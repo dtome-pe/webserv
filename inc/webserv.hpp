@@ -55,12 +55,12 @@ class Server;
 
 	/*cgi*/
 
-	bool						checkCgi(std::string &path, const Locations *loc);
+	bool						checkCgi(Request &request, std::string &path, const Locations *loc);
 	void						cgi(Response &response, Request &request, std::string &path);
 
 	char* const* 				setEnvp(Request &request, std::string &path);
-	char* const*				setArgv(std::string &path);
-	std::string 				bounceContent(int *pipe_fd);
+	char* const*				setArgv(Request &request, std::string &path);
+	std::string 				bounceContent(int fd);
 	std::string 				getCgiHeader(const std::string& content, const std::string &header);
 	void						removeHeaderLine(std::string& content);
 
@@ -77,11 +77,11 @@ class Server;
 	bool						checkGood(const std::string &path);
 	std::string 				checkFileOrDir(const std::string &path);
 
-	/*print utils*/
+	/*utils*/
 	void						print_error(const char *str);
-
-	/*ip utils*/
 	std::string					ip_to_str(sockaddr_in *addr);
 	std::string 				port_to_str(sockaddr_in *addr);
+	std::string					int_to_str(int n);
+	std::string					getCurrentTime();
 
 #endif

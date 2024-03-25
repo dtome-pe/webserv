@@ -5,63 +5,27 @@
 #include <string>
 #include <vector>
 #include <lib.hpp>
-
-
-/* 
-int main() {
-    std::string input = "Hola,este;es.un|ejemplo";
-    std::string delimiters = ",;.|";
-
-    std::vector<std::string> tokens = split(input, delimiters);
-
-    // Imprimir los tokens
-    for (const auto& t : tokens) {
-        std::cout << t << std::endl;
-    }
-
-    return 0;
-}
- */
-
-void	print_str(std::string str)
-{
-	for (size_t i = 0; i < str.length(); i++)
-	{
-		if (str[i] == '\r')
-		{
-			std::cout << "\\r";
-			continue ;
-		}
-		if (str[i] == '\n')
-			std::cout << "\\n";
-		std::cout << str[i];
-	}
-		std::cout << std::endl;
-}
+#include <map>
 
 Request::Request(std::string buff, Socket &listener)
-{	
-	splitRequest(buff);
-	//headers.printHeaders();
-	setIpPortHost(listener);
+{
+	good = true;
+	splitRequest(buff, listener);
 }
 
 Request::~Request()
 {
 }
 
-void	Request::splitRequest(std::string buff)
+void	Request::splitRequest(std::string buff, Socket &listener)
 {
-	//parse_Request(); //parsear antes de esto
-	//int start = 0;
 	int rec = 0;
 	int finish = buff.find("\n");
 	if (buff[finish - 1] == '\r')
 		rec = 1;
 	setRequestLine(buff.substr(0, finish - rec));
-//	print_str(this->request_line.line);
 	buff = buff.substr(finish + 1, buff.length());
-	while (buff != "\r\n")
+	while (buff.substr(0, 2) != "\r\n")
 	{
 		try
 		{
@@ -69,7 +33,8 @@ void	Request::splitRequest(std::string buff)
 			finish = buff.find("\n");
 			if (buff[finish - 1] == '\r')
 				rec = 1;
-			this->headers.setHeader(buff.substr(0, finish - rec));
+			if (this->headers.setHeader(buff.substr(0, finish - rec)) == 1)
+				good = false;
 			buff = buff.substr(finish + 1, buff.length());
 		}
 		catch(const std::exception& e)
@@ -80,28 +45,25 @@ void	Request::splitRequest(std::string buff)
 		this->body = buff.substr(finish + 1, buff.length());
 	}
 	catch(const std::exception& e)
-	{}
-	//print_str(this->makeRequest());
+	{	}
+	if (this->headers.map.find("Host") == this->headers.map.end())
+		good = false;
+	setIpPortHost(listener);
 }
 
-std::string Request::makeRequest()
-{
-	return (this->request_line.line + this->headers.makeHeader()
-			+ "\r\n" + this->body);
-}
 
-void	Request::setRequestLine(std::string _status_line)
+void	Request::setRequestLine(std::string reqLine)
 {
-	this->request_line.line = _status_line + "\r\n";
-	std::vector<std::string> split = HeaderHTTP::split(_status_line, " ");
-//	for (size_t i = 0; i < split.size(); i++)
-//		std::cout << split[i] << std::endl;
-	this->request_line.method = split[0];
-	this->request_line.target = split[1];
-	this->request_line.version = split[2];
-/* 	std::cout << "Request line elements:" << std::endl;
-	std::cout << "ins = " << this->request_line.method << std::endl;
-	std::cout << "model = " << this->request_line.protocl << std::endl; */
+	this->request_line = reqLine + "\r\n";
+	std::vector<std::string> split = HeaderHTTP::split(reqLine, " ");
+
+	if (split.size() != 3)
+		good = false;
+
+	this->method = split[0];
+	this->target = split[1];
+	this->version = split[2];
+
 }
 
 void	Request::setHeader(std::string _header)
@@ -118,25 +80,82 @@ void	Request::setIpPortHost(Socket &listener)
 {
 	ip = listener.getIp();
 	port = listener.getPort();
+}
 
-	std::string host_value = headers.getHeader("Host");
+void	Request::setCgiExtension(std::string &extension)
+{
+	cgiExtension = extension;
+}
 
-	host = host_value.substr(0, host_value.find(":"));
-
-	//std::cout << "client ip: " << ip << "server port: " << port << "host header: " << host << std::endl;
+void	Request::setCgiBinary(std::string &binary)
+{
+	cgiBinary = binary;
 }
 
 std::string Request::getMethod()
 {
-	return (request_line.method);
+	return (method);
 }
 
 std::string Request::getTarget()
 {
-	return (request_line.target);
+	return (target);
 }
 
 std::string Request::getVersion()
 {
-	return (request_line.version);
+	return (version);
+}
+
+std::string Request::getRequestLine()
+{
+	return (request_line);
+}
+
+std::string	Request::getHeader(std::string header)
+{
+	return (headers.getHeader(header));
+}
+
+HeaderHTTP	Request::getHeaders()
+{
+	return (headers);
+}
+
+std::string Request::getBody()
+{
+	return (body);
+}
+
+std::string Request::getCgiExtension()
+{
+	return (cgiExtension);
+}
+
+std::string Request::getCgiBinary()
+{
+	return (cgiBinary);
+}
+
+std::string Request::makeRequest()
+{
+	return (this->request_line + this->headers.makeHeader()
+			+ "\r\n" + this->body);
+}
+
+void	Request::printRequest()
+{	
+	std::string str = this->makeRequest();
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (str[i] == '\r')
+		{
+			std::cout << "\\r";
+			continue ;
+		}
+		if (str[i] == '\n')
+			std::cout << "\\n";
+		std::cout << str[i];
+	}
+		std::cout << std::endl;
 }
