@@ -17,7 +17,6 @@ class Server
 		std::string port;
 		std::string server_name;
 		std::string error_page;
-		std::string methods;
 		std::string root;
 		unsigned int body_size;
 		//vectores

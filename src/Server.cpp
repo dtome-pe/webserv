@@ -8,7 +8,6 @@ Server::Server()
 	ip = "";
 	server_name = "";
 	error_page = "";
-	methods = "";
 	body_size = 1;
 	methods[0] = 1;
 	methods[1] = 0;
@@ -42,11 +41,6 @@ std::string Server::getServerName()
 const std::map<int, std::string>& Server::getErrorPage() const
 {
 	return (this->merror_page);
-}
-
-std::string Server::getAllowMethods()
-{
-	return (this->methods);
 }
 
 std::string Server::getRoot() const
@@ -113,11 +107,6 @@ void	Server::setErrorPage(std::string error_page)
 	size_t fpos = error_page.find(";");
 	error_page = error_page.substr(pos + 1, fpos);
 	merror_page[key] = error_page;
-}
-
-void	Server::setAllowMethods(std::string allow)
-{
-	this->methods = allow;
 }
 
 void	Server::addVServerName(const std::string str)
