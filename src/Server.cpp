@@ -43,10 +43,12 @@ const std::map<int, std::string>& Server::getErrorPage() const
 	return (this->merror_page);
 }
 
+
 const int *Server::getMethods() const
 {
 	return (this->methods);
 }
+
 std::string Server::getRoot() const
 {
 	return (this->root);
