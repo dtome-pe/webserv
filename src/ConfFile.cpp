@@ -176,7 +176,7 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 		}
 		else if (line.find("allow_methods ") != std::string::npos)
 		{
-			int methods[3] = {0, 0, 0};
+			int methods[4] = {0, 0, 0, 0};
 			pos = line.find("allow_methods ");
 			res = (line.substr(pos + 14, fpos - pos));
 			if (res.find("GET") != std::string::npos)
@@ -185,6 +185,8 @@ void	ConfFile::parse_location(std::string line, Locations& loc)
 				methods[1] = 1;
 			if (res.find("DELETE") != std::string::npos)
 				methods[2] = 1;
+			if (res.find("PUT") != std::string::npos)
+				methods[3] = 1;
 			loc.setMethods(methods);
 		}
 		else if (line.find("return ") != std::string::npos)
