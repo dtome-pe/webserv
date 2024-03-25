@@ -91,14 +91,9 @@ void	cgi(Response &response, Request &request, std::string &path)
 				else
 				{
 					std::string content = bounceContent(pipe_from_child[0]);
-				//	cout << "content: " << content << endl;
-					std::string contentType = getCgiHeader(content, "Content-Type:");
-					removeHeaderLine(content);
-					response.setStatusLine("HTTP/1.1 200 OK");
-					response.setHeader("Content-Type: text/html");
-					response.setHeader("Content-Length: " + getLengthAsString(content));
-					response.setBody(content);
-					close(pipe_from_child[0]);  // Close read end in the parent
+					content = parseCgiHeader(response, content);
+					//cout << "content: " << content << endl;
+					setResponse(200, response, content, NULL, NULL);
 				}
        		}
 		}
