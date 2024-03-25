@@ -19,6 +19,13 @@ void	setResponse(int code, Response &response, std::string arg, const Server *se
 			response.setBody(arg);
 			break;
 		}
+		case 201:
+		{
+			response.setStatusLine("HTTP/1.1 201 Created");
+			response.setHeader("Location: " + arg);
+			response.setBody(arg);
+			break;
+		}
 		case 204:
 		{
 			response.setStatusLine("HTTP/1.1 204 No Content");
@@ -83,6 +90,11 @@ void	setResponse(int code, Response &response, std::string arg, const Server *se
 			}
 			response.setHeader(allow_header);
 			makeDefault(405, response, "/405.html", serv);
+			break;
+		}
+		case 409:
+		{
+			response.setStatusLine("HTTP/1.1 409 Conflict");
 			break;
 		}
 	}
