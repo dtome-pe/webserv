@@ -43,6 +43,12 @@ const std::map<int, std::string>& Server::getErrorPage() const
 	return (this->merror_page);
 }
 
+
+const int *Server::getMethods() const
+{
+	return (this->methods);
+}
+
 std::string Server::getRoot() const
 {
 	return (this->root);
@@ -107,6 +113,13 @@ void	Server::setErrorPage(std::string error_page)
 	size_t fpos = error_page.find(";");
 	error_page = error_page.substr(pos + 1, fpos);
 	merror_page[key] = error_page;
+}
+
+void Server::setMethods(int met[4])
+{
+	for (int i = 0; i < 3; ++i) {
+		methods[i] = met[i];
+	}
 }
 
 void	Server::addVServerName(const std::string str)

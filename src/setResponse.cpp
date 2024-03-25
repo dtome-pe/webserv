@@ -1,8 +1,15 @@
 #include <webserv.hpp>
 
+static	void	setBasicHeaders(Response &response)
+{
+	response.setHeader("Server: Webserv");
+	response.setHeader("Date: " + getCurrentTime());
+}
+
 void	setResponse(int code, Response &response, std::string arg, const Server *serv, const Locations *loc)
 {
 	cout << "code: " << code << endl;
+	setBasicHeaders(response);
 	switch (code)
 	{
 		case 200:
@@ -36,6 +43,12 @@ void	setResponse(int code, Response &response, std::string arg, const Server *se
 			response.setStatusLine("HTTP/1.1 303 See Other");
 			response.setHeader("Location: " + arg);
 			response.setHeader("Connection: keep-alive");
+			break;
+		}
+		case 400:
+		{
+			response.setStatusLine("HTTP/1.1 400 Bad Request");
+			makeDefault(400, response, "/400.html", serv);
 			break;
 		}
 		case 403:

@@ -21,7 +21,7 @@ $(NAME): $(OBJ)
 	c++ $(FLAGS)  $(OBJ) -o $(NAME)
 
 $(DIR_OBJ)%.o: $(DIR_SRC)%.cpp Makefile 
-	c++ $(FLAGS) -Wdangling-else $(DEPFLAGS) -c $< -o $@
+	c++ $(FLAGS) $(DEPFLAGS) -c $< -o $@
 
 clean:
 	rm -fr $(DIR_OBJ)

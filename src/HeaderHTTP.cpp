@@ -10,47 +10,42 @@ HeaderHTTP::~HeaderHTTP()
 
 }
 
-void		HeaderHTTP::setHeader(std::string _header)
-{
-	this->header_vec.push_back(_header);
-	
+int		HeaderHTTP::setHeader(std::string _header)
+{	
+	vec.push_back(_header);
 	int n = _header.find(':');
 	std::string name = _header.substr(0, n);
 	std::string value = _header.substr(n + 2, _header.length());
-	this->header_map[name] = value;
-	//std::cout << name << ": " << this->headers[name] << std::endl;
+	if (name == "Host")
+	{
+		if (this->map.find(name) != this->map.end())
+		{
+			return (1);
+		}
+	}
+	this->map[name] = value;
+	return (0);
+	
 }
 
 std::string	HeaderHTTP::getHeader(std::string name)
 {
-	std::map<std::string, std::string>::iterator it = header_map.begin();
+	std::map<std::string, std::string>::iterator it = map.begin();
 	
-	while (it != header_map.end())
+	while (it != map.end())
 	{
 		if (it->first == name)
 			return it->second;
 		it++;
 	}
-	/* for (size_t i = 0; i < this->header_vec.size(); i++)
-		if (this->header_vec[i].substr(0, this->header_vec[i].find(':') - 1) == name)
-			return (this->header_vec[i]); */
 	return (NULL);
 }
-/* 
-std::string	HeaderHTTP::getHeaderValue(std::string name)
-{
-	for (size_t i = 0; i < this->header.size(); i++)
-		if (this->header[i].substr(0, this->header[i].find(':') - 1) == name)
-			return (this->header[i].substr(this->header[i].find(':')
-				, this->header[i].length()));
-	return (NULL);
-}
- */
+
 std::string	HeaderHTTP::makeHeader()
 {
 	std::string text;
-	for (size_t i = 0; i < this->header_vec.size(); i++)
-		text += this->header_vec[i] + "\r\n";
+	for (size_t i = 0; i < vec.size(); i++)
+		text += vec[i] + "\r\n";
 	return (text);
 }
 
@@ -81,9 +76,9 @@ std::vector<std::string> HeaderHTTP::split(const std::string& input, const std::
 
 void	HeaderHTTP::printHeaders()
 {	
-	std::map<std::string, std::string>::iterator it = header_map.begin();
+	std::map<std::string, std::string>::iterator it = map.begin();
 
-	while (it != header_map.end())
+	while (it != map.end())
 	{
 		cout << "Header: " << it->first << " Value: " << it->second
 			<< endl;
