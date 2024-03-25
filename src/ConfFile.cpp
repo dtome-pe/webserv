@@ -136,7 +136,7 @@ void	ConfFile::findIp(Server& Serv, std::string newserv)
 	Serv.setHostPort(host, res);
 }
 
-void	ConfFile::parse_location(std::string line, Locations& loc)
+void	ConfFile::parse_location(std::string line, Location& loc)
 {
 	std::size_t pos;
 	std::size_t fpos;
@@ -280,7 +280,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 			}
 			else if (line.find("location ") != std::string::npos)
 			{
-				Locations loc;
+				Location loc;
 				while (line.find("}") == std::string::npos)
 				{
 					parse_location(line, loc);
