@@ -32,21 +32,21 @@ class Server;
 	/*find blocks*/
 	bool						look_for_same(Socket &sock, std::vector<Socket>&sock_vec);
 	const Server 				*find_serv_block(const std::vector<class Server> &serv, Request &request);
-	const Locations 			*find_loc_block(const Server *serv, Request &req);
+	const Location 			*find_loc_block(const Server *serv, Request &req);
 
 	/*response utils*/
-	bool 						check_method(std::string method, const Locations *loc, const Server *serv);
-	std::string 				getPath(Request &request, const Server *serv, const Locations *loc);
+	bool 						check_method(std::string method, const Location *loc, const Server *serv);
+	std::string 				getPath(Request &request, const Server *serv, const Location *loc);
 	std::string 				removeDoubleSlashes(const std::string& input);
 	std::string 				readFileContents(const std::string& filename);
 	std::string 				getLengthAsString(std::string &content);
 	bool 						findIndexHtml(std::string &path);
-	std::string					findIndex(std::string &path, const Server *serv, const Locations *loc);
+	std::string					findIndex(std::string &path, const Server *serv, const Location *loc);
 	std::string 				generateDirectoryListing(const std::string& path);
 	bool						checkTrailingSlash(std::string &path);
-	std::string 				checkReturn(const Locations *loc);
+	std::string 				checkReturn(const Location *loc);
 
-	void						setResponse(int code, Response &response, std::string arg, const Server *serv, const Locations *loc);
+	void						setResponse(int code, Response &response, std::string arg, const Server *serv, const Location *loc);
 
 	bool 						checkDefaultPath();
 	std::string 				getDefaultPath();
@@ -55,7 +55,7 @@ class Server;
 
 	/*cgi*/
 
-	bool						checkCgi(Request &request, std::string &path, const Locations *loc);
+	bool						checkCgi(Request &request, std::string &path, const Location *loc);
 	void						cgi(Response &response, Request &request, std::string &path);
 
 	char* const* 				setEnvp(Request &request, std::string &path);
