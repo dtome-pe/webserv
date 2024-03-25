@@ -1,6 +1,6 @@
 #include<webserv.hpp>
 
-bool check_method(std::string method, const Locations *loc, const Server *serv)
+bool check_method(std::string method, const Location *loc, const Server *serv)
 {	
 	(void) serv;
 	int idx;
@@ -46,7 +46,7 @@ std::string removeDoubleSlashes(const std::string& input)
     return result;
 }
 
-std::string getPath(Request &request, const Server *serv, const Locations *loc)
+std::string getPath(Request &request, const Server *serv, const Location *loc)
 {	
 	std::string path;
 
@@ -217,7 +217,7 @@ bool checkTrailingSlash(std::string &path)
 		return false;
 }
 
-std::string checkReturn(const Locations *loc)
+std::string checkReturn(const Location *loc)
 {	
 	
 	if (loc)
@@ -267,7 +267,7 @@ void	makeDefault(int code, Response &response, const std::string &file, const Se
 }
 
 
-std::string findIndex(std::string &path, const Server *serv, const Locations *loc)
+std::string findIndex(std::string &path, const Server *serv, const Location *loc)
 {	
 	std::string index_file = "";
 
@@ -295,7 +295,7 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	return (index_file);
 }
 
-bool checkCgi(Request &request, std::string &path, const Locations *loc) {
+bool checkCgi(Request &request, std::string &path, const Location *loc) {
     if (loc) {
         const std::map<std::string, std::string>& cgiMap = loc->getCGI();
         if (!cgiMap.empty()) {
