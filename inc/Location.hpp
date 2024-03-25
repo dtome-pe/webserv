@@ -1,18 +1,18 @@
 
 
-#ifndef LOCATIONS_HPP
-#define LOCATIONS_HPP
+#ifndef LOCATION_HPP
+#define LOCATION_HPP
 
 #include <iostream>
 #include <vector>
 #include <string>
 #include <map>
 
-class Locations {
+class Location {
 	private:
 		bool 									autoindex;
 		std::string 							location;
-//		std::string index;
+
 		int 									methods[4]; //[0] = GET, [1] = POST, [2] = DELETE. [3] = PUT. Si es 0 no permitido si es 1 permitido.
 		std::string 							redirection;
 		int										redirectNum;
@@ -21,8 +21,8 @@ class Locations {
 		std::map<std::string, std::string> 		cgi;
 		std::vector<std::string> 				index;
 	public:
-		Locations();
-		~Locations();
+		Location();
+		~Location();
 		void 									setAutoindex(bool autoin);
 		void									setVIndex(std::vector<std::string> idx);
 		void 									setMethods(int met[4]);
