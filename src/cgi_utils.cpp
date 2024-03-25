@@ -82,44 +82,30 @@ std::string bounceContent(int fd)
 	std::string content;
 	while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0)
 		content.append(buffer,bytesRead);
+    close(fd);  // Close read end in the parent
 	return (content);
 }
 
-std::string getCgiHeader(const std::string& content, const std::string &header) 
-{
-    std::string::const_iterator pos = content.begin();
+std::string parseCgiHeader(Response &response, const std::string& content) 
+{   
+    std::istringstream iss(content);
+    std::string line;
 
-    while (true) 
-	{
-        pos = std::search(pos, content.end(), header.begin(), header.end(), caseInsensitiveCompare);
-
-        if (pos == content.end()) {
-            break;  // no se encontró header
-        }
-        // Check if "Content-Type:" is at the beginning of a line or the start of the content
-        if (pos == content.begin() || *(pos - 1) == '\n' || *(pos - 1) == '\r') 
-		{
+    // Read headers until an empty line is encountered
+    std::getline(iss, line);
+    while (line == "") {
+        // Check for empty line (end of headers)
+        if (line.empty()) {
+            // Skip the empty line
             break;
         }
-        // Iteramos para seguir buscando
-        ++pos;
+        // Store the header line
+       response.setHeader(line);
+       std::getline(iss, line);
     }
-
-    if (pos != content.end()) {
-        // Extract the value of the "Content-Type" header
-        std::string::const_iterator start = pos + header.size(); // Move past "Content-Type:"
-        std::string::const_iterator end = std::find_if(start, content.end(), std::bind2nd(std::equal_to<int>(), '\n'));
-
-        // Trim leading and trailing whitespace
-        std::string::const_iterator first = std::find_if(start, end, std::not1(std::ptr_fun<int, int>(std::isspace)));
-        std::string::const_iterator last = std::find_if(std::reverse_iterator<std::string::const_iterator>(end), std::reverse_iterator<std::string::const_iterator>(first), std::not1(std::ptr_fun<int, int>(std::isspace))).base();
-
-        // Return the trimmed value
-        return std::string(first, last);
-    }
-
-    // No se encontró header
-    return "";
+    std::ostringstream oss;
+    oss << iss.rdbuf();  // Copy the remaining content to the output string stream
+    return oss.str();
 }
 
 /* std::string removeHeaders(std::string& content) 
