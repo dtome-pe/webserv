@@ -228,6 +228,11 @@ void	Server::printLocations()
 			std::cout << "no";
 		std::cout << " | DELETE: ";
 		if (locations[i].getMethods()[2] == 1)
+			std::cout << "yes";
+		else
+			std::cout << "no";
+		std::cout << " | PUT: ";
+		if (locations[i].getMethods()[3] == 1)
 			std::cout << "yes" << std::endl;
 		else
 			std::cout << "no" << std::endl;
