@@ -30,6 +30,8 @@ class Response
 		void	setStatusLine(std::string _status_line);
 		void	setHeader(std::string _header);
 		void	setBody(std::string _body);
+
+		void	setDelete(Request &request, std::string path);
 };
 
 #endif

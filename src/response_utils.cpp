@@ -119,6 +119,7 @@ std::string checkFileOrDir(const std::string &path)
 		//cout << "es file" << endl;
         return ("file");
     }
+	cout << "tras primer file or dir" << endl;
 	return ("");
 }
 
@@ -222,7 +223,6 @@ std::string checkReturn(const Location *loc)
 	
 	if (loc)
 	{
-		//cout << "entra en checkReturn: " << loc->getRedirection()  << endl;
 		if (loc->getRedirection() != "")
 			return (loc->getRedirection());
 	}
