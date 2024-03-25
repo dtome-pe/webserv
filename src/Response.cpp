@@ -10,7 +10,7 @@ Response::~Response()
 
 }
 
-void	Response::handleRequest(Request &request, const Server *serv, const Locations *loc)
+void	Response::handleRequest(Request &request, const Server *serv, const Location *loc)
 {	
 	cout << "entra en handle request ";
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/

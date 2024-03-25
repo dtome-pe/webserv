@@ -166,7 +166,7 @@ int	Cluster::handle_client(int new_socket, const std::vector<Server>&servVec, So
 	/*determinamos a que server block y que location block son los responsables de aplicar
 	sus diferentes reglas y configuraciones para gestionar dicha peticion*/
 	const Server *serv = find_serv_block(servVec, req);
-	const Locations *loc = find_loc_block(serv, req);
+	const Location *loc = find_loc_block(serv, req);
 	
 	if (!req.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
 		setResponse(400, rsp, "", serv, NULL);

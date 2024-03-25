@@ -265,12 +265,12 @@ void	Server::printBodySize()
 	std::cout << GREEN "Max body size: " RESET << this->body_size << std::endl;
 }
 
-void	Server::setLocation(Locations& loc)
+void	Server::setLocation(Location& loc)
 {
 	locations.push_back(loc);
 }
 
-const std::vector<Locations>& Server::getLocations() const
+const std::vector<Location>& Server::getLocations() const
 {
         return (locations);
 }
