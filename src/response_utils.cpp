@@ -295,13 +295,18 @@ std::string findIndex(std::string &path, const Server *serv, const Locations *lo
 	return (index_file);
 }
 
-bool checkCgi(std::string &path, const Locations *loc) {
+bool checkCgi(Request &request, std::string &path, const Locations *loc) {
     if (loc) {
         const std::map<std::string, std::string>& cgiMap = loc->getCGI();
         if (!cgiMap.empty()) {
 			size_t dotPos = path.find_last_of('.');
             std::map<std::string, std::string>::const_iterator it = cgiMap.find(path.substr(dotPos, path.length()));
-            if (it != cgiMap.end()) {
+            if (it != cgiMap.end()) 
+			{	
+				std::string ext = it->first;
+				request.setCgiExtension(ext);
+				std::string binary = it->second;
+				request.setCgiBinary(binary);	
                 return true;
             }
         }
