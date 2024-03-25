@@ -6,7 +6,7 @@ static	void	setBasicHeaders(Response &response)
 	response.setHeader("Date: " + getCurrentTime());
 }
 
-void	setResponse(int code, Response &response, std::string arg, const Server *serv, const Locations *loc)
+void	setResponse(int code, Response &response, std::string arg, const Server *serv, const Location *loc)
 {
 	cout << "code: " << code << endl;
 	setBasicHeaders(response);

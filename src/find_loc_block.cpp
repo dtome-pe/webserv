@@ -33,15 +33,15 @@ static std::string decode(const std::string& encoded) // decodifica caracteres e
 }
 
 
-const Locations *find_loc_block(const Server *serv, Request &req)
+const Location *find_loc_block(const Server *serv, Request &req)
 {
-	const Locations *ret = NULL;
+	const Location *ret = NULL;
 
 	std::string decoded_str = decode(req.getTarget()); // decodificamos posibles %xx de URI
 	
-	const std::vector<Locations>&locations = serv->getLocations();
+	const std::vector<Location>&locations = serv->getLocations();
 	
-	std::vector<const Locations*>matches;
+	std::vector<const Location*>matches;
 
 	for (unsigned int i = 0; i < locations.size(); i++)
 	{
