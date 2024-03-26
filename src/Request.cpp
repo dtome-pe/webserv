@@ -10,8 +10,9 @@
 Request::Request(std::string buff, Socket &listener)
 {
 	good = true;
+	keepAlive = true; // por defecto
 	splitRequest(buff, listener);
-	if (getHeader("Connection") == "close") // seteamos keepAlive
+	if (getHeader("Connection") == "close") // cambiamos keepAlive si explicitamente se solicita la finalizacion de la conexion
 		keepAlive = false;
 }
 
@@ -94,6 +95,11 @@ void	Request::setCgiBinary(std::string &binary)
 	cgiBinary = binary;
 }
 
+void	Request::setServer(const Server *serv)
+{
+	this->serv = serv;
+}
+
 std::string Request::getMethod()
 {
 	return (method);
@@ -142,6 +148,11 @@ std::string Request::getCgiBinary()
 bool		Request::getKeepAlive()
 {
 	return (keepAlive);
+}
+
+const Server		*Request::getServer()
+{
+	return(serv);
 }
 
 std::string Request::makeRequest()
