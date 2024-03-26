@@ -106,6 +106,21 @@ void	Request::setLocation(const Location *loc)
 	this->loc = loc;
 }
 
+void Request::setHost(std::string &host)
+{
+	this->host = host;
+}
+
+void Request::setIp(std::string &ip)
+{
+	this->ip = ip;
+}
+
+void Request::setPort(std::string &port)
+{
+	this->port = port;
+}
+
 void	Request::setTrailSlashRedir(bool redir)
 {
 	trailSlashRedir = redir;
@@ -154,6 +169,21 @@ std::string Request::getCgiExtension()
 std::string Request::getCgiBinary()
 {
 	return (cgiBinary);
+}
+
+std::string Request::getHost()
+{
+	return (host);
+}
+
+std::string Request::getIp()
+{
+	return (ip);
+}
+
+std::string Request::getPort()
+{
+	return (port);
 }
 
 bool		Request::getKeepAlive()
