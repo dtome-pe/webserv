@@ -14,11 +14,10 @@ void	Response::setBasicHeaders(int code, Request &request)
 {
 	setHeader("Server: Webserv");
 	setHeader("Date: " + getCurrentTime());
-	setHeader("Connection: keep-alive");
-
 	if (body != "")
 		setHeader("Content-Length: " + getLengthAsString(body));
-
+	if (code == 201)
+		setHeader("Content-Length: 0");
 
 	if (code == 301 || code == 302 || code == 303)
 	{	if (request.getTrailSlashRedir())
@@ -26,6 +25,9 @@ void	Response::setBasicHeaders(int code, Request &request)
 		else
 			setHeader("Location: " + request.getLocation()->getRedirection());
 	}
+	if (code == 201)
+		setHeader("Location: http://" + request.getHeader("Host") + request.getTarget());
+	setHeader("Connection: keep-alive");
 }
 
 void	Response::setResponse(int code, Request &request)
@@ -42,7 +44,6 @@ void	Response::setResponse(int code, Request &request)
 		case 201:
 		{
 			setStatusLine("HTTP/1.1 201 Created");
-			setHeader("Location: " + request.getTarget());
 			break;
 		}
 		case 204:

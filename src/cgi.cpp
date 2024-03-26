@@ -42,6 +42,8 @@ int	setDel(Request &request, std::string &path, std::string method)
 
 int	setPut(Response &response, Request &request, std::string &path, std::string method)
 {	
+	(void) response;
+
 	int pipe_to_child[2];
 	if (pipe(pipe_to_child) == -1 || request.getBody() == "") 
         return (500);
@@ -90,14 +92,10 @@ int	setPut(Response &response, Request &request, std::string &path, std::string 
        		{
             	int exitStatus = WEXITSTATUS(status);
 				cout << "exit status: " << exitStatus << endl;
-				if (exitStatus == -1)
+				if (!exitStatus)
 					return (500);
 				else
-				{
-					if (exitStatus == 200)
-						response.setBody("File uploaded correctly.");
 					return (exitStatus);
-				}
        		}
 			return (500);
 		}

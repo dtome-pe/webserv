@@ -9,8 +9,8 @@ static const Server *ip_port(const std::vector<class Server> &serv, Request &req
 	{	
 		for (size_t j = 0; j < serv[i].ip_port.size(); j++)
 		{
-			if ((request.ip == serv[i].getIp(serv[i].ip_port[j]) ||
-					serv[i].getIp(serv[i].ip_port[j]) == "") && request.port == serv[i].getPort(serv[i].ip_port[j]))
+			if ((request.getIp() == serv[i].getIp(serv[i].ip_port[j]) ||
+					serv[i].getIp(serv[i].ip_port[j]) == "") && request.getPort() == serv[i].getPort(serv[i].ip_port[j]))
 			{
 				if (!ret)
 				{
@@ -34,7 +34,7 @@ static const Server *server_name(const std::vector<class Server> &serv, Request 
 		const std::vector<std::string> &serv_name = serv[i].getVServerName();
 		for (size_t j = 0; j < serv_name.size(); j++)
 		{
-			if (serv_name[j] == request.host) // comparamos con lo que hemos cogido del Host header para determinar
+			if (serv_name[j] == request.getHost()) // comparamos con lo que hemos cogido del Host header para determinar
 											// por server_name
 			{	
 				ret = &serv[i];
@@ -53,8 +53,8 @@ static const Server *get_first_block(const std::vector<class Server> &serv, Requ
 		for (size_t j = 0; j < serv[i].ip_port.size(); j++)
 		{	
 			//si es el primer match, lo retornamos y se acabo
-			if ((request.ip == serv[i].getIp(serv[i].ip_port[j]) ||
-					serv[i].getIp(serv[i].ip_port[j]) == "") && request.port == serv[i].getPort(serv[i].ip_port[j]))
+			if ((request.getIp() == serv[i].getIp(serv[i].ip_port[j]) ||
+					serv[i].getIp(serv[i].ip_port[j]) == "") && request.getPort() == serv[i].getPort(serv[i].ip_port[j]))
 			{	
 				return (&serv[i]);
 			}

@@ -25,11 +25,10 @@ if (file_exists($filePath)) {
     if (file_put_contents($filePath, $fileContent) !== false) {
         // Set permissions for the uploaded file (optional)
         chmod($filePath, 0644); // Adjust permissions as needed
-        echo "File updated successfully.\n";
-        exit(200); // Set HTTP response code to 200 (OK)
+        exit(204); // Set HTTP response code to 204 (No Content)
     } else {
-        echo "Error: Failed to update file.\n";
-        exit(500); // Internal Server Error
+       // echo "Error: Failed to update file.\n";
+        exit(0); // Internal Server Error
         
     }
 } else {
@@ -38,12 +37,10 @@ if (file_exists($filePath)) {
     if (file_put_contents($filePath, $fileContent) !== false) {
         // Set permissions for the uploaded file (optional)
         chmod($filePath, 0644); // Adjust permissions as needed
-        echo "File uploaded successfully.\n";
         exit(201); // Set HTTP response code to 201 (Created)
         
     } else {
-        echo "Error: Failed to upload file.\n";
-        exit(500); // Internal Server Error
+        exit(0); // Internal Server Error
     }
 }
 ?>
