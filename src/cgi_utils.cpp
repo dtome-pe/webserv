@@ -33,13 +33,13 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
     env.push_back("PATH_INFO=" + path);
     if (request.getMethod() == "GET")
 	    env.push_back("QUERY_STRING=" + file.substr(file.find("?") + 1, file.length()));
-    env.push_back("REMOTE_ADDR=" + request.ip);
-    if (request.host.length() > 0)
-        env.push_back("REMOTE_HOST=" + request.host);
+    env.push_back("REMOTE_ADDR=" + request.getIp());
+    if (request.getHost().length() > 0)
+        env.push_back("REMOTE_HOST=" + request.getHost());
     env.push_back("REQUEST_METHOD=" + request.getMethod());
     env.push_back("SCRIPT_FILENAME=" + path);
-    env.push_back("SERVER_NAME=" + request.host);
-    env.push_back("SERVER_PORT=" + request.port);
+    env.push_back("SERVER_NAME=" + request.getHost());
+    env.push_back("SERVER_PORT=" + request.getPort());
     env.push_back("SERVER_PROTOCOL=" + request.getVersion());
     env.push_back("SERVER_SOFTWARE=Webserv");
 
