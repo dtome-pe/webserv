@@ -156,7 +156,7 @@ int	Cluster::handleClient(Request &request, int new_socket, const std::vector<Se
 	const Server *serv = find_serv_block(servVec, request);
 	const Location *loc = find_loc_block(serv, request);
 	if (!request.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
-		setResponse(400, rsp, "", serv, NULL);
+		rsp.setResponse(400, "", serv, NULL);
 	else
 		/*iniciamos el flow para gestionar la peticion*/
 		handleRequest(request, rsp, serv, loc);
