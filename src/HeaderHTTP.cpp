@@ -38,7 +38,7 @@ std::string	HeaderHTTP::getHeader(std::string name)
 			return it->second;
 		it++;
 	}
-	return (NULL);
+	return ("not found");
 }
 
 std::string	HeaderHTTP::makeHeader()
