@@ -15,7 +15,9 @@ void	Response::setBasicHeaders(int code, Request &request)
 	setHeader("Server: Webserv");
 	setHeader("Date: " + getCurrentTime());
 	if (body != "")
+	{
 		setHeader("Content-Length: " + getLengthAsString(body));
+	}
 	if (code == 201)
 		setHeader("Content-Length: 0");
 

@@ -108,15 +108,14 @@ std::string parseCgiHeader(Response &response, std::string& content)
 
     // Read headers until an empty line is encountered
     line = content.substr(0, content.find("\n"));
-  //  cout << "line: " << line << endl;
-    while (!line.empty() || line == "\n")
+    cout << "line: " << line << endl << "length: " << line.length() << endl;
+    while (line.length() > 1)
     {
         response.setHeader(line);
         content = content.substr(line.length() + 1, content.length());
         line = content.substr(0, content.find("\n"));
-      //  cout << "line length: " << line.length() << endl;
+        cout << "line: " << line << endl << "length: " << line.length() << endl;
     }
-    
     return (content);
 }
 
