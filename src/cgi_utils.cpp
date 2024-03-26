@@ -102,26 +102,22 @@ std::string bounceContent(int fd)
 	return (content);
 }
 
-std::string parseCgiHeader(Response &response, const std::string& content) 
-{   
-    std::istringstream iss(content);
+std::string parseCgiHeader(Response &response, std::string& content) 
+{  
     std::string line;
 
     // Read headers until an empty line is encountered
-    std::getline(iss, line);
-    while (line == "") {
-        // Check for empty line (end of headers)
-        if (line.empty()) {
-            // Skip the empty line
-            break;
-        }
-        // Store the header line
-       response.setHeader(line);
-       std::getline(iss, line);
+    line = content.substr(0, content.find("\n"));
+  //  cout << "line: " << line << endl;
+    while (!line.empty() || line == "\n")
+    {
+        response.setHeader(line);
+        content = content.substr(line.length() + 1, content.length());
+        line = content.substr(0, content.find("\n"));
+      //  cout << "line length: " << line.length() << endl;
     }
-    std::ostringstream oss;
-    oss << iss.rdbuf();  // Copy the remaining content to the output string stream
-    return oss.str();
+    
+    return (content);
 }
 
 bool    checkPut(std::string &path)

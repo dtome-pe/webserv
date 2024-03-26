@@ -164,7 +164,6 @@ int	Cluster::handleClient(Request &request, int new_socket, const std::vector<Se
 		/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
 		rsp.setResponse(handleRequest(request, rsp, serv, loc), request);
 	std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
-	cout << "response: " << response << endl;
 	send(new_socket, response.c_str(), response.length(), 0);
 	
 	return (0);

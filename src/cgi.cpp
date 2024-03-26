@@ -175,6 +175,7 @@ int	cgi(Response &response, Request &request, std::string &path, std::string met
 				{
 					std::string content = bounceContent(pipe_from_child[0]);
 					content = parseCgiHeader(response, content);
+					//cout << "content: " << content << endl;
 					response.setBody(content);
 					//cout << "content: " << content << endl;
 					return (200);
