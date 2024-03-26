@@ -140,7 +140,10 @@ void	Cluster::run()
 						Request req(text, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size));
 						this->handleClient(req, _pollVec[i].fd, _servVec);
 						if (!req.getKeepAlive())
+						{
+							cout << "entra en close conn" << endl;
 							closeConnection(i, _pollVec, _sockVec, &size, &flag);
+						}		
 					}
 				}
 			}
@@ -156,17 +159,18 @@ int	Cluster::handleClient(Request &request, int new_socket, const std::vector<Se
 	const Server *serv = find_serv_block(servVec, request);
 	const Location *loc = find_loc_block(serv, request);
 	if (!request.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
-		rsp.setResponse(400, "", serv, NULL);
+		rsp.setResponse(400, request);
 	else
-		/*iniciamos el flow para gestionar la peticion*/
-		handleRequest(request, rsp, serv, loc);
+		/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
+		rsp.setResponse(handleRequest(request, rsp, serv, loc), request);
 	std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
+	cout << "response: " << response << endl;
 	send(new_socket, response.c_str(), response.length(), 0);
 	
 	return (0);
 }
 
-void	Cluster::handleRequest(Request &request, Response &response, const Server *serv, const Location *loc)
+int		Cluster::handleRequest(Request &request, Response &response, const Server *serv, const Location *loc)
 {
 	cout << "entra en handle request:  ";
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
@@ -175,77 +179,57 @@ void	Cluster::handleRequest(Request &request, Response &response, const Server *
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (!check_method(request.getMethod(), NULL, serv)) // bloqueamos toda peticion que no sea GET, 405
-		{
-			response.setResponse(405, "", serv, loc);
-			return ;
-		}
+			return (405);
 		/*Si la peticion es al root, damos pagina default, si no 404*/
 		if (request.getTarget() == "/")
-			response.setResponse(200, readFileContents("default/default.html"), NULL, NULL);
+		{
+			response.setBody(readFileContents("default/default.html"));
+			return (200);
+		}
 		else
-			response.setResponse(404, "", serv, NULL);
+			return (404);
 	}
 	else
 	{
 		if (!check_method(request.getMethod(), loc, serv)) // si metodo no permitido, 405
 		{
-			response.setResponse(405, "", serv, loc);
-			return ;
+			return (405);
 		}
 		if (loc && loc->getRedirection().length() > 0) // comprobar si hay directive return
-		{
-			response.setResponse(loc->getRedirectionNumber(), loc->getRedirection(), NULL, NULL); // pasaremos setResponse cuando tengamos map<int,string>
-			return ;
-		}
+			return (loc->getRedirectionNumber());
 		if (!checkGood(path))  // si el path que ha resultado no existe, comprobamos si es un put y se puede acceder a la carpeta previa
 		{
-			cout << "tras primer checkgood" << endl;
 			if (request.getMethod() == "PUT")
 			{
-				if (checkPutFile(path))
-				{
-					setPut(response, request, path, request.getMethod());
-					return ;
-				}
+				if (checkPutFile(path)) // si server puede acceder a la carpeta donde se quiere crear el archivo, hacemos put
+					return (setPut(response, request, path, request.getMethod()));
 			}
 			else
-			{
-				response.setResponse(404, "", serv, NULL);
-				return ;
-			}
+				return (404);
 		}
 		if (request.getMethod() == "GET" &&  checkFileOrDir(path) == "dir" && !checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
-		{
-			response.setResponse(301, request.getTarget() + "/", NULL, NULL);
-			return ;
+		{	
+			request.setTrailSlashRedir(true);
+			return (301);
 		}
 		if (request.getMethod() == "DELETE")
-		{
-			setDel(response, request, path, request.getMethod());
-			return ;
-		}
+			return (setDel(request, path, request.getMethod()));
 		if (request.getMethod() == "PUT")
 		{	
-			if (path[path.length() - 1] != '/') 
-			{
-				setPut(response, request, path, request.getMethod());
-				return ;
-			}
+			if (path[path.length() - 1] != '/')  // comprobamos que el put no tenga como target un directorio, entonces se devuelve 409
+				return (setPut(response, request, path, request.getMethod()));
 			else
-			{
-				response.setResponse(409, "", NULL, NULL);
-				return ;
-			}
+				return (409);
 		}
 		if (checkFileOrDir(path) == "file")
 		{
 			if (checkCgi(request, path, loc)) // chequearemos si location tiene activado el cgi y para que extensiones
-			{
-				cgi(response, request, path, request.getMethod());
-				return ;
-			}
+				return (cgi(response, request, path, request.getMethod()));
 			else
-				response.setResponse(200, readFileContents(path), NULL, NULL); //sino servimos el recurso de manera normal
+			{
+				response.setBody(readFileContents(path)); //sino servimos el recurso de manera normal
+				return (200); 
+			}
 		}
 		else // si corresponde a un directorio, primero miramos que no haya un index file
 		{
@@ -254,37 +238,32 @@ void	Cluster::handleRequest(Request &request, Response &response, const Server *
 				std::string index_file = findIndex(path, serv, loc); // localizamos si el camino lleva a un archivo
 				if (index_file != "")  // en caso afirmativo, se sirve
 				{
-					response.setResponse(200, readFileContents(index_file), NULL, NULL);
-					return ;
+					response.setBody(readFileContents(index_file));
+					return (200);
 				}
 				else // si no, damos un forbidden, como nginx
-				{
-					response.setResponse(403, "", serv, NULL);
-					return ;
-				}
+					return (403);
 			}
 			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
 			{
-				path += "index.html";
-				response.setResponse(200, readFileContents(path), NULL, NULL);
-				return ;
+				response.setBody(readFileContents(path + "index.html"));
+				return (200);
 			}
 			else // sino, comprobamos si tiene autoindex activado para mostrar listado directorio
 			{
 				if (!loc || !loc->getAutoindex()) // si no tiene autoindex (como solo lo puede tener un location, de momento), devolvemos 403 ya que no esta activado el directorylisting
 											// y no tenemos permiso para coger ningun archivo de directorio
-				{
-					response.setResponse(403, "", serv, NULL);
-					return ;
-				}
+					return (403);
 				else
 				{
 					std::string content = generateDirectoryListing(path);
 					if (content == "Error 500") // por si da algun error interno el server.
-						response.setResponse(200,  "", NULL, NULL);
+						return (500);
 					else
-						response.setResponse(200, content, NULL, NULL);
-					return ;
+					{
+						response.setBody(content);
+						return (200);
+					}
 				}
 			}		
 		}

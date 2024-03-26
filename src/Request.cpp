@@ -14,6 +14,7 @@ Request::Request(std::string buff, Socket &listener)
 	splitRequest(buff, listener);
 	if (getHeader("Connection") == "close") // cambiamos keepAlive si explicitamente se solicita la finalizacion de la conexion
 		keepAlive = false;
+	trailSlashRedir = false;
 }
 
 Request::~Request()
@@ -100,6 +101,16 @@ void	Request::setServer(const Server *serv)
 	this->serv = serv;
 }
 
+void	Request::setLocation(const Location *loc)
+{
+	this->loc = loc;
+}
+
+void	Request::setTrailSlashRedir(bool redir)
+{
+	trailSlashRedir = redir;
+}
+
 std::string Request::getMethod()
 {
 	return (method);
@@ -153,6 +164,16 @@ bool		Request::getKeepAlive()
 const Server		*Request::getServer()
 {
 	return(serv);
+}
+
+const Location		*Request::getLocation()
+{
+	return(loc);
+}
+
+bool				Request::getTrailSlashRedir()
+{
+	return(trailSlashRedir);
 }
 
 std::string Request::makeRequest()
