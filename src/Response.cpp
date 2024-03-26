@@ -32,7 +32,7 @@ void	Response::setBasicHeaders(int code, Request &request)
 
 void	Response::setResponse(int code, Request &request)
 {
-	cout << "code: " << code << endl;
+	//cout << "code: " << code << endl;
 	setBasicHeaders(code, request);
 	switch (code)
 	{
