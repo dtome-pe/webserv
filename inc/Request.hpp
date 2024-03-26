@@ -6,6 +6,7 @@
 
 class Socket;
 class Server;
+class Location;
 
 class Request
 {	
@@ -23,6 +24,9 @@ class Request
 
 		bool				keepAlive;
 		const Server		*serv;
+		const Location		*loc;
+
+		int					trailSlashRedir;
 
 	public:
 		Request(std::string buff, Socket &listener);
@@ -45,12 +49,16 @@ class Request
 		std::string 		getCgiExtension();
 		std::string 		getCgiBinary();
 		const Server		*getServer();
+		const Location		*getLocation();
+		bool				getTrailSlashRedir();
 
 		void				setCgiExtension(std::string &extension);
 		void				setCgiBinary(std::string &binary);
 
 		void 				setIpPortHost(Socket &listener);
 		void				setServer(const Server *serv);
+		void				setLocation(const Location *loc);
+		void				setTrailSlashRedir(bool redir);
 
 		bool				getKeepAlive();
 

@@ -1,99 +1,79 @@
 #include <webserv.hpp>
 
-void setDel(Response &response, Request &request, std::string &path, std::string method)
+int	setDel(Request &request, std::string &path, std::string method)
 {
 	pid_t	pid = fork();
 	if (pid == -1)
 	{
-		strerror(errno);
-		response.setResponse(500, "", request.getServer(), NULL);
-		return ;
+		cerr << strerror(errno) << endl;
+		return (500);
 	}
-	if (method == "DELETE")
+	if (pid == 0)
 	{
-		if (pid == 0)
+		char* const* argv = setArgv(request, path, method);
+		execve("/usr/bin/php8.1", argv, NULL);
+		cerr << strerror(errno) << endl;
+		return (500);
+	}
+	else
+	{
+		int	status;
+		int result = waitpid(pid, &status, 0);
+		//cout << result << endl;
+		if (result == -1)
 		{
-			char* const* argv = setArgv(request, path, method);
-			execve("/usr/bin/php8.1", argv, NULL);
-			cout << strerror(errno) << endl;
+			cerr << strerror(errno) << endl;
+			return (500);
 		}
 		else
 		{
-			int	status;
-			int result = waitpid(pid, &status, 0);
-			//cout << result << endl;
-			if (result == -1)
+			if (WIFEXITED(status))
 			{
-				strerror(errno);
-				response.setResponse(500, "", request.getServer(), NULL);
-				return ;
+				int exitStatus = WEXITSTATUS(status);
+				if (exitStatus == -1)
+					return (500);
+				else
+					return (204);
 			}
-			else
-			{
-				if (WIFEXITED(status))
-				{
-					int exitStatus = WEXITSTATUS(status);
-					if (exitStatus == -1)
-					{
-						response.setResponse(500, "", request.getServer(), NULL);
-						return ;
-					}
-					else
-					{
-						response.setResponse(204, "", request.getServer(), NULL);
-					}
-				}
-			}
+			return (500);
 		}
 	}
 }
 
-void	setPut(Response &response, Request &request, std::string &path, std::string method)
+int	setPut(Response &response, Request &request, std::string &path, std::string method)
 {	
-	if (request.getBody() == "")
-		return response.setResponse(500, "", request.getServer(), NULL);
 	int pipe_to_child[2];
-	if (pipe(pipe_to_child) == -1) 
-        return response.setResponse(500, "", request.getServer(), NULL);
-	if (pipe(pipe_to_child) == -1) 
-	{
-        strerror(errno);
-        response.setResponse(500, "", request.getServer(), NULL);
-		return ;
-    }
+	if (pipe(pipe_to_child) == -1 || request.getBody() == "") 
+        return (500);
 	fcntl(pipe_to_child[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	fcntl(pipe_to_child[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	ssize_t bytes_written = write(pipe_to_child[1], request.getBody().c_str(), request.getBody().size());
 	cout << "bytes written: " << bytes_written << endl;
 	if (bytes_written == -1)
 	{
-		strerror(errno);
-		response.setResponse(500, "", request.getServer(), NULL);
-		return;
+		cerr << strerror(errno) << endl;
+		return (500);
 	}
 	pid_t	pid = fork();
 	if (pid == -1)
 	{
-		strerror(errno);
-		response.setResponse(500, "", NULL, NULL);
-		return ;
+		cerr << strerror(errno) << endl;
+		return (500);
 	}
-	if (method == "PUT")
-	{
-		if (pid == 0)
-		{	
-			char* const* argv = setArgv(request, path, method);
-			char* const* envp = setEnvp(request, path, method);
-			close(pipe_to_child[1]);
-			if (dup2(pipe_to_child[0], STDIN_FILENO) == -1)
-			{
-				strerror(errno);
-				response.setResponse(500, "", request.getServer(), NULL);
-				return ;
-			}
-			execve("/usr/bin/php8.1", argv, envp);
+	if (pid == 0)
+	{	
+		char* const* argv = setArgv(request, path, method);
+		char* const* envp = setEnvp(request, path, method);
+		close(pipe_to_child[1]);
+		if (dup2(pipe_to_child[0], STDIN_FILENO) == -1)
+		{
+			cerr << strerror(errno) << endl;
+			return (500);
 		}
-		else
+		execve("/usr/bin/php8.1", argv, envp);
+		return (500);
+	}
+	else
 	{	
 		close(pipe_to_child[0]);
 		close(pipe_to_child[1]);
@@ -101,9 +81,8 @@ void	setPut(Response &response, Request &request, std::string &path, std::string
         int result = waitpid(pid, &status, 0);
 		if (result == -1)
 		{
-			strerror(errno);
-			response.setResponse(500, "", request.getServer(), NULL);
-			return ;
+			cerr << strerror(errno) << endl;
+			return (500);
 		}
 		else
 		{
@@ -112,42 +91,29 @@ void	setPut(Response &response, Request &request, std::string &path, std::string
             	int exitStatus = WEXITSTATUS(status);
 				cout << "exit status: " << exitStatus << endl;
 				if (exitStatus == -1)
-				{
-					response.setResponse(500, "", request.getServer(), NULL);
-					return ;
-				}
+					return (500);
 				else
-				{	
-					response.setResponse(exitStatus, path, NULL, NULL);
+				{
+					if (exitStatus == 200)
+						response.setBody("File uploaded correctly.");
+					return (exitStatus);
 				}
        		}
+			return (500);
 		}
-	}
 	}
 }
 
 
-void	cgi(Response &response, Request &request, std::string &path, std::string method)
+int	cgi(Response &response, Request &request, std::string &path, std::string method)
 {
-	if (method == "PUT")
-	{
-		setPut(response, request, path, method);
-		return ;
-	}
 	int pipe_to_child[2];
 	int pipe_from_child[2];
 	
-    if (pipe(pipe_to_child) == -1) 
+    if (pipe(pipe_to_child) == -1 || pipe(pipe_from_child) == -1) 
 	{
-        strerror(errno);
-        response.setResponse(500, "", request.getServer(), NULL);
-		return ;
-    }
-	if (pipe(pipe_from_child) == -1) 
-	{
-        strerror(errno);
-        response.setResponse(500, "", request.getServer(), NULL);
-		return ;
+        cerr << strerror(errno) << endl;
+        return (500);
     }
 	fcntl(pipe_to_child[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	fcntl(pipe_to_child[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
@@ -158,17 +124,15 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
 		ssize_t bytes_written = write(pipe_to_child[1], request.getBody().c_str(), request.getBody().size());
 		if (bytes_written == -1)
 		{
-			strerror(errno);
-			response.setResponse(500, "", request.getServer(), NULL);
-			return;
+			cerr << strerror(errno) << endl;
+			return (500);
 		}
 	}
 	pid_t	pid = fork();
 	if (pid == -1)
 	{
-		strerror(errno);
-		response.setResponse(500, "", request.getServer(), NULL);
-		return ;
+		cerr << strerror(errno) << endl;
+		return (500);
 	}
 	if (pid == 0)
 	{
@@ -178,21 +142,15 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
 		char* const* argv = setArgv(request, path, method);
 		char * const* envp = setEnvp(request, path, method);
 
-		if (dup2(pipe_to_child[0], STDIN_FILENO) == -1)
+		if (dup2(pipe_to_child[0], STDIN_FILENO) == -1 || dup2(pipe_from_child[1], STDOUT_FILENO) == -1)
 		{
-			strerror(errno);
-			response.setResponse(500, "", request.getServer(), NULL);
-			return ;
-		}
-		if (dup2(pipe_from_child[1], STDOUT_FILENO) == -1)
-		{
-			strerror(errno);
-			response.setResponse(500, "", request.getServer(), NULL);
-			return ;
+			cerr << strerror(errno) << endl;
+			return (500);
 		}
 		close(pipe_to_child[0]);
 		close(pipe_from_child[1]);
 		execve(request.getCgiBinary().c_str(), argv, envp);
+		return (500);
 	}
 	else
 	{	
@@ -205,9 +163,8 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
 		cout << result << endl;
 		if (result == -1)
 		{
-			strerror(errno);
-			response.setResponse(500, "", request.getServer(), NULL);
-			return ;
+			cerr << strerror(errno) << endl;
+			return (500);
 		}
 		else
 		{
@@ -215,18 +172,17 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
        		{
             	int exitStatus = WEXITSTATUS(status);
 				if (exitStatus == -1)
-				{
-					response.setResponse(500, "", request.getServer(), NULL);
-					return ;
-				}
+					return (500);
 				else
 				{
 					std::string content = bounceContent(pipe_from_child[0]);
 					content = parseCgiHeader(response, content);
+					response.setBody(content);
 					//cout << "content: " << content << endl;
-					response.setResponse(200, content, NULL, NULL);
+					return (200);
 				}
        		}
+			return (500);
 		}
 	}
 }

@@ -56,9 +56,9 @@ class Server;
 	/*cgi*/
 
 	bool						checkCgi(Request &request, std::string &path, const Location *loc);
-	void						cgi(Response &response, Request &request, std::string &path, std::string method);
-	void						setDel(Response &response, Request &request, std::string &path, std::string method);
-	void						setPut(Response &response, Request &request, std::string &path, std::string method);
+	int							cgi(Response &response, Request &request, std::string &path, std::string method);
+	int							setDel(Request &request, std::string &path, std::string method);
+	int							setPut(Response &response, Request &request, std::string &path, std::string method);
 	bool						checkPut(std::string &path);
 	bool						checkPutFile(std::string &path);
 

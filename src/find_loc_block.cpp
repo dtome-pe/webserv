@@ -61,9 +61,6 @@ const Location *find_loc_block(const Server *serv, Request &req)
 				ret = matches[i];
 		}
 	}
-	/* if (!ret)
-		cout << "No location was found" << endl;
-	else
-		cout << "Location " << ret->getLocation() << " was found." << endl; */
+	req.setLocation(ret);
 	return (ret);
 }
