@@ -10,127 +10,109 @@ Response::~Response()
 
 }
 
-void	Response::handleRequest(Request &request, const Server *serv, const Location *loc)
+void	Response::setBasicHeaders()
 {
-	cout << "entra en handle request:  ";
-	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
-	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
-	cout << "con path: " << path << " con method " << request.getMethod() << endl;
-	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
+	setHeader("Server: Webserv");
+	setHeader("Date: " + getCurrentTime());
+}
+
+void	Response::setResponse(int code, std::string arg, const Server *serv, const Location *loc)
+{
+	cout << "code: " << code << endl;
+	setBasicHeaders();
+	switch (code)
 	{
-		if (!check_method(request.getMethod(), NULL, serv)) // bloqueamos toda peticion que no sea GET, 405
+		case 200:
 		{
-			setResponse(405, *this, "", serv, loc);
-			return ;
+			setStatusLine("HTTP/1.1 200 OK");
+			setHeader("Content-Length: " + getLengthAsString(arg));
+			setBody(arg);
+			break;
 		}
-		/*Si la peticion es al root, damos pagina default, si no 404*/
-		if (request.getTarget() == "/")
-			setResponse(200, *this, readFileContents("default/default.html"), NULL, NULL);
-		else
-			setResponse(404, *this, "", serv, NULL);
-	}
-	else
-	{
-		if (!check_method(request.getMethod(), loc, serv)) // si metodo no permitido, 405
+		case 201:
 		{
-			setResponse(405, *this, "", serv, loc);
-			return ;
+			setStatusLine("HTTP/1.1 201 Created");
+			setHeader("Location: " + arg);
+			setBody(arg);
+			break;
 		}
-		if (loc && loc->getRedirection().length() > 0) // comprobar si hay directive return
+		case 204:
 		{
-			setResponse(loc->getRedirectionNumber(), *this, loc->getRedirection(), NULL, NULL); // pasaremos setResponse cuando tengamos map<int,string>
-			return ;
+			setStatusLine("HTTP/1.1 204 No Content");
+			break;
 		}
-		if (!checkGood(path))  // si el path que ha resultado no existe, comprobamos si es un put y se puede acceder a la carpeta previa
+		case 301:
 		{
-			cout << "tras primer checkgood" << endl;
-			if (request.getMethod() == "PUT")
+			setStatusLine("HTTP/1.1 301 Moved Permanently");
+			setHeader("Location: " + arg);
+			setHeader("Connection: keep-alive");
+			break;
+		}
+		case 302:
+		{
+			setStatusLine("HTTP/1.1 302 Found");
+			setHeader("Location: " + arg);
+			setHeader("Connection: keep-alive");
+			break;
+		}
+		case 303:
+		{
+			setStatusLine("HTTP/1.1 303 See Other");
+			setHeader("Location: " + arg);
+			setHeader("Connection: keep-alive");
+			break;
+		}
+		case 400:
+		{
+			setStatusLine("HTTP/1.1 400 Bad Request");
+			makeDefault(400, *this, "/400.html", serv);
+			break;
+		}
+		case 403:
+		{
+			setStatusLine("HTTP/1.1 403 Forbidden");
+			makeDefault(403, *this, "/403.html", serv);
+			break;
+		}
+		case 404:
+		{
+			setStatusLine("HTTP/1.1 404 Not Found");
+			makeDefault(404, *this, "/404.html", serv);
+			break;
+		}
+		case 405:
+		{
+			setStatusLine("HTTP/1.1 405 Method Not Allowed");
+			std::string allow_header = "Allow: ";			/*allow header obligatorio en caso de mensaje 405 method not allowed
+															donde se informan de metodos aceptados en URL*/
+			if (loc)
 			{
-				if (checkPutFile(path))
-				{
-					setPut(*this, request, path, request.getMethod());
-					return ;
-				}
+				if (loc->getMethods()[0] == 1)
+					allow_header += "GET, ";
+				if (loc->getMethods()[1] == 1)
+					allow_header += "POST, ";
+				if (loc->getMethods()[2] == 1)
+					allow_header += "DELETE";
 			}
 			else
 			{
-				setResponse(404, *this, "", serv, NULL);
-				return ;
+				allow_header += "GET, ";
 			}
+			setHeader(allow_header);
+			makeDefault(405, *this, "/405.html", serv);
+			break;
 		}
-		if (request.getMethod() == "GET" &&  checkFileOrDir(path) == "dir" && !checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
+		case 409:
 		{
-			setResponse(301, *this, request.getTarget() + "/", NULL, NULL);
-			return ;
+			setStatusLine("HTTP/1.1 409 Conflict");
+			makeDefault(409, *this, "/409.html", serv);
+			break;
 		}
-		if (request.getMethod() == "DELETE")
+		case 500:
 		{
-			setDel(*this, request, path, request.getMethod());
-			return ;
-		}
-		if (request.getMethod() == "PUT")
-		{	
-			if (path[path.length() - 1] != '/') 
-			{
-				setPut(*this, request, path, request.getMethod());
-				return ;
-			}
-			else
-			{
-				setResponse(409, *this, "", NULL, NULL);
-				return ;
-			}
-		}
-		if (checkFileOrDir(path) == "file")
-		{
-			if (checkCgi(request, path, loc)) // chequearemos si location tiene activado el cgi y para que extensiones
-			{
-				cgi(*this, request, path, request.getMethod());
-				return ;
-			}
-			else
-				setResponse(200, *this, readFileContents(path), NULL, NULL); //sino servimos el recurso de manera normal
-		}
-		else // si corresponde a un directorio, primero miramos que no haya un index file
-		{
-			if (serv->getVIndex().size() > 0 || (loc && loc->getIndex().size() > 0)) // si hay index directive
-			{
-				std::string index_file = findIndex(path, serv, loc); // localizamos si el camino lleva a un archivo
-				if (index_file != "")  // en caso afirmativo, se sirve
-				{
-					setResponse(200, *this, readFileContents(index_file), NULL, NULL);
-					return ;
-				}
-				else // si no, damos un forbidden, como nginx
-				{
-					setResponse(403, *this, "", serv, NULL);
-					return ;
-				}
-			}
-			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
-			{
-				path += "index.html";
-				setResponse(200, *this, readFileContents(path), NULL, NULL);
-				return ;
-			}
-			else // sino, comprobamos si tiene autoindex activado para mostrar listado directorio
-			{
-				if (!loc || !loc->getAutoindex()) // si no tiene autoindex (como solo lo puede tener un location, de momento), devolvemos 403 ya que no esta activado el directorylisting
-											// y no tenemos permiso para coger ningun archivo de directorio
-				{
-					setResponse(403, *this, "", serv, NULL);
-					return ;
-				}
-				else
-				{
-					std::string content = generateDirectoryListing(path);
-					if (content == "Error 500") // por si da algun error interno el server.
-						setResponse(200, *this, "", NULL, NULL);
-					else
-						setResponse(200, *this, content, NULL, NULL);
-					return ;
-				}
-			}		
+			setStatusLine("HTTP/1.1 500 Internal Server Error");
+			makeDefault(500, *this, "/500.html", serv);
+			break;
 		}
 	}
 }
