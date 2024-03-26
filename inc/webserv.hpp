@@ -65,7 +65,7 @@ class Server;
 	char* const* 				setEnvp(Request &request, std::string &path, std::string &method);
 	char* const*				setArgv(Request &request, std::string &path, std::string &method);
 	std::string 				bounceContent(int fd);
-	std::string	 				parseCgiHeader(Response &response, const std::string& content);
+	std::string	 				parseCgiHeader(Response &response, std::string& content);
 
 	/*poll utils*/
 	int							receive_response(int new_socket, std::vector<unsigned char> *buff);
