@@ -29,8 +29,10 @@ class Response
 
 		void	setStatusLine(std::string _status_line);
 		void	setHeader(std::string _header);
-		void	setBody(std::string _body);
 
+		void	setResponse(int code, std::string arg, const Server *serv, const Location *loc);
+		void	setBasicHeaders();
+		void	setBody(std::string _body);
 		void	setDelete(Request &request, std::string path);
 };
 
