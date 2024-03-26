@@ -77,5 +77,6 @@ const Server *find_serv_block(const std::vector<class Server> &serv, Request &re
 		if (!block) // si ha devuelto nulo, es que no ha encontrado match con server_name
 			return (get_first_block(serv, request)); // asi que hay que devolver primer server que encaje con ip:puerto
 	}
+	request.setServer(block);
 	return (block);
 } 

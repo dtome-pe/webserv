@@ -95,6 +95,14 @@ void	setResponse(int code, Response &response, std::string arg, const Server *se
 		case 409:
 		{
 			response.setStatusLine("HTTP/1.1 409 Conflict");
+			makeDefault(409, response, "/409.html", serv);
+			break;
+		}
+		case 500:
+		{
+			response.setStatusLine("HTTP/1.1 500 Internal Server Error");
+			
+			makeDefault(500, response, "/500.html", serv);
 			break;
 		}
 	}
