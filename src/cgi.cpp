@@ -59,6 +59,7 @@ void	setPut(Response &response, Request &request, std::string &path, std::string
     }
 	fcntl(pipe_to_child[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	fcntl(pipe_to_child[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	cout << request.getBody() << endl;
 	ssize_t bytes_written = write(pipe_to_child[1], request.getBody().c_str(), request.getBody().size());
 	cout << "bytes written: " << bytes_written << endl;
 	if (bytes_written == -1)

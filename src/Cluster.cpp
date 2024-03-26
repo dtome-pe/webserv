@@ -120,12 +120,7 @@ void	Cluster::run()
 						{	
 							if (errno != EAGAIN && errno != EWOULDBLOCK) // igual, estos dos errores son normales en non blocking
 							{
-								close(_pollVec[i].fd);    // no obstante, si es otro -1, es un error, y quitamos cliente de vectores.
-											// es decir, cerramos conexion.
-								//cout << "recv: " << strerror(errno) << endl;
-								remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd, size);
-								size--; // si se quita un elemento del vector, reducimos size para buen funcionamiento
-								flag = 0;
+								closeConnection(i, _pollVec, _sockVec, &size, &flag);
 								break ;
 							}
 							//cout << "EAGAIN / EWOULDBLOCK" << endl; salimos en caso EAGAIN para gestionar informacion
@@ -133,20 +128,19 @@ void	Cluster::run()
 						}
 						else if (nbytes == 0) // si 0, se ha cerrado conexion, tambien quitamos a cliente de vectores.
 						{	
-							close(_pollVec[i].fd);
-						//	cout << "connexion with fd: " << pollVec[i].fd << " was closed with client. socket config is: " << endl;
-							remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd, size);
-							size--; // si se quita un elemento del vector, reducimos size para buen funcionamiento
-							flag = 0;
-							//conf.print_sockets();
+							closeConnection(i, _pollVec, _sockVec, &size, &flag);
 							break ;
 						}
 						bounceBuff(text, buff); // vamos bounceando el buffer en una string, mientras siga el loop.
 					}
 					if (flag) //  si no ha habido un break por error o cierre de conexion, gestionamos peticion.
-					{
-						this->handle_client(_pollVec[i].fd, _servVec, findListener(_sockVec, 
-							findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size),text);
+					{	
+						//se construye request con el texto y con el socket listener, para que nos de informacion
+						// de a que ip y puerto iba destinado esta peticion
+						Request req(text, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size));
+						this->handle_client(req, _pollVec[i].fd, _servVec);
+						if (!req.getKeepAlive())
+							closeConnection(i, _pollVec, _sockVec, &size, &flag);
 					}
 				}
 			}
@@ -154,30 +148,32 @@ void	Cluster::run()
 	}	
 }
 
-int	Cluster::handle_client(int new_socket, const std::vector<Server>&servVec, Socket &listener, std::string &text)
+int	Cluster::handle_client(Request &request, int new_socket, const std::vector<Server>&servVec)
 {
-	ofstream file("log.txt");
-	file << text;
-	file.close();
-	Request	req(text, listener); //se construye request con el texto y con el socket listener, para que nos de informacion
-		// de a que ip y puerto iba destinado esta peticion
-	//req.printRequest();
 	Response	rsp; // declaramos response
 	/*determinamos a que server block y que location block son los responsables de aplicar
 	sus diferentes reglas y configuraciones para gestionar dicha peticion*/
-	const Server *serv = find_serv_block(servVec, req);
-	const Location *loc = find_loc_block(serv, req);
-	
-	if (!req.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
+	const Server *serv = find_serv_block(servVec, request);
+	const Location *loc = find_loc_block(serv, request);
+	if (!request.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
 		setResponse(400, rsp, "", serv, NULL);
 	else
 		/*iniciamos el flow para gestionar la peticion*/
-		rsp.handleRequest(req, serv, loc);
-
+		rsp.handleRequest(request, serv, loc);
 	std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
 	send(new_socket, response.c_str(), response.length(), 0);
 	
 	return (0);
+}
+
+void	Cluster::closeConnection(int i, std::vector<pollfd>&_pollVec,
+								std::vector<Socket>&_sockVec, unsigned int *size, int *flag)
+{
+	close(_pollVec[i].fd);
+						//	cout << "connexion with fd: " << pollVec[i].fd << " was closed with client. socket config is: " << endl;
+	remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd, *size);
+	(*size)--; // si se quita un elemento del vector, reducimos size para buen funcionamiento
+	*flag = 0;	
 }
 
 void Cluster::clean()

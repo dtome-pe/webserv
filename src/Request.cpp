@@ -11,6 +11,8 @@ Request::Request(std::string buff, Socket &listener)
 {
 	good = true;
 	splitRequest(buff, listener);
+	if (getHeader("Connection") == "close") // seteamos keepAlive
+		keepAlive = false;
 }
 
 Request::~Request()
@@ -42,7 +44,7 @@ void	Request::splitRequest(std::string buff, Socket &listener)
 	}
 	try
 	{
-		this->body = buff.substr(0, buff.length());
+		this->body = buff.substr(2, buff.length()); // nos quedamos el cuerpo sin el /r/n previo.
 	}
 	catch(const std::exception& e)
 	{	}
@@ -135,6 +137,11 @@ std::string Request::getCgiExtension()
 std::string Request::getCgiBinary()
 {
 	return (cgiBinary);
+}
+
+bool		Request::getKeepAlive()
+{
+	return (keepAlive);
 }
 
 std::string Request::makeRequest()
