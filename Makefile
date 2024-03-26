@@ -2,7 +2,7 @@ NAME = webserv
 
 FILES = main  Socket Server   \
 		Response  Request  HeaderHTTP  ConfFile find_serv_block utils cgi \
-		Location find_loc_block response_utils cgi_utils poll_utils Cluster setResponse
+		Location find_loc_block response_utils cgi_utils poll_utils Cluster
 
 SRC = $(addprefix $(DIR_SRC), $(addsuffix .cpp, $(FILES)))
 FLAGS = -std=c++98 -Wall -Wextra -Werror -Iinc/

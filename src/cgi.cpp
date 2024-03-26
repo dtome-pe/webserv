@@ -6,7 +6,7 @@ void setDel(Response &response, Request &request, std::string &path, std::string
 	if (pid == -1)
 	{
 		strerror(errno);
-		setResponse(500, response, "", request.getServer(), NULL);
+		response.setResponse(500, "", request.getServer(), NULL);
 		return ;
 	}
 	if (method == "DELETE")
@@ -25,7 +25,7 @@ void setDel(Response &response, Request &request, std::string &path, std::string
 			if (result == -1)
 			{
 				strerror(errno);
-				setResponse(500, response, "", request.getServer(), NULL);
+				response.setResponse(500, "", request.getServer(), NULL);
 				return ;
 			}
 			else
@@ -35,12 +35,12 @@ void setDel(Response &response, Request &request, std::string &path, std::string
 					int exitStatus = WEXITSTATUS(status);
 					if (exitStatus == -1)
 					{
-						setResponse(500, response, "", request.getServer(), NULL);
+						response.setResponse(500, "", request.getServer(), NULL);
 						return ;
 					}
 					else
 					{
-						setResponse(204, response, "", request.getServer(), NULL);
+						response.setResponse(204, "", request.getServer(), NULL);
 					}
 				}
 			}
@@ -51,14 +51,14 @@ void setDel(Response &response, Request &request, std::string &path, std::string
 void	setPut(Response &response, Request &request, std::string &path, std::string method)
 {	
 	if (request.getBody() == "")
-		return setResponse(500, response, "", request.getServer(), NULL);
+		return response.setResponse(500, "", request.getServer(), NULL);
 	int pipe_to_child[2];
 	if (pipe(pipe_to_child) == -1) 
-        return setResponse(500, response, "", request.getServer(), NULL);
+        return response.setResponse(500, "", request.getServer(), NULL);
 	if (pipe(pipe_to_child) == -1) 
 	{
         strerror(errno);
-        setResponse(500, response, "", request.getServer(), NULL);
+        response.setResponse(500, "", request.getServer(), NULL);
 		return ;
     }
 	fcntl(pipe_to_child[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
@@ -68,14 +68,14 @@ void	setPut(Response &response, Request &request, std::string &path, std::string
 	if (bytes_written == -1)
 	{
 		strerror(errno);
-		setResponse(500, response, "", request.getServer(), NULL);
+		response.setResponse(500, "", request.getServer(), NULL);
 		return;
 	}
 	pid_t	pid = fork();
 	if (pid == -1)
 	{
 		strerror(errno);
-		setResponse(500, response, "", NULL, NULL);
+		response.setResponse(500, "", NULL, NULL);
 		return ;
 	}
 	if (method == "PUT")
@@ -88,7 +88,7 @@ void	setPut(Response &response, Request &request, std::string &path, std::string
 			if (dup2(pipe_to_child[0], STDIN_FILENO) == -1)
 			{
 				strerror(errno);
-				setResponse(500, response, "", request.getServer(), NULL);
+				response.setResponse(500, "", request.getServer(), NULL);
 				return ;
 			}
 			execve("/usr/bin/php8.1", argv, envp);
@@ -102,7 +102,7 @@ void	setPut(Response &response, Request &request, std::string &path, std::string
 		if (result == -1)
 		{
 			strerror(errno);
-			setResponse(500, response, "", request.getServer(), NULL);
+			response.setResponse(500, "", request.getServer(), NULL);
 			return ;
 		}
 		else
@@ -113,12 +113,12 @@ void	setPut(Response &response, Request &request, std::string &path, std::string
 				cout << "exit status: " << exitStatus << endl;
 				if (exitStatus == -1)
 				{
-					setResponse(500, response, "", request.getServer(), NULL);
+					response.setResponse(500, "", request.getServer(), NULL);
 					return ;
 				}
 				else
 				{	
-					setResponse(exitStatus, response, path, NULL, NULL);
+					response.setResponse(exitStatus, path, NULL, NULL);
 				}
        		}
 		}
@@ -140,13 +140,13 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
     if (pipe(pipe_to_child) == -1) 
 	{
         strerror(errno);
-        setResponse(500, response, "", request.getServer(), NULL);
+        response.setResponse(500, "", request.getServer(), NULL);
 		return ;
     }
 	if (pipe(pipe_from_child) == -1) 
 	{
         strerror(errno);
-        setResponse(500, response, "", request.getServer(), NULL);
+        response.setResponse(500, "", request.getServer(), NULL);
 		return ;
     }
 	fcntl(pipe_to_child[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
@@ -159,7 +159,7 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
 		if (bytes_written == -1)
 		{
 			strerror(errno);
-			setResponse(500, response, "", request.getServer(), NULL);
+			response.setResponse(500, "", request.getServer(), NULL);
 			return;
 		}
 	}
@@ -167,7 +167,7 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
 	if (pid == -1)
 	{
 		strerror(errno);
-		setResponse(500, response, "", request.getServer(), NULL);
+		response.setResponse(500, "", request.getServer(), NULL);
 		return ;
 	}
 	if (pid == 0)
@@ -181,13 +181,13 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
 		if (dup2(pipe_to_child[0], STDIN_FILENO) == -1)
 		{
 			strerror(errno);
-			setResponse(500, response, "", request.getServer(), NULL);
+			response.setResponse(500, "", request.getServer(), NULL);
 			return ;
 		}
 		if (dup2(pipe_from_child[1], STDOUT_FILENO) == -1)
 		{
 			strerror(errno);
-			setResponse(500, response, "", request.getServer(), NULL);
+			response.setResponse(500, "", request.getServer(), NULL);
 			return ;
 		}
 		close(pipe_to_child[0]);
@@ -206,7 +206,7 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
 		if (result == -1)
 		{
 			strerror(errno);
-			setResponse(500, response, "", request.getServer(), NULL);
+			response.setResponse(500, "", request.getServer(), NULL);
 			return ;
 		}
 		else
@@ -216,7 +216,7 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
             	int exitStatus = WEXITSTATUS(status);
 				if (exitStatus == -1)
 				{
-					setResponse(500, response, "", request.getServer(), NULL);
+					response.setResponse(500, "", request.getServer(), NULL);
 					return ;
 				}
 				else
@@ -224,7 +224,7 @@ void	cgi(Response &response, Request &request, std::string &path, std::string me
 					std::string content = bounceContent(pipe_from_child[0]);
 					content = parseCgiHeader(response, content);
 					//cout << "content: " << content << endl;
-					setResponse(200, response, content, NULL, NULL);
+					response.setResponse(200, content, NULL, NULL);
 				}
        		}
 		}
