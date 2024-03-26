@@ -1,9 +1,11 @@
 <?php
 
 // Get the file content from the request body
-$fileContent = file_get_contents("php://input");
+$fileContent = file_get_contents("php://stdin");
 
-echo("$fileContent");
+echo("$fileContent\n");
+
+echo(strlen($fileContent) . "\n");
 
 // Specify the directory where the file will be saved
 $uploadDir = $_ENV['UPLOAD_LOCATION'];

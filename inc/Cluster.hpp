@@ -14,18 +14,19 @@ class Cluster
 	public:
 		Cluster();
 		
-		void 	parseConfig(char *file);
-		void 	setup();
-		void 	run();
-		void	clean();
+		void 						parseConfig(char *file);
+		void 						setup();
+		void 						run();
+		void						clean();
 
-		int	handle_client(int new_socket, const std::vector<Server>&servVec, Socket &listener, std::string &text);
+		int							handle_client(Request &request, int new_socket, const std::vector<Server>&servVec);
+		void						closeConnection(int i, std::vector<pollfd>&_pollVec,
+													std::vector<Socket>&_sockVec, unsigned int *size, int *flag);
+		std::vector<Server>			&getServerVector();
+		std::vector<Socket>			&getSocketVector();
+		std::vector<pollfd>			&getPollVector();
 
-		std::vector<Server>&getServerVector();
-		std::vector<Socket>&getSocketVector();
-		std::vector<pollfd>&getPollVector();
-
-		void	printVectors();
+		void						printVectors();
 };
 
 #endif

@@ -20,6 +20,8 @@ class Request
 		std::string	cgiExtension;
 		std::string	cgiBinary;
 
+		bool		keepAlive;
+
 	public:
 		Request(std::string buff, Socket &listener);
 		~Request();
@@ -45,6 +47,8 @@ class Request
 		void		setCgiBinary(std::string &binary);
 
 		void 		setIpPortHost(Socket &listener);
+
+		bool		getKeepAlive();
 
 		std::string ip;
 		std::string host;
