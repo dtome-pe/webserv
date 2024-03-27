@@ -19,6 +19,9 @@ class Request
 		HeaderHTTP			headers;
 		std::string 		body;
 
+		std::string			path;
+		std::string			extension;
+
 		std::string 		ip;
 		std::string 		host;
 		std::string 		port;
@@ -60,6 +63,9 @@ class Request
 		const Location		*getLocation();
 		bool				getTrailSlashRedir();
 
+		std::string			getPath();
+		std::string			getExtension();
+
 		void				setCgiExtension(std::string &extension);
 		void				setCgiBinary(std::string &binary);
 
@@ -71,6 +77,9 @@ class Request
 		void				setIp(std::string &ip);
 		void				setHost(std::string &host);
 		void				setPort(std::string &port);
+
+		void				setPath(std::string path);
+		void				setExtension(std::string path);
 
 		bool				getKeepAlive();
 

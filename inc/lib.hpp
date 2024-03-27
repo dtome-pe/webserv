@@ -20,6 +20,7 @@
 # include <ConfFile.hpp>
 # include <Cluster.hpp>
 # include <Location.hpp>
+# include <MIME.hpp>
 
 // Standard class
 #include <iostream>
