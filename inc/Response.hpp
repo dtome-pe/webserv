@@ -20,10 +20,12 @@ class Response
 		Response();
 		~Response();
 
-		Status_line	status_line;
-		HeaderHTTP	headers;
-		std::string body;
-		std::string makeResponse(); // devuelve el texto con el formato completo
+		Status_line		status_line;
+		HeaderHTTP		headers;
+		std::string 	body;
+		std::string 	makeResponse(); // devuelve el texto con el formato completo
+		
+		void			makeDefault(int code, Request &request, Response &response, const std::string &file, const Server *serv);
 
 		void			setStatusLine(std::string _status_line);
 		void			setHeader(std::string _header);
