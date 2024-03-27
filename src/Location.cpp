@@ -95,6 +95,16 @@ const std::string Location::getRoot() const
 	return (this->root);
 }
 
+void	Location::setUploadStore(std::string upstr)
+{
+	upload_store = upstr;
+}
+
+std::string Location::getUploadStore() const
+{
+	return (this->upload_store);
+}
+
 std::string Location::getAllUrl()
 {
 	return (this->allurl);
