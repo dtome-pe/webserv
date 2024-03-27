@@ -25,12 +25,12 @@ class Response
 		std::string body;
 		std::string makeResponse(); // devuelve el texto con el formato completo
 
-		void	setStatusLine(std::string _status_line);
-		void	setHeader(std::string _header);
-		void	setBody(std::string _body);
+		void			setStatusLine(std::string _status_line);
+		void			setHeader(std::string _header);
+		void			setBody(std::string _body);
 
-		void	setResponse(int code, Request &request);
-		void	setBasicHeaders(int code, Request &request);	
+		void			setResponse(int code, Request &request);
+		void			setBasicHeaders(int code, Request &request);
 };
 
 #endif

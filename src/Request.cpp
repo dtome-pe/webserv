@@ -126,6 +126,18 @@ void	Request::setTrailSlashRedir(bool redir)
 	trailSlashRedir = redir;
 }
 
+void	Request::setPath(std::string path)
+{
+	this->path = path;
+	if (path.find_last_of(".") != std::string::npos)
+		setExtension(path.substr(path.find(".") + 1, path.length()));
+}
+
+void	Request::setExtension(std::string extension)
+{
+	this->extension = extension;
+}
+
 std::string Request::getMethod()
 {
 	return (method);
@@ -204,6 +216,16 @@ const Location		*Request::getLocation()
 bool				Request::getTrailSlashRedir()
 {
 	return(trailSlashRedir);
+}
+
+std::string			Request::getPath()
+{
+	return (path);
+}
+
+std::string			Request::getExtension()
+{
+	return (extension);
 }
 
 std::string Request::makeRequest()

@@ -9,6 +9,7 @@ void Cluster::parseConfig(char *file)
 {
 	_conf.parse_config(*this, file);
 	_conf.print_servers();
+	MIME::initializeMIME();
 }
 
 void Cluster::setup()
@@ -182,7 +183,7 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 		/*Si la peticion es al root, damos pagina default, si no 404*/
 		if (request.getTarget() == "/")
 		{
-			response.setBody(readFileContents("default/default.html"));
+			response.setBody(readFileContents(request, "default/default.html"));
 			return (200);
 		}
 		else
@@ -226,7 +227,7 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 				return (cgi(response, request, path, request.getMethod()));
 			else
 			{
-				response.setBody(readFileContents(path)); //sino servimos el recurso de manera normal
+				response.setBody(readFileContents(request, path)); //sino servimos el recurso de manera normal
 				return (200); 
 			}
 		}
@@ -237,7 +238,7 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 				std::string index_file = findIndex(path, serv, loc); // localizamos si el camino lleva a un archivo
 				if (index_file != "")  // en caso afirmativo, se sirve
 				{
-					response.setBody(readFileContents(index_file));
+					response.setBody(readFileContents(request, index_file));
 					return (200);
 				}
 				else // si no, damos un forbidden, como nginx
@@ -245,7 +246,7 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 			}
 			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
 			{
-				response.setBody(readFileContents(path + "index.html"));
+				response.setBody(readFileContents(request, path + "index.html"));
 				return (200);
 			}
 			else // sino, comprobamos si tiene autoindex activado para mostrar listado directorio

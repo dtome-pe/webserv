@@ -56,6 +56,7 @@ std::string getPath(Request &request, const Server *serv, const Location *loc)
 		{
 			path = loc->getRoot() + request.getTarget();
 			path = removeDoubleSlashes(path);
+			request.setPath(path.substr(0, path.find('?')));
 			return (path.substr(0, path.find('?')));
 		}
 	}
@@ -63,6 +64,7 @@ std::string getPath(Request &request, const Server *serv, const Location *loc)
 	{
 		path = serv->getRoot() + request.getTarget();
 		path = removeDoubleSlashes(path);
+		request.setPath(path.substr(0, path.find('?')));
 		return (path.substr(0, path.find('?')));
 	}
 	else
@@ -72,7 +74,7 @@ std::string getPath(Request &request, const Server *serv, const Location *loc)
 	}
 }
 
-std::string readFileContents(const std::string& filename) 
+std::string readFileContents(Request &request,const std::string& filename) 
 {	
 	//cout << filename << endl;
     std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
@@ -80,11 +82,10 @@ std::string readFileContents(const std::string& filename)
         std::cerr << "Error opening file: " << filename << std::endl;
         return "";
     }
-
     std::ostringstream content;
     content << file.rdbuf();
     file.close();
-	
+	request.setPath(filename);
     return content.str();
 }
 
@@ -247,7 +248,7 @@ std::string getDefaultFile(const std::string &file)
 	return (default_path);
 }
 
-void	makeDefault(int code, Response &response, const std::string &file, const Server *serv)
+void	makeDefault(int code, Request &request, Response &response, const std::string &file, const Server *serv)
 {
 	/*comprobariamos si serv tiene un error page establecido en conf file*/
 	std::string	content = "";
@@ -257,12 +258,10 @@ void	makeDefault(int code, Response &response, const std::string &file, const Se
 		cout << "entra en el if" << endl;
 		std::string path = serv->getRoot() + it->second;
 		if (checkGood(path))
-			content = readFileContents(path);
+			content = readFileContents(request, path);
 	}
 	else
-		 content = readFileContents("default" + file);
-	response.setHeader("Content-Length: " + getLengthAsString(content));
-	response.setHeader("Content-Type: text/html");
+		 content = readFileContents(request, "default" + file);
 	response.setBody(content);
 }
 
