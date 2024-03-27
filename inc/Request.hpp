@@ -36,14 +36,15 @@ class Request
 		int					trailSlashRedir;
 
 	public:
-		Request(std::string buff, const std::vector<class Server> &server, Socket &listener);
+		Request(std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client);
 		~Request();
 			
 		void				setRequestLine(std::string _request_line);
 		void				setHeader(std::string _header);
+		void				setHeaders(HeaderHTTP headers);
 		void				setBody(std::string _body);
 
-		void				splitRequest(std::string buff, Socket &listener);
+		void				splitRequest(std::string buff);
 		
 		std::string 		getMethod();
 		std::string 		getTarget();

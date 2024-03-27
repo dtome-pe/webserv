@@ -140,8 +140,16 @@ void	Cluster::run()
 						// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara
 						// bloque de server y location cuya configuracion se aplicara
 						Request req(text, _servVec,
-						findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size));
-						this->handleClient(req, _pollVec[i].fd);
+						findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size), findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()));
+						/*si hemos respondido con continue, ponemos al socket de
+						cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
+						directamente, sin headers.*/
+						if (this->handleClient(req, _pollVec[i].fd) == CONTINUE) 
+						{
+							findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).bounceContinue(req);
+							cout << findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).getContinueRequestLine();
+							findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).getContinueHeaders().printHeaders();
+						}
 						if (!req.getKeepAlive())
 						{
 							cout << "entra en close conn" << endl;
@@ -165,7 +173,7 @@ int	Cluster::handleClient(Request &request, int new_socket)
 	std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
 	send(new_socket, response.c_str(), response.length(), 0);
 	
-	return (0);
+	return (str_to_int(rsp.getCode())); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
 }
 
 int		Cluster::handleRequest(Request &request, Response &response, const Server *serv, const Location *loc)
@@ -173,8 +181,6 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
 	if (request.getHeader("Content-Length") != "not found")
 	{
-		cout << "length: " << str_to_int(request.getHeader("Content-Length")) << endl;
-		cout << "maxy body size: " << serv->getMaxBodySize() << endl;
 		if (str_to_int(request.getHeader("Content-Length")) > serv->getMaxBodySize())
 			return (413);
 	}
