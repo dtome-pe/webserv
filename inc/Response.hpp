@@ -3,14 +3,6 @@
 
 # include "webserv.hpp"
 
-typedef struct
-{
-	std::string	protocol;
-	std::string code;
-	std::string	text;
-	std::string	line;
-}	Status_line;
-
 class Server;
 class Location;
 
@@ -20,7 +12,10 @@ class Response
 		Response();
 		~Response();
 
-		Status_line		status_line;
+		std::string		protocol;
+		std::string 	code;
+		std::string		text;
+		std::string		line;
 		HeaderHTTP		headers;
 		std::string 	body;
 		std::string 	makeResponse(); // devuelve el texto con el formato completo
@@ -35,6 +30,8 @@ class Response
 		void			setBasicHeaders(int code, Request &request);
 
 		std::string		getHeader(std::string _header);
+
+		std::string		getCode();
 };
 
 #endif

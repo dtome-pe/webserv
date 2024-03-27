@@ -10,6 +10,9 @@ class HeaderHTTP
 	public:
 		HeaderHTTP();
 		~HeaderHTTP();
+		HeaderHTTP(const HeaderHTTP &header);
+		HeaderHTTP &operator=(const HeaderHTTP &header);
+
 		std::vector<std::string> 			vec;
 		std::map<std::string, std::string>	map; // map de headers
 
@@ -19,6 +22,10 @@ class HeaderHTTP
 		static std::vector<std::string>		split(const std::string& input, const std::string& delimiters);
 		void								printHeaders();
 		std::string							makeHeader();
+
+		void								removeHeader(std::string header);
+
+		void								clear();
 };
 
 #endif

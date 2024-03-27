@@ -44,6 +44,8 @@ int	setPut(Response &response, Request &request, std::string &path, std::string 
 {	
 	(void) response;
 
+	if (request.getHeader("Expect") == "100-continue")
+		return (100);
 	int pipe_to_child[2];
 	if (pipe(pipe_to_child) == -1 || request.getBody() == "") 
         return (500);
@@ -105,6 +107,8 @@ int	setPut(Response &response, Request &request, std::string &path, std::string 
 
 int	cgi(Response &response, Request &request, std::string &path, std::string method)
 {
+	if (request.getHeader("Expect") == "100-continue")
+		return (100);
 	int pipe_to_child[2];
 	int pipe_from_child[2];
 	
