@@ -36,7 +36,7 @@ class Request
 		int					trailSlashRedir;
 
 	public:
-		Request(std::string buff, Socket &listener);
+		Request(std::string buff, const std::vector<class Server> &server, Socket &listener);
 		~Request();
 			
 		void				setRequestLine(std::string _request_line);
@@ -70,9 +70,10 @@ class Request
 		void				setCgiBinary(std::string &binary);
 
 		void 				setIpPortHost(Socket &listener);
-		void				setServer(const Server *serv);
-		void				setLocation(const Location *loc);
 		void				setTrailSlashRedir(bool redir);
+
+		void				setServer(const std::vector<class Server> &server);
+		void				setLocation(const Server *serv);
 
 		void				setIp(std::string &ip);
 		void				setHost(std::string &host);

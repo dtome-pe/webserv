@@ -7,14 +7,17 @@
 #include <lib.hpp>
 #include <map>
 
-Request::Request(std::string buff, Socket &listener)
+Request::Request(std::string buff, const std::vector<class Server> &server, Socket &listener)
 {
-	good = true;
+	good = true; // por defecto, request correcta en parseo
 	keepAlive = true; // por defecto
 	splitRequest(buff, listener);
 	if (getHeader("Connection") == "close") // cambiamos keepAlive si explicitamente se solicita la finalizacion de la conexion
 		keepAlive = false;
 	trailSlashRedir = false;
+	/*determinamos block server y location relevantes para request*/
+	setServer(server);
+	setLocation(getServer());
 }
 
 Request::~Request()
@@ -70,6 +73,153 @@ void	Request::setRequestLine(std::string reqLine)
 
 }
 
+static const Server *ip_port(const std::vector<class Server> &serv, Request &request)
+{
+	const Server *	ret = NULL;
+
+	for(size_t i = 0; i < serv.size(); i++)  
+	{	
+		for (size_t j = 0; j < serv[i].ip_port.size(); j++)
+		{
+			if ((request.getIp() == serv[i].getIp(serv[i].ip_port[j]) ||
+					serv[i].getIp(serv[i].ip_port[j]) == "") && request.getPort() == serv[i].getPort(serv[i].ip_port[j]))
+			{
+				if (!ret)
+				{
+					ret = &serv[i];
+					break ;
+				}
+				if (ret)
+					return (NULL);
+			}
+		}
+	}
+	return (ret);
+}
+
+static const Server *serverName(const std::vector<class Server> &serv, Request &request)
+{
+	const Server *ret;
+
+	for(size_t i = 0; i < serv.size(); i++)  
+	{	
+		const std::vector<std::string> &serv_name = serv[i].getVServerName();
+		for (size_t j = 0; j < serv_name.size(); j++)
+		{
+			if (serv_name[j] == request.getHost()) // comparamos con lo que hemos cogido del Host header para determinar
+											// por server_name
+			{	
+				ret = &serv[i];
+				return (ret);
+			}
+		}
+	}
+	return (NULL);
+}
+
+static const Server *getFirstBlock(const std::vector<class Server> &serv, Request &request)
+{
+	// a cada server
+	for(size_t i = 0; i < serv.size(); i++)  
+	{	
+		for (size_t j = 0; j < serv[i].ip_port.size(); j++)
+		{	
+			//si es el primer match, lo retornamos y se acabo
+			if ((request.getIp() == serv[i].getIp(serv[i].ip_port[j]) ||
+					serv[i].getIp(serv[i].ip_port[j]) == "") && request.getPort() == serv[i].getPort(serv[i].ip_port[j]))
+			{	
+				return (&serv[i]);
+			}
+		}
+	}
+	return (NULL);
+}
+
+
+void Request::setServer(const std::vector<class Server> &server)
+{	
+	const Server *block;
+	
+	//cout << "request ip: " << request.ip << "request port: " << request.port << endl;
+
+	block = ip_port(server, *this);  //primero buscamos si solo hay un match por direccion y puerto
+	if (!block) // si ha devuelto nulo, es que hay mas de un server block con ip:puerto y hay que buscar ahora por server_name
+	{
+		block = serverName(server, *this);
+		if (!block) // si ha devuelto nulo, es que no ha encontrado match con server_name
+		{
+			serv = getFirstBlock(server, *this); // asi que hay que devolver primer server que encaje con ip:puerto
+			return ;
+		}
+	}
+	serv = block;
+}
+
+static std::string decode(const std::string& encoded) // decodifica caracteres escapados con hexadecimales en URL encoding
+{  
+	std::ostringstream decoded;
+
+    for (std::size_t i = 0; i < encoded.length(); ++i) 
+	{
+        if (encoded[i] == '%' && i + 2 < encoded.length()) 
+		{
+            // Extract the two characters following '%'
+            char hex1 = encoded[i + 1];
+            char hex2 = encoded[i + 2];
+
+            // Convert hex characters to an integer
+            std::istringstream hexStream(std::string("0x") + hex1 + hex2);
+            int decodedChar;
+            hexStream >> std::hex >> decodedChar;
+
+            // Append the decoded character to the result
+            decoded << static_cast<char>(decodedChar);
+
+            // Move the index two characters forward
+            i += 2;
+        } 
+		else 
+		{
+            // Append non-% characters directly to the result
+            decoded << encoded[i];
+        }
+    }
+    return decoded.str();
+}
+
+
+void Request::setLocation(const Server *serv)
+{
+	const Location *ret = NULL;
+
+	std::string decoded_str = decode(getTarget()); // decodificamos posibles %xx de URI
+	
+	const std::vector<Location>&locations = serv->getLocations();
+	
+	std::vector<const Location*>matches;
+
+	for (unsigned int i = 0; i < locations.size(); i++)
+	{
+		int len = locations[i].getLocation().length();
+		if (!getTarget().compare(0, len, locations[i].getLocation()))
+		{
+			matches.push_back(&locations[i]);
+		}
+	}
+	for (unsigned int i = 0; i < matches.size(); i++)
+	{
+		if (!ret)
+			ret = matches[i];
+		else
+		{
+			if (matches[i]->getLocation().length() > ret->getLocation().length())
+				ret = matches[i];
+		}
+	}
+	loc = ret;
+}
+
+
 void	Request::setHeader(std::string _header)
 {
 	this->headers.setHeader(_header);
@@ -94,16 +244,6 @@ void	Request::setCgiExtension(std::string &extension)
 void	Request::setCgiBinary(std::string &binary)
 {
 	cgiBinary = binary;
-}
-
-void	Request::setServer(const Server *serv)
-{
-	this->serv = serv;
-}
-
-void	Request::setLocation(const Location *loc)
-{
-	this->loc = loc;
 }
 
 void Request::setHost(std::string &host)
