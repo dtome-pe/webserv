@@ -3,10 +3,6 @@
 // Get the file content from the request body
 $fileContent = file_get_contents("php://stdin");
 
-echo("$fileContent\n");
-
-echo(strlen($fileContent) . "\n");
-
 // Specify the directory where the file will be saved
 $uploadDir = $_ENV['UPLOAD_LOCATION'];
 
@@ -15,8 +11,6 @@ $fileName = $_ENV['FILENAME'];
 
 // Specify the full path of the file
 $filePath = $uploadDir . $fileName;
-
-echo("$filePath\n");
 
 // Check if the file already exists
 if (file_exists($filePath)) {

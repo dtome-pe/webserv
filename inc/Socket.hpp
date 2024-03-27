@@ -13,6 +13,10 @@ class Socket
 		std::string	 		_ip;
 		std::string 		_port;
 		int					_fd;
+		bool				_continueBool;
+		std::string			_continueRequestLine;
+		HeaderHTTP			_continueHeaders;
+
 	
 	public:
 
@@ -42,11 +46,21 @@ class Socket
 		std::string		getPort() const;
 		std::string		getIp() const;
 		int				getFd() const;
+
+		bool			getContinueBool();
+		std::string		getContinueRequestLine();
+		HeaderHTTP		&getContinueHeaders();
+
 		//setters
 		void			setPort(std::string port);
 		void			setIp(std::string ip);
 		void			setHost(std::string host);
 		void			setFd(int fd);
+
+		void			bounceContinue(Request &request);
+		void			setContinueBool(bool c);
+		void			setContinueRequestLine(std::string text);
+		void			setContinueHeaders(HeaderHTTP headers);			
 };
 
 #endif

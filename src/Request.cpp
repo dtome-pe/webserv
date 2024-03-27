@@ -7,15 +7,25 @@
 #include <lib.hpp>
 #include <map>
 
-Request::Request(std::string buff, const std::vector<class Server> &server, Socket &listener)
+Request::Request(std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client)
 {
-	cout << buff << endl;
 	good = true; // por defecto, request correcta en parseo
 	keepAlive = true; // por defecto
-	splitRequest(buff, listener);
+	trailSlashRedir = false;
+	if (client.getContinueBool())   						//si tenemos el continue
+	{														// solo volcamos request line y headers guardados en socket de cliente
+		setRequestLine(client.getContinueRequestLine());	// que envio el expect y recibio el 100 continue, pero no
+		setHeaders(client.getContinueHeaders());			// el header de expect
+		client.setContinueBool(false);
+		client.setContinueRequestLine("");
+		client.getContinueHeaders().clear();
+		setBody(buff);
+	}
+	else
+		splitRequest(buff); // sino es continue se parsea de manera normal
+	setIpPortHost(listener);
 	if (getHeader("Connection") == "close") // cambiamos keepAlive si explicitamente se solicita la finalizacion de la conexion
 		keepAlive = false;
-	trailSlashRedir = false;
 	/*determinamos block server y location relevantes para request*/
 	setServer(server);
 	setLocation(getServer());
@@ -25,7 +35,7 @@ Request::~Request()
 {
 }
 
-void	Request::splitRequest(std::string buff, Socket &listener)
+void	Request::splitRequest(std::string buff)
 {
 	int rec = 0;
 	int finish = buff.find("\n");
@@ -56,7 +66,6 @@ void	Request::splitRequest(std::string buff, Socket &listener)
 	{	}
 	if (this->headers.map.find("Host") == this->headers.map.end())
 		good = false;
-	setIpPortHost(listener);
 }
 
 
@@ -278,6 +287,12 @@ void	Request::setExtension(std::string extension)
 {
 	this->extension = extension;
 }
+
+void	Request::setHeaders(HeaderHTTP headers)
+{
+	this->headers = headers;
+}
+
 
 std::string Request::getMethod()
 {

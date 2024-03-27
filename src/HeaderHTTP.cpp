@@ -10,6 +10,19 @@ HeaderHTTP::~HeaderHTTP()
 
 }
 
+HeaderHTTP::HeaderHTTP(const HeaderHTTP &header)
+{
+	this->vec = header.vec;
+	this->map = header.map;
+}
+
+HeaderHTTP &HeaderHTTP::operator=(const HeaderHTTP &header)
+{
+	this->vec = header.vec;
+	this->map = header.map;
+	return (*this);
+}
+
 int		HeaderHTTP::setHeader(std::string _header)
 {	
 	vec.push_back(_header);
@@ -72,6 +85,17 @@ std::vector<std::string> HeaderHTTP::split(const std::string& input, const std::
     }
 
     return tokens;
+}
+
+void	HeaderHTTP::removeHeader(std::string header)
+{
+	map.erase(header);
+}
+
+void	HeaderHTTP::clear()
+{
+	map.clear();
+	vec.clear();
 }
 
 void	HeaderHTTP::printHeaders()

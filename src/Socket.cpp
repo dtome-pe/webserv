@@ -1,7 +1,7 @@
 #include<webserv.hpp>
 
 Socket::Socket(std::string host_port, Server *s_ptr)
-{	
+{
 	if (s_ptr) // listener
 	{
 		/*trocemos host y port para meterlas en funcion get_addr_info*/
@@ -23,6 +23,7 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 	{
 		_host = host_port.substr(0, host_port.find(":"));
 		listener = 0;
+		_continueBool = false;
 	}
 
 }
@@ -135,6 +136,21 @@ int Socket::getFd() const
 	return (_fd);
 }
 
+bool Socket::getContinueBool()
+{
+	return (_continueBool);
+}
+
+std::string Socket::getContinueRequestLine()
+{
+	return (_continueRequestLine);
+}
+
+HeaderHTTP		&Socket::getContinueHeaders()
+{
+	return (_continueHeaders);
+}
+
 void	Socket::setHost(std::string host)
 {
 	_host = host;
@@ -153,4 +169,27 @@ void	Socket::setIp(std::string ip)
 void	Socket::setFd(int fd)
 {
 	_fd = fd;
+}
+
+void	Socket::setContinueBool(bool c)
+{
+	_continueBool = c;
+}
+
+void	Socket::setContinueRequestLine(std::string requestLine)
+{
+	_continueRequestLine = requestLine;
+}
+
+void	Socket::setContinueHeaders(HeaderHTTP headers)
+{
+	_continueHeaders = headers;
+}
+
+void	Socket::bounceContinue(Request &request)
+{	
+	setContinueBool(true);
+	setContinueRequestLine(request.getRequestLine());
+	setContinueHeaders(request.getHeaders());
+	_continueHeaders.removeHeader("Expect");
 }

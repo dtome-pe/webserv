@@ -5,6 +5,8 @@
 
 using namespace std;
 
+#define CONTINUE 100
+
 class Server;
 
 	typedef struct socket_list
