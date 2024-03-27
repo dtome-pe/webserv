@@ -31,6 +31,8 @@ class Response
 
 		void			setResponse(int code, Request &request);
 		void			setBasicHeaders(int code, Request &request);
+
+		std::string		getHeader(std::string _header);
 };
 
 #endif
