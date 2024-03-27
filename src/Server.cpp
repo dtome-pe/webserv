@@ -88,18 +88,27 @@ void	Server::setServerName(std::string serverName)
 void	Server::setMaxBodySize(std::string maxBody)
 {
 	std::string numStr;
+	char c = 0;
 	for (size_t i = 0; i < maxBody.length(); ++i)
 	{
         if (std::isdigit(maxBody[i])) {
 			numStr += maxBody[i];
 		} else {
-			if (maxBody[i] != 'm')
-				throw std::runtime_error("the letter in max body must be m");
-            break;
+			if (maxBody[i] != 'm' && maxBody[i] != 'M' && maxBody[i] != 'k'
+					&& maxBody[i] != 'K' && maxBody[i] != 'g' && maxBody[i] != 'G')
+				throw std::runtime_error("only negative numbers and letters m/k/g (in lowercase or uppercase) are accepted.");
+            c = tolower(maxBody[i]);
+			break;
         }
     }
-    unsigned long num = 0;
-    std::istringstream(numStr) >> num;
+    unsigned long long num = 0;
+	std::istringstream(numStr) >> num;
+	if (c == 'k')
+		num = num * 1024;
+	if (c == 'm')
+		num = num * 1024 * 1024;
+	if (c == 'g')
+		num = num * 1024 * 1024 * 1024;
 	if (num > UINT_MAX)
 		throw std::runtime_error("body size too large");
 	else
