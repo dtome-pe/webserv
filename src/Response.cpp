@@ -15,8 +15,9 @@ void	Response::setBasicHeaders(int code, Request &request)
 	setHeader("Server: Webserv");
 	setHeader("Date: " + getCurrentTime());
 	if (body != "")
-	{
-		setHeader("Content-type: " + MIME::getMIMEType(request.getExtension()));
+	{	
+		if (getHeader("Content-type") == "not found") // si no esta seteado, (por cgi), se pone setea.
+			setHeader("Content-type: " + MIME::getMIMEType(request.getExtension()));
 		setHeader("Content-Length: " + getLengthAsString(body));
 	}
 	if (body == "" && code == 200)
@@ -137,7 +138,7 @@ std::string Response::makeResponse()
 			+ "\r\n" + this->body);
 }
 
-void	Response::setStatusLine(std::string _status_line)
+void		Response::setStatusLine(std::string _status_line)
 {
 	this->status_line.line = _status_line + "\r\n";
 	std::vector<std::string> split = HeaderHTTP::split(_status_line, " ");
@@ -147,12 +148,17 @@ void	Response::setStatusLine(std::string _status_line)
 	this->status_line.text = split[2];
 }
 
-void	Response::setHeader(std::string _header)
+void		Response::setHeader(std::string _header)
 {
 	this->headers.setHeader(_header);
 }
 
-void	Response::setBody(std::string _body)
+void		Response::setBody(std::string _body)
 {
 	this->body = _body;
+}
+
+std::string	Response::getHeader(std::string _header)
+{
+	return (this->headers.getHeader(_header));
 }
