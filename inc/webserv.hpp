@@ -38,7 +38,7 @@ class Server;
 	bool 						check_method(std::string method, const Location *loc, const Server *serv);
 	std::string 				getPath(Request &request, const Server *serv, const Location *loc);
 	std::string 				removeDoubleSlashes(const std::string& input);
-	std::string 				readFileContents(const std::string& filename);
+	std::string 				readFileContents(Request &request, const std::string& filename);
 	std::string 				getLengthAsString(std::string &content);
 	bool 						findIndexHtml(std::string &path);
 	std::string					findIndex(std::string &path, const Server *serv, const Location *loc);
@@ -51,7 +51,7 @@ class Server;
 	bool 						checkDefaultPath();
 	std::string 				getDefaultPath();
 	std::string 				getDefaultFile(const std::string &file);
-	void						makeDefault(int code, Response &response, const std::string &file, const Server *serv);
+	void						makeDefault(int code, Request &request, Response &response, const std::string &file, const Server *serv);
 
 	/*cgi*/
 
