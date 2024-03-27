@@ -20,6 +20,7 @@ class Location {
 		std::string 							allurl;
 		std::map<std::string, std::string> 		cgi;
 		std::vector<std::string> 				index;
+		std::string								upload_store;
 	public:
 		Location();
 		~Location();
@@ -40,6 +41,8 @@ class Location {
 		int 									getRedirectionNumber() const;
 		const std::string 						getRoot() const;
 		std::string 							getAllUrl();
+		void									setUploadStore(std::string upstr);
+		std::string								getUploadStore() const;
 };
 
 #endif

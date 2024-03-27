@@ -115,6 +115,16 @@ void	Server::setMaxBodySize(std::string maxBody)
 		this->body_size = static_cast<unsigned int>(num);
 }
 
+void	Server::setUploadStore(std::string upstr)
+{
+	upload_store = upstr;
+}
+
+std::string Server::getUploadStore() const
+{
+	return (this->upload_store);
+}
+
 void	Server::setErrorPage(std::string error_page)
 {
 	size_t pos = error_page.find(" ");
@@ -220,6 +230,7 @@ void	Server::printLocations()
 			std::cout << "on" << std::endl;
 		else
 			std::cout << "off" << std::endl;
+		std::cout << GREEN "Upload store: " RESET << locations[i].getUploadStore() << std::endl;
 		std::cout << GREEN "Index:" RESET << std::endl;
 		std::vector<std::string>aux = locations[i].getIndex();
 		for (size_t i = 0; i < aux.size(); i++)
@@ -279,7 +290,13 @@ void	Server::setLocation(Location& loc)
 	locations.push_back(loc);
 }
 
+void	Server::printUploadStore()
+{
+	std::cout << GREEN "Upload store: " RESET << this->upload_store << std::endl;
+}
+
 const std::vector<Location>& Server::getLocations() const
 {
         return (locations);
 }
+
