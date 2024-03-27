@@ -15,6 +15,7 @@ class Server
 		std::string error_page;
 		std::string root;
 		unsigned int body_size;
+		std::string upload_store;
 		//vectores
 		std::vector<std::string> vserver_name;
 		std::vector<std::string> vports;
@@ -61,6 +62,7 @@ class Server
 		//setter/getter para vector index
 		const std::vector<std::string>& getVIndex() const;
 		void	addVIndex(std::vector<std::string> idxvec);
+		void	setUpload
 		void	printServer_Names();
 		void	printLocations();
 		void	printErrorPages();
@@ -69,6 +71,7 @@ class Server
 		void	printIpPort();
 		void	printHostPort();
 		void	printBodySize();
+		void	printUploadStore();
 };
 
 #endif
