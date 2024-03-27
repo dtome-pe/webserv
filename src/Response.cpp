@@ -41,7 +41,7 @@ void	Response::setBasicHeaders(int code, Request &request)
 
 void	Response::setResponse(int code, Request &request)
 {
-	//cout << "code: " << code << endl;
+	cout << "code: " << code << endl;
 	switch (code)
 	{
 		case 200:
@@ -122,6 +122,12 @@ void	Response::setResponse(int code, Request &request)
 			makeDefault(409, request, *this, "/409.html", request.getServer());
 			break;
 		}
+		case 413:
+		{
+			setStatusLine("HTTP/1.1 413 Request Entity Too Large");
+			makeDefault(413, request, *this, "/413.html", request.getServer());
+			break;
+		}
 		case 500:
 		{
 			setStatusLine("HTTP/1.1 500 Internal Server Error");
@@ -130,6 +136,23 @@ void	Response::setResponse(int code, Request &request)
 		}
 	}
 	setBasicHeaders(code, request);
+}
+
+void	Response::makeDefault(int code, Request &request, Response &response, const std::string &file, const Server *serv)
+{
+	/*comprobariamos si serv tiene un error page establecido en conf file*/
+	std::string	content = "";
+	std::map<int, std::string>::const_iterator it = serv->getErrorPage().find(code);
+	if (it != serv->getErrorPage().end())
+	{	
+		cout << "entra en el if" << endl;
+		std::string path = serv->getRoot() + it->second;
+		if (checkGood(path))
+			content = readFileContents(request, path);
+	}
+	else
+		 content = readFileContents(request, "default" + file);
+	response.setBody(content);
 }
 
 std::string Response::makeResponse()

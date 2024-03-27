@@ -9,6 +9,7 @@
 
 Request::Request(std::string buff, const std::vector<class Server> &server, Socket &listener)
 {
+	cout << buff << endl;
 	good = true; // por defecto, request correcta en parseo
 	keepAlive = true; // por defecto
 	splitRequest(buff, listener);

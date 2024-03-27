@@ -34,6 +34,14 @@ std::string int_to_str(int n)
 	return (ss.str());
 }
 
+unsigned int	str_to_int(std::string str)
+{
+ 	unsigned int i;
+ 	std::istringstream(str) >> i;
+	
+	return (i);
+}
+
 // Function to get the current time in RFC 1123 format
 std::string getCurrentTime() 
 {

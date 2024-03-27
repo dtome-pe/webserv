@@ -29,11 +29,6 @@ class Server;
 		int		fd_count;
 	} t_data;
 	
-	/*find blocks*/
-	bool						look_for_same(Socket &sock, std::vector<Socket>&sock_vec);
-	const Server 				*find_serv_block(const std::vector<class Server> &serv, Request &request);
-	const Location 				*find_loc_block(const Server *serv, Request &req);
-
 	/*response utils*/
 	bool 						check_method(std::string method, const Location *loc, const Server *serv);
 	std::string 				getPath(Request &request, const Server *serv, const Location *loc);
@@ -46,13 +41,10 @@ class Server;
 	bool						checkTrailingSlash(std::string &path);
 	std::string 				checkReturn(const Location *loc);
 
-	void						setResponse(int code, Response &response, std::string arg, const Server *serv, const Location *loc);
-
 	bool 						checkDefaultPath();
 	std::string 				getDefaultPath();
 	std::string 				getDefaultFile(const std::string &file);
-	void						makeDefault(int code, Request &request, Response &response, const std::string &file, const Server *serv);
-
+	
 	/*cgi*/
 
 	bool						checkCgi(Request &request, std::string &path, const Location *loc);
@@ -85,6 +77,8 @@ class Server;
 	std::string					ip_to_str(sockaddr_in *addr);
 	std::string 				port_to_str(sockaddr_in *addr);
 	std::string					int_to_str(int n);
+	unsigned int				str_to_int(std::string str);
 	std::string					getCurrentTime();
+	bool						look_for_same(Socket &sock, std::vector<Socket>&sock_vec);
 
 #endif
