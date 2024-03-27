@@ -137,14 +137,16 @@ void	Cluster::run()
 					if (flag) //  si no ha habido un break por error o cierre de conexion, gestionamos peticion.
 					{	
 						//se construye request con el texto y con el socket listener, para que nos de informacion
-						// de a que ip y puerto iba destinado esta peticion
-						Request req(text, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size));
-						this->handleClient(req, _pollVec[i].fd, _servVec);
+						// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara
+						// bloque de server y location cuya configuracion se aplicara
+						Request req(text, _servVec,
+						findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size));
+						this->handleClient(req, _pollVec[i].fd);
 						if (!req.getKeepAlive())
 						{
 							cout << "entra en close conn" << endl;
 							closeConnection(i, _pollVec, _sockVec, &size, &flag);
-						}		
+						}
 					}
 				}
 			}
@@ -152,18 +154,14 @@ void	Cluster::run()
 	}	
 }
 
-int	Cluster::handleClient(Request &request, int new_socket, const std::vector<Server>&servVec)
+int	Cluster::handleClient(Request &request, int new_socket)
 {
 	Response	rsp; // declaramos response
-	/*determinamos a que server block y que location block son los responsables de aplicar
-	sus diferentes reglas y configuraciones para gestionar dicha peticion*/
-	const Server *serv = find_serv_block(servVec, request);
-	const Location *loc = find_loc_block(serv, request);
 	if (!request.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
 		rsp.setResponse(400, request);
 	else
 		/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
-		rsp.setResponse(handleRequest(request, rsp, serv, loc), request);
+		rsp.setResponse(handleRequest(request, rsp, request.getServer(), request.getLocation()), request);
 	std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
 	send(new_socket, response.c_str(), response.length(), 0);
 	
