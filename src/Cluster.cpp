@@ -170,8 +170,14 @@ int	Cluster::handleClient(Request &request, int new_socket)
 
 int		Cluster::handleRequest(Request &request, Response &response, const Server *serv, const Location *loc)
 {
-	cout << "entra en handle request:  ";
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
+	if (request.getHeader("Content-Length") != "not found")
+	{
+		cout << "length: " << str_to_int(request.getHeader("Content-Length")) << endl;
+		cout << "maxy body size: " << serv->getMaxBodySize() << endl;
+		if (str_to_int(request.getHeader("Content-Length")) > serv->getMaxBodySize())
+			return (413);
+	}
 	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
 	cout << "con path: " << path << " con method " << request.getMethod() << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404

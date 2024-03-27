@@ -248,23 +248,6 @@ std::string getDefaultFile(const std::string &file)
 	return (default_path);
 }
 
-void	makeDefault(int code, Request &request, Response &response, const std::string &file, const Server *serv)
-{
-	/*comprobariamos si serv tiene un error page establecido en conf file*/
-	std::string	content = "";
-	std::map<int, std::string>::const_iterator it = serv->getErrorPage().find(code);
-	if (it != serv->getErrorPage().end())
-	{	
-		cout << "entra en el if" << endl;
-		std::string path = serv->getRoot() + it->second;
-		if (checkGood(path))
-			content = readFileContents(request, path);
-	}
-	else
-		 content = readFileContents(request, "default" + file);
-	response.setBody(content);
-}
-
 
 std::string findIndex(std::string &path, const Server *serv, const Location *loc)
 {	
