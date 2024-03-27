@@ -202,6 +202,12 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 			res = line.substr(pos + 5, fpos - pos - 4);
 			loc.setRoot(res.erase(res.size() - 1));
 		}
+		else if (line.find("upload_store") != std::string::npos)
+		{
+			pos = line.find("upload_store ");
+			res = line.substr(pos + 13, fpos - pos);
+			loc.setUploadStore(res.erase(res.size() - 1));
+		}
 		else if (line.find("cgi") != std::string::npos)
 		{
 			pos = line.find("cgi ");
@@ -265,6 +271,8 @@ int		ConfFile::parse_element(std::string &content, int i)
 				Serv.setErrorPage(findInfo(line, "error_page "));
 			else if (line.find("root ") != std::string::npos)
 				Serv.setRoot(findInfo(line, "root "));
+			else if (line.find("upload_store ") != std::string::npos)
+				Serv.setUploadStore(findInfo(line, "upload_store"));
 			else if (line.find("host ") != std::string::npos)
 				continue ;
 			else if (line.find("index ") != std::string::npos)
@@ -319,6 +327,7 @@ void	ConfFile::print_servers()
 		this->serv_vec[i].printBodySize();
 		this->serv_vec[i].printErrorPages();
 		this->serv_vec[i].printindex();
+		this->serv_vec[i].printUploadStore();
 		this->serv_vec[i].printLocations();
 	}
 }

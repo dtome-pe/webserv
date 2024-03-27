@@ -43,6 +43,7 @@ class Server
 		const int *getMethods() const;
 		std::string getRoot() const;
 		unsigned int getMaxBodySize() const;
+		std::string getUploadStore() const;
 		//setters
 		void	setPort(std::string port);
 		void	setIp(std::string ip);
@@ -51,6 +52,7 @@ class Server
 		void	setMethods(int met[4]);
 		void	setRoot(std::string rt);
 		void	setMaxBodySize(std::string maxBody);
+		void	setUploadStore(std::string upstr);
 		//setter/getter para vector server_name
 		void	addVServerName(std::string str);
 		const std::vector<std::string>& getVServerName() const;
@@ -62,7 +64,6 @@ class Server
 		//setter/getter para vector index
 		const std::vector<std::string>& getVIndex() const;
 		void	addVIndex(std::vector<std::string> idxvec);
-		void	setUpload
 		void	printServer_Names();
 		void	printLocations();
 		void	printErrorPages();
