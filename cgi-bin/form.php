@@ -11,12 +11,11 @@ $body = "<!DOCTYPE html>
 </body>
 </html>";
 
-/* // Calculate content length
+// Calculate content length
 $length = strlen($body);
 
 // Set HTTP headers
 header("Content-type: text/html; charset=UTF-8");
-header("Content-Length: $length"); */
 
 // Output the body
 echo $body;
