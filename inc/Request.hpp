@@ -29,6 +29,8 @@ class Request
 		std::string			cgiExtension;
 		std::string			cgiBinary;
 
+		std::string			uploadStore;
+
 		bool				keepAlive;
 		const Server		*serv;
 		const Location		*loc;
@@ -66,6 +68,10 @@ class Request
 
 		std::string			getPath();
 		std::string			getExtension();
+		
+		bool				getKeepAlive();
+
+		std::string			getUploadStore();
 
 		void				setCgiExtension(std::string &extension);
 		void				setCgiBinary(std::string &binary);
@@ -81,9 +87,10 @@ class Request
 		void				setPort(std::string &port);
 
 		void				setPath(std::string path);
-		void				setExtension(std::string path);
+		void				setExtension(std::string extension);
 
-		bool				getKeepAlive();
+		void				setUploadStore(std::string path);
+
 
 		bool				good;
 
