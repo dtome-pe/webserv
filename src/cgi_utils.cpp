@@ -46,7 +46,10 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
     if (method == "PUT")
     {
         env.push_back("FILENAME=" + path.substr(path.find_last_of("/"), path.length()));
-        env.push_back("UPLOAD_LOCATION=" + path.substr(0, path.find_last_of("/")));
+        if (request.getUploadStore() != "")
+            env.push_back("UPLOAD_LOCATION=" + request.getUploadStore());
+        else
+            env.push_back("UPLOAD_LOCATION=" + path.substr(0, path.find_last_of("/")));
     }
 	char** envp = new char*[env.size() + 1];
 
