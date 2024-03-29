@@ -12,6 +12,7 @@ Request::Request(std::string buff, const std::vector<class Server> &server, Sock
 	good = true; // por defecto, request correcta en parseo
 	keepAlive = true; // por defecto
 	trailSlashRedir = false;
+	uploadStore = "";
 	if (client.getContinueBool())   						//si tenemos el continue
 	{														// solo volcamos request line y headers guardados en socket de cliente
 		setRequestLine(client.getContinueRequestLine());	// que envio el expect y recibio el 100 continue, pero no
@@ -29,6 +30,8 @@ Request::Request(std::string buff, const std::vector<class Server> &server, Sock
 	/*determinamos block server y location relevantes para request*/
 	setServer(server);
 	setLocation(getServer());
+	if (loc && loc->getUploadStore() != "")   // seteamos uploadStore si toca
+		setUploadStore(loc->getUploadStore());
 }
 
 Request::~Request()
@@ -225,7 +228,7 @@ void Request::setLocation(const Server *serv)
 			if (matches[i]->getLocation().length() > ret->getLocation().length())
 				ret = matches[i];
 		}
-	}
+	}		
 	loc = ret;
 }
 
@@ -291,6 +294,11 @@ void	Request::setExtension(std::string extension)
 void	Request::setHeaders(HeaderHTTP headers)
 {
 	this->headers = headers;
+}
+
+void	Request::setUploadStore(std::string path)
+{
+	this->uploadStore = path;
 }
 
 
@@ -382,6 +390,11 @@ std::string			Request::getPath()
 std::string			Request::getExtension()
 {
 	return (extension);
+}
+
+std::string	Request::getUploadStore()
+{
+	return (uploadStore);
 }
 
 std::string Request::makeRequest()
