@@ -1,110 +1,5 @@
 #include <webserv.hpp>
 
-int	setDel(Request &request, std::string &path, std::string method)
-{
-	pid_t	pid = fork();
-	if (pid == -1)
-	{
-		cerr << strerror(errno) << endl;
-		return (500);
-	}
-	if (pid == 0)
-	{
-		char* const* argv = setArgv(request, path, method);
-		execve("/usr/bin/php8.1", argv, NULL);
-		cerr << strerror(errno) << endl;
-		return (500);
-	}
-	else
-	{
-		int	status;
-		int result = waitpid(pid, &status, 0);
-		//cout << result << endl;
-		if (result == -1)
-		{
-			cerr << strerror(errno) << endl;
-			return (500);
-		}
-		else
-		{
-			if (WIFEXITED(status))
-			{
-				int exitStatus = WEXITSTATUS(status);
-				if (exitStatus == -1)
-					return (500);
-				else
-					return (204);
-			}
-			return (500);
-		}
-	}
-}
-
-int	setPut(Response &response, Request &request, std::string &path, std::string method)
-{	
-	(void) response;
-
-	if (request.getHeader("Expect") == "100-continue")
-		return (100);
-	int pipe_to_child[2];
-	if (pipe(pipe_to_child) == -1 || request.getBody() == "") 
-        return (500);
-	fcntl(pipe_to_child[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-	fcntl(pipe_to_child[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-	ssize_t bytes_written = write(pipe_to_child[1], request.getBody().c_str(), request.getBody().size());
-	cout << "bytes written: " << bytes_written << endl;
-	if (bytes_written == -1)
-	{
-		cerr << strerror(errno) << endl;
-		return (500);
-	}
-	pid_t	pid = fork();
-	if (pid == -1)
-	{
-		cerr << strerror(errno) << endl;
-		return (500);
-	}
-	if (pid == 0)
-	{	
-		char* const* argv = setArgv(request, path, method);
-		char* const* envp = setEnvp(request, path, method);
-		close(pipe_to_child[1]);
-		if (dup2(pipe_to_child[0], STDIN_FILENO) == -1)
-		{
-			cerr << strerror(errno) << endl;
-			return (500);
-		}
-		execve("/usr/bin/php8.1", argv, envp);
-		return (500);
-	}
-	else
-	{	
-		close(pipe_to_child[0]);
-		close(pipe_to_child[1]);
-		int	status;
-        int result = waitpid(pid, &status, 0);
-		if (result == -1)
-		{
-			cerr << strerror(errno) << endl;
-			return (500);
-		}
-		else
-		{
-			if (WIFEXITED(status))
-       		{
-            	int exitStatus = WEXITSTATUS(status);
-				cout << "exit status: " << exitStatus << endl;
-				if (!exitStatus)
-					return (500);
-				else
-					return (exitStatus);
-       		}
-			return (500);
-		}
-	}
-}
-
-
 int	cgi(Response &response, Request &request, std::string &path, std::string method)
 {
 	if (request.getHeader("Expect") == "100-continue")
@@ -151,7 +46,10 @@ int	cgi(Response &response, Request &request, std::string &path, std::string met
 		}
 		close(pipe_to_child[0]);
 		close(pipe_from_child[1]);
-		execve(request.getCgiBinary().c_str(), argv, envp);
+		if (request.getMethod() == "PUT" || request.getMethod() == "DELETE")
+			execve("/usr/bin/php8.1", argv, envp);
+		else
+			execve(request.getCgiBinary().c_str(), argv, envp); // POST - GET CGI
 		return (500);
 	}
 	else
