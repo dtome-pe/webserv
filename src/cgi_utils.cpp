@@ -16,6 +16,11 @@ static char* strdup_cpp98(const char* str)
 
 char* const*	setEnvp(Request &request, std::string &path, std::string &method)
 {	
+    if (method == "DELETE")
+    {
+        return (NULL);
+    }
+
 	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
     std::vector<std::string>env;
 

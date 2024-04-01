@@ -212,7 +212,7 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 			if (request.getMethod() == "PUT")
 			{
 				if (checkPutFile(path)) // si server puede acceder a la carpeta donde se quiere crear el archivo, hacemos put
-					return (setPut(response, request, path, request.getMethod()));
+					return (cgi(response, request, path, request.getMethod()));
 			}
 			else
 				return (404);
@@ -223,11 +223,11 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 			return (301);
 		}
 		if (request.getMethod() == "DELETE")
-			return (setDel(request, path, request.getMethod()));
+			return (cgi(response, request, path, request.getMethod()));
 		if (request.getMethod() == "PUT")
 		{	
 			if (path[path.length() - 1] != '/')  // comprobamos que el put no tenga como target un directorio, entonces se devuelve 409
-				return (setPut(response, request, path, request.getMethod()));
+				return (cgi(response, request, path, request.getMethod()));
 			else
 				return (409);
 		}
