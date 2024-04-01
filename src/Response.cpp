@@ -15,7 +15,7 @@ void	Response::setBasicHeaders(int code, Request &request)
 	setHeader("Server: Webserv");
 	setHeader("Date: " + getCurrentTime());
 	if (body != "")
-	{	
+	{
 		if (getHeader("Content-type") == "not found") // si no esta seteado, (por cgi), se pone setea.
 			setHeader("Content-type: " + MIME::getMIMEType(request.getExtension()));
 		setHeader("Content-Length: " + getLengthAsString(body));
