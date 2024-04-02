@@ -139,6 +139,12 @@ void	Response::setResponse(int code, Request &request)
 			makeDefault(500, request, *this, "/500.html", request.getServer());
 			break;
 		}
+		case 501:
+		{
+			setStatusLine("HTTP/1.1 501 Not Implemented");
+			makeDefault(500, request, *this, "/501.html", request.getServer());
+			break;
+		}
 	}
 	setBasicHeaders(code, request);
 }
