@@ -42,18 +42,9 @@ void Cluster::setup()
 	}
 }
 
-static void	handler(int sig)
-{
-	if (sig == SIGINT)
-	{	
-		cout << "closing webserv..." << endl;
-		exit(0);
-	}
-}
-
 void	Cluster::run()
 {
-	signal(SIGINT, handler);
+	signal(SIGINT, SIG_DFL);
 	signal(SIGPIPE, SIG_IGN);
 	while (1)
 	{
@@ -288,11 +279,6 @@ void	Cluster::closeConnection(int i, std::vector<pollfd>&_pollVec,
 	remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd, *size);
 	(*size)--; // si se quita un elemento del vector, reducimos size para buen funcionamiento
 	*flag = 0;	
-}
-
-void Cluster::clean()
-{
-
 }
 
 std::vector<Server>& Cluster::getServerVector()
