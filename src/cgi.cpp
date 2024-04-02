@@ -2,6 +2,11 @@
 
 int	cgi(Response &response, Request &request, std::string &path, std::string method)
 {
+	/* Si el metodo es PUT, que siempre resulta en subir o modificar un archivo en el server, 
+	pero no hay upload_store, vamos a entender que el location no permite subir archivos y daremos 403.*/
+	if (method == "PUT" && request.getUploadStore() == "") 
+		return (403);
+	/*si hemos recibido un expect 100 para recibir archivo grande, aceptamos*/
 	if (request.getHeader("Expect") == "100-continue")
 		return (100);
 	int pipe_to_child[2];

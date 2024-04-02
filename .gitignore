@@ -1,3 +1,6 @@
 tmp
 webserv
 webserv.code-workspace
+conf
+.gitignore
+upload_files
