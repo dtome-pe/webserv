@@ -107,8 +107,7 @@ std::string ConfFile::checkPath(std::string relativepath)
   			}
 		}
 	}
-	std::cout << "path: " << path << std::endl;
-	return (relativepath);
+	return (path);
 }
 
 std::string ConfFile::findInfo(std::string line, std::string tofind)
@@ -238,8 +237,8 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 		{
 			pos = line.find("upload_store ");
 			res = line.substr(pos + 13, fpos - pos);
-			checkPath(res);
-			loc.setUploadStore(res.erase(res.size() - 1));
+			res = checkPath(res);
+			loc.setUploadStore(res);
 		}
 		else if (line.find("cgi") != std::string::npos)
 		{
