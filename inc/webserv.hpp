@@ -7,6 +7,11 @@ using namespace std;
 
 #define CONTINUE 100
 
+#define GET 0
+#define POST 1
+#define DELETE 2
+#define PUT 3
+
 class Server;
 
 	typedef struct socket_list

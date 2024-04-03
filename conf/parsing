@@ -1,0 +1,24 @@
+Informacion del archivo:
+
+server
+ - listen
+ - server_name
+ - error_page
+ - root
+ - index
+ - client_max_body_size
+location:
+ - autoindex
+ - index
+ - allow_methods
+ - return
+ - root
+ - cgi
+
+
+falta:
+
+- client_max_body_size
+- que solo se pueda poner un codigo para cada pagina de error
+- check si hay alguna cosa random en server
+- return con int y string
