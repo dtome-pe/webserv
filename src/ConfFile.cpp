@@ -109,7 +109,6 @@ std::string ConfFile::checkPath(std::string relativepath)
   			}
 		}
 	}
-	std::cout << "path: " << path << std::endl;
 	return (path);
 }
 
@@ -234,7 +233,8 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 		{
 			pos = line.find("root ");
 			res = line.substr(pos + 5, fpos - pos - 4);
-			loc.setRoot(res.erase(res.size() - 1));
+			res = checkPath(res);
+			loc.setRoot(res);
 		}
 		else if (line.find("upload_store") != std::string::npos)
 		{
