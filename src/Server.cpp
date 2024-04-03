@@ -267,7 +267,6 @@ void	Server::printLocations()
             }
         }
 		std::cout << GREEN "Root: " RESET << locations[i].getRoot() << std::endl;
-		std::cout << GREEN "All url: " RESET << locations[i].getAllUrl() << std::endl;
 	}
 }
 
