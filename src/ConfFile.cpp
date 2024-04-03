@@ -84,6 +84,8 @@ std::string ConfFile::checkPath(std::string relativepath)
 	std::string path = relativepath;
 	int flag = 0;
 
+	if (path.length() == 1 && path[0] == '.')
+		return (static_cast<std::string>(getenv("PWD")));
 	if (path.substr(0, 2) == "./")
 	{
 		path = static_cast<std::string>(getenv("PWD")) + path.substr(1, path.length());
@@ -107,6 +109,7 @@ std::string ConfFile::checkPath(std::string relativepath)
   			}
 		}
 	}
+	std::cout << "path: " << path << std::endl;
 	return (path);
 }
 
@@ -302,7 +305,10 @@ int		ConfFile::parse_element(std::string &content, int i)
 			else if (line.find("error_page ") != std::string::npos)
 				Serv.setErrorPage(findInfo(line, "error_page "));
 			else if (line.find("root ") != std::string::npos)
-				Serv.setRoot(findInfo(line, "root "));
+			{
+				std::string root = checkPath(findInfo(line, "root "));
+				Serv.setRoot(root);
+			}
 			else if (line.find("upload_store ") != std::string::npos)
 				Serv.setUploadStore(findInfo(line, "upload_store"));
 			else if (line.find("host ") != std::string::npos)
