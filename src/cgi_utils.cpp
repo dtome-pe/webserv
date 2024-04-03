@@ -20,7 +20,7 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
     {
         return (NULL);
     }
-
+    cout << "path que entra en cgi es: " << path << endl; 
 	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
     std::vector<std::string>env;
 
@@ -74,14 +74,14 @@ char* const* 	setArgv(Request &request, std::string &path, std::string &method)
     std::vector<std::string> arg;
     if (method == "DELETE")
     {   
-        arg.push_back("/usr/bin/php8.1");
-        arg.push_back("./cgi-bin/delete.php");
+        arg.push_back("/usr/bin/python3");
+        arg.push_back("cgi-bin/delete.py");
         arg.push_back(path);
     }
     else if (method == "PUT")
     {
-        arg.push_back("/usr/bin/php8.1");
-        arg.push_back("./cgi-bin/put.php");
+        arg.push_back("/usr/bin/python3");
+        arg.push_back("cgi-bin/put.py");
         arg.push_back(path);
     }
     else

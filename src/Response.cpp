@@ -37,6 +37,8 @@ void	Response::setBasicHeaders(int code, Request &request)
 	if (code == 201)
 		setHeader("Location: http://" + request.getHeader("Host") + request.getTarget());
 	setHeader("Connection: keep-alive");
+	if (getHeader("Status") != "not found")
+		headers.removeHeader("Status");
 }
 
 void	Response::setResponse(int code, Request &request)
