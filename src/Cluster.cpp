@@ -159,7 +159,7 @@ int	Cluster::handleClient(Request &request, int new_socket)
 	if (!request.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
 		rsp.setResponse(400, request);
 	/*si no es un metodo reconocido, devolvemos 501*/
-	else if (request.getMethod() != "GET" || request.getMethod() != "PUT" || request.getMethod() != "DELETE" || request.getMethod() != "POST")
+	else if (request.getMethod() != "GET" && request.getMethod() != "PUT" && request.getMethod() != "DELETE" && request.getMethod() != "POST")
 		rsp.setResponse(501, request);
 	else
 		/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
