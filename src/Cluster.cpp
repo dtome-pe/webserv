@@ -42,18 +42,9 @@ void Cluster::setup()
 	}
 }
 
-static void	handler(int sig)
-{
-	if (sig == SIGINT)
-	{	
-		cout << "closing webserv..." << endl;
-		exit(0);
-	}
-}
-
 void	Cluster::run()
 {
-	signal(SIGINT, handler);
+	signal(SIGINT, SIG_DFL);
 	signal(SIGPIPE, SIG_IGN);
 	while (1)
 	{
@@ -167,6 +158,9 @@ int	Cluster::handleClient(Request &request, int new_socket)
 	Response	rsp; // declaramos response
 	if (!request.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
 		rsp.setResponse(400, request);
+	/*si no es un metodo reconocido, devolvemos 501*/
+	else if (request.getMethod() != "GET" && request.getMethod() != "PUT" && request.getMethod() != "DELETE" && request.getMethod() != "POST")
+		rsp.setResponse(501, request);
 	else
 		/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
 		rsp.setResponse(handleRequest(request, rsp, request.getServer(), request.getLocation()), request);
@@ -212,7 +206,7 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 			if (request.getMethod() == "PUT")
 			{
 				if (checkPutFile(path)) // si server puede acceder a la carpeta donde se quiere crear el archivo, hacemos put
-					return (setPut(response, request, path, request.getMethod()));
+					return (cgi(response, request, path, request.getMethod()));
 			}
 			else
 				return (404);
@@ -223,11 +217,11 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 			return (301);
 		}
 		if (request.getMethod() == "DELETE")
-			return (setDel(request, path, request.getMethod()));
+			return (cgi(response, request, path, request.getMethod()));
 		if (request.getMethod() == "PUT")
 		{	
 			if (path[path.length() - 1] != '/')  // comprobamos que el put no tenga como target un directorio, entonces se devuelve 409
-				return (setPut(response, request, path, request.getMethod()));
+				return (cgi(response, request, path, request.getMethod()));
 			else
 				return (409);
 		}
@@ -288,11 +282,6 @@ void	Cluster::closeConnection(int i, std::vector<pollfd>&_pollVec,
 	remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd, *size);
 	(*size)--; // si se quita un elemento del vector, reducimos size para buen funcionamiento
 	*flag = 0;	
-}
-
-void Cluster::clean()
-{
-
 }
 
 std::vector<Server>& Cluster::getServerVector()

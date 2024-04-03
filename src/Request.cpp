@@ -283,7 +283,7 @@ void	Request::setPath(std::string path)
 {
 	this->path = path;
 	if (path.find_last_of(".") != std::string::npos)
-		setExtension(path.substr(path.find(".") + 1, path.length()));
+		setExtension(path.substr(path.find_last_of(".") + 1, path.length()));
 }
 
 void	Request::setExtension(std::string extension)

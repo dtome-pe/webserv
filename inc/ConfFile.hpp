@@ -44,6 +44,7 @@ class ConfFile
 		std::vector<pollfd>& getPollVector() {
 			return (pollVec);
 		}
+		std::string checkPath(std::string path);
 };
 
 

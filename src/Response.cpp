@@ -15,7 +15,7 @@ void	Response::setBasicHeaders(int code, Request &request)
 	setHeader("Server: Webserv");
 	setHeader("Date: " + getCurrentTime());
 	if (body != "")
-	{	
+	{
 		if (getHeader("Content-type") == "not found") // si no esta seteado, (por cgi), se pone setea.
 			setHeader("Content-type: " + MIME::getMIMEType(request.getExtension()));
 		setHeader("Content-Length: " + getLengthAsString(body));
@@ -137,6 +137,12 @@ void	Response::setResponse(int code, Request &request)
 		{
 			setStatusLine("HTTP/1.1 500 Internal Server Error");
 			makeDefault(500, request, *this, "/500.html", request.getServer());
+			break;
+		}
+		case 501:
+		{
+			setStatusLine("HTTP/1.1 501 Not Implemented");
+			makeDefault(500, request, *this, "/501.html", request.getServer());
 			break;
 		}
 	}

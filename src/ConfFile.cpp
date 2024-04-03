@@ -79,6 +79,38 @@ void	ConfFile::parse_config(Cluster &cluster, char *file)
 	copyInfo(cluster);
 }
 
+std::string ConfFile::checkPath(std::string relativepath)
+{
+	std::string path = relativepath;
+	int flag = 0;
+
+	if (path.substr(0, 2) == "./")
+	{
+		path = static_cast<std::string>(getenv("PWD")) + path.substr(1, path.length());
+	}
+	else
+	{
+		std::string pwd = static_cast<std::string>(getenv("PWD"));
+		while (relativepath.substr(0, 3) == "../")
+		{
+			relativepath = relativepath.substr(3, relativepath.length());
+			flag++;
+		}
+		for (int i = pwd.length(); i >= 0; --i)
+		{
+			if (pwd[i] == '/')
+			{
+				path = (pwd.substr(0, i)) + "/" + relativepath;
+				flag--;
+				if (flag == 0)
+					break ;
+  			}
+		}
+	}
+	std::cout << "path: " << path << std::endl;
+	return (relativepath);
+}
+
 std::string ConfFile::findInfo(std::string line, std::string tofind)
 {
 	int tofindpos = line.find(tofind);
@@ -181,13 +213,13 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 			res = (line.substr(pos + 14, fpos - pos));
 			std::cout << res << std::endl;
 			if (res.find("GET") != std::string::npos)
-				methods[0] = 1;
+				methods[GET] = 1;
 			if (res.find("POST") != std::string::npos)
-				methods[1] = 1;
+				methods[POST] = 1;
 			if (res.find("DELETE") != std::string::npos)
-				methods[2] = 1;
+				methods[DELETE] = 1;
 			if (res.find("PUT") != std::string::npos)
-				methods[3] = 1;
+				methods[PUT] = 1;
 			loc.setMethods(methods);
 		}
 		else if (line.find("return ") != std::string::npos)
@@ -206,6 +238,7 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 		{
 			pos = line.find("upload_store ");
 			res = line.substr(pos + 13, fpos - pos);
+			checkPath(res);
 			loc.setUploadStore(res.erase(res.size() - 1));
 		}
 		else if (line.find("cgi") != std::string::npos)

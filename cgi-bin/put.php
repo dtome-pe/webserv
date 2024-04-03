@@ -4,7 +4,7 @@
 $fileContent = file_get_contents("php://stdin");
 
 // Specify the directory where the file will be saved
-$uploadDir = $_ENV['UPLOAD_LOCATION'];
+$uploadDir = $_ENV['UPLOAD_DIR'];
 
 // Specify the file name (you may want to use a different naming convention)
 $fileName = $_ENV['FILENAME'];
