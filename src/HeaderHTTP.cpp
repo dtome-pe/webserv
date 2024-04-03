@@ -90,6 +90,13 @@ std::vector<std::string> HeaderHTTP::split(const std::string& input, const std::
 void	HeaderHTTP::removeHeader(std::string header)
 {
 	map.erase(header);
+
+	for (unsigned int i = 0; i < vec.size(); i++)
+	{
+		if (!vec[i].substr(0, header.length()).compare(header))
+			vec.erase(vec.begin() + i);
+	}
+
 }
 
 void	HeaderHTTP::clear()

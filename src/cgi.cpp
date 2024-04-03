@@ -52,7 +52,7 @@ int	cgi(Response &response, Request &request, std::string &path, std::string met
 		close(pipe_to_child[0]);
 		close(pipe_from_child[1]);
 		if (request.getMethod() == "PUT" || request.getMethod() == "DELETE")
-			execve("/usr/bin/php8.1", argv, envp);
+			execve("/usr/bin/python3", argv, envp);
 		else
 			execve(request.getCgiBinary().c_str(), argv, envp); // POST - GET CGI
 		return (500);
@@ -85,7 +85,10 @@ int	cgi(Response &response, Request &request, std::string &path, std::string met
 					cout << "content remaining: " << content << endl;
 					response.setBody(content);
 					//cout << "content: " << content << endl;
-					return (200);
+					if (response.getHeader("Status") != "not found")
+						return (str_to_int(response.getHeader("Status").substr(0, response.getHeader("Status").find(" "))));
+					else
+						return (200);
 				}
        		}
 			return (500);
