@@ -181,13 +181,13 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 			res = (line.substr(pos + 14, fpos - pos));
 			std::cout << res << std::endl;
 			if (res.find("GET") != std::string::npos)
-				methods[0] = 1;
+				methods[GET] = 1;
 			if (res.find("POST") != std::string::npos)
-				methods[1] = 1;
+				methods[POST] = 1;
 			if (res.find("DELETE") != std::string::npos)
-				methods[2] = 1;
+				methods[DELETE] = 1;
 			if (res.find("PUT") != std::string::npos)
-				methods[3] = 1;
+				methods[PUT] = 1;
 			loc.setMethods(methods);
 		}
 		else if (line.find("return ") != std::string::npos)
