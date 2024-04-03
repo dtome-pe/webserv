@@ -3,10 +3,10 @@
 Location::Location()
 {
 	autoindex = false;
-	methods[0] = 1;
-	methods[1] = 0;
-	methods[2] = 0;
-	methods[3] = 0;
+	methods[GET] = 1;
+	methods[POST] = 0;
+	methods[DELETE] = 0;
+	methods[PUT] = 0;
 }
 
 Location::~Location()

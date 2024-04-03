@@ -1,5 +1,0 @@
-DELETE /dummy/test HTTP/1.1
-Host: 127.0.0.1:8888
-User-Agent: curl/7.81.0
-Accept: */*
-

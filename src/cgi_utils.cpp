@@ -16,6 +16,11 @@ static char* strdup_cpp98(const char* str)
 
 char* const*	setEnvp(Request &request, std::string &path, std::string &method)
 {	
+    if (method == "DELETE")
+    {
+        return (NULL);
+    }
+
 	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
     std::vector<std::string>env;
 
@@ -42,14 +47,16 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
     env.push_back("SERVER_PORT=" + request.getPort());
     env.push_back("SERVER_PROTOCOL=" + request.getVersion());
     env.push_back("SERVER_SOFTWARE=Webserv");
+    if (request.getUploadStore() != "")
+        env.push_back("UPLOAD_DIR=" + request.getUploadStore());
 
     if (method == "PUT")
     {
         env.push_back("FILENAME=" + path.substr(path.find_last_of("/"), path.length()));
         if (request.getUploadStore() != "")
-            env.push_back("UPLOAD_LOCATION=" + request.getUploadStore());
+            env.push_back("UPLOAD_DIR=" + request.getUploadStore());
         else
-            env.push_back("UPLOAD_LOCATION=" + path.substr(0, path.find_last_of("/")));
+            env.push_back("UPLOAD_DIR=" + path.substr(0, path.find_last_of("/")));
     }
 	char** envp = new char*[env.size() + 1];
 
