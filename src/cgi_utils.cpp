@@ -21,7 +21,8 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
         return (NULL);
     }
     cout << "path que entra en cgi es: " << path << endl; 
-	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/"), request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
+	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/") + 1, request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
+	cout << "file: " << file << endl;
     std::vector<std::string>env;
 
     if (request.getHeaders().map.count("Authorization") > 0)
@@ -37,7 +38,10 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
     env.push_back("GATEWAY_INTERFACE=CGI/1.1");
     env.push_back("PATH_INFO=" + path);
     if (request.getMethod() == "GET")
-	    env.push_back("QUERY_STRING=" + file.substr(file.find("?") + 1, file.length()));
+	{
+		if (file.find("?") != std::string::npos)
+			env.push_back("QUERY_STRING=" + file.substr(file.find("?") + 1, file.length()));
+	}
     env.push_back("REMOTE_ADDR=" + request.getIp());
     if (request.getHost().length() > 0)
         env.push_back("REMOTE_HOST=" + request.getHost());
