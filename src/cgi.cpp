@@ -1,8 +1,7 @@
 #include <webserv.hpp>
 
 int	cgi(Response &response, Request &request, std::string path, std::string method)
-{	
-	(void) response;
+{
 	if (method != "output") // no es la respuesta de un proceso de cgi
 	{
 			/* Si el metodo es PUT, que siempre resulta en subir o modificar un archivo en el server, 
@@ -24,7 +23,7 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 		fcntl(pipe_to_child[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 		fcntl(pipe_from_child[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 		fcntl(pipe_from_child[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-		if (method== "POST")
+		if (method == "POST" || method == "PUT")
 		{
 			ssize_t bytes_written = write(pipe_to_child[1], request.getBody().c_str(), request.getBody().size());
 			if (bytes_written == -1)
@@ -60,26 +59,18 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 			return (500);
 		}
 		else
-		{	
-	/* 		close(pipe_to_child[0]);
-			close(pipe_to_child[1]);
-			close(pipe_from_child[1]);
-			char buff[1000];
-			while (read(pipe_from_child[0], buff, 1) > 0)
-				write(1, buff, 1);
-			return (0); */
+		{
 			close(pipe_to_child[0]);
 			close(pipe_to_child[1]);
 			close(pipe_from_child[1]);
 			request.getSocket().setCgiFd(pipe_from_child[0]);
 			request.getSocket().setCgi(true);
-			cout << "cgi" << endl;
+			//cout << "cgi" << endl;
 			return (CGI);
 		}
 	}
 	else
-	{	
-		cout << "entramos en cgi output" << endl;
+	{
 		string content = parseCgiHeader(response, request.getCgiOutput());
 		response.setBody(content);
 		close(request.getSocket().getCgiFd());
