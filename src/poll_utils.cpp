@@ -73,7 +73,7 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 	pollfd node;
 
 	node.fd = fd;
-	cout << "fd added: " << fd << endl;
+	//cout << "fd added: " << fd << endl;
 	node.events = POLLIN;
 	pollVec.push_back(node);
 	if (!cgi)

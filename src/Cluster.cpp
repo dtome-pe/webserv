@@ -174,10 +174,7 @@ int	Cluster::handleClient(Request &request)
 			rsp.setResponse(handleRequest(request, rsp, request.getServer(), request.getLocation()), request);
 	}
 	if (str_to_int(rsp.getCode()) == CGI)
-	{	
-		cout << "salimos por cgi" << endl;
 		return (CGI);
-	}
 	else
 	{
 		std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
@@ -195,7 +192,7 @@ int		Cluster::handleRequest(Request &request, Response &response, const Server *
 			return (413);
 	}
 	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
-	cout << "con path: " << path << " con method " << request.getMethod() << endl;
+//	cout << "con path: " << path << " con method " << request.getMethod() << endl;
 	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
 	{
 		if (!check_method(request.getMethod(), NULL, serv)) // bloqueamos toda peticion que no sea GET, 405
