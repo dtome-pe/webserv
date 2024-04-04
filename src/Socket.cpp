@@ -2,6 +2,8 @@
 
 Socket::Socket(std::string host_port, Server *s_ptr)
 {
+	_cgiFd = -1;
+	_cgi = false;
 	if (s_ptr) // listener
 	{
 		/*trocemos host y port para meterlas en funcion get_addr_info*/
@@ -23,7 +25,7 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 	{
 		_host = host_port.substr(0, host_port.find(":"));
 		listener = 0;
-		_continueBool = false;
+		_continue = false;
 	}
 
 }
@@ -136,19 +138,29 @@ int Socket::getFd() const
 	return (_fd);
 }
 
-bool Socket::getContinueBool()
+bool Socket::getContinue()
 {
-	return (_continueBool);
+	return (_continue);
 }
 
-std::string Socket::getContinueRequestLine()
+std::string Socket::getPreviousRequestLine()
 {
-	return (_continueRequestLine);
+	return (_previousRequestLine);
 }
 
-HeaderHTTP		&Socket::getContinueHeaders()
+HeaderHTTP		&Socket::getPreviousHeaders()
 {
-	return (_continueHeaders);
+	return (_previousHeaders);
+}
+
+bool	Socket::getCgi()
+{
+	return (_cgi);
+}
+
+int		Socket::getCgiFd()
+{
+	return (_cgiFd);
 }
 
 void	Socket::setHost(std::string host)
@@ -171,25 +183,38 @@ void	Socket::setFd(int fd)
 	_fd = fd;
 }
 
-void	Socket::setContinueBool(bool c)
+void	Socket::setContinue(bool c)
 {
-	_continueBool = c;
+	_continue = c;
 }
 
-void	Socket::setContinueRequestLine(std::string requestLine)
+void	Socket::setPreviousRequestLine(std::string requestLine)
 {
-	_continueRequestLine = requestLine;
+	_previousRequestLine = requestLine;
 }
 
-void	Socket::setContinueHeaders(HeaderHTTP headers)
+void	Socket::setPreviousHeaders(HeaderHTTP headers)
 {
-	_continueHeaders = headers;
+	_previousHeaders = headers;
 }
 
-void	Socket::bounceContinue(Request &request)
+void	Socket::setCgi(bool cgi)
+{
+	_cgi = cgi;
+}
+
+void	Socket::setCgiFd(int fd)
+{
+	_cgiFd = fd;
+}
+
+void	Socket::bouncePrevious(Request &request, int type)
 {	
-	setContinueBool(true);
-	setContinueRequestLine(request.getRequestLine());
-	setContinueHeaders(request.getHeaders());
-	_continueHeaders.removeHeader("Expect");
+	if (type == CONTINUE)
+		setContinue(true);
+	else if (type == CGI)
+		setCgi(true);
+	setPreviousRequestLine(request.getRequestLine());
+	setPreviousHeaders(request.getHeaders());
+	_previousHeaders.removeHeader("Expect");
 }
