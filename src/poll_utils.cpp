@@ -1,10 +1,13 @@
 #include <webserv.hpp>
 
-int	receive_response(int new_socket, std::vector<unsigned char>*buff)
+int	receive_response(int fd, std::vector<unsigned char>*buff, std::vector<class Socket>&sock_vec)
 {
 	int	result;
 
-	result = recv(new_socket, buff->data(), 5000, 0);
+	if (checkIfCgiFd(fd, sock_vec))
+		result = read(fd, buff->data(), 5000);
+	else
+		result = recv(fd, buff->data(), 5000, 0);
 	if (result != -1)
 	{
 		(*buff).resize(result);
@@ -19,6 +22,16 @@ bool	checkIfListener(int poll_fd, std::vector<class Socket>&sock_vec, unsigned i
 	for (unsigned int i = 0; i < size; i++)
 	{
 		if (poll_fd == sock_vec[i].getFd() && sock_vec[i].listener)
+			return (true);
+	}
+	return (false);
+}
+
+bool	checkIfCgiFd(int fd, std::vector<class Socket>&sock_vec)
+{
+	for (unsigned int i = 0; i < sock_vec.size(); i++)
+	{
+		if (fd == sock_vec[i].getCgiFd())
 			return (true);
 	}
 	return (false);
@@ -60,6 +73,7 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 	pollfd node;
 
 	node.fd = fd;
+	cout << "fd added: " << fd << endl;
 	node.events = POLLIN;
 	pollVec.push_back(node);
 	if (!cgi)

@@ -43,7 +43,6 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 		{
 			close(pipe_to_child[1]);
 			close(pipe_from_child[0]);
-
 			char* const* argv = setArgv(request, path, method);
 			char * const* envp = setEnvp(request, path, method);
 
@@ -62,17 +61,25 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 		}
 		else
 		{	
+	/* 		close(pipe_to_child[0]);
+			close(pipe_to_child[1]);
+			close(pipe_from_child[1]);
+			char buff[1000];
+			while (read(pipe_from_child[0], buff, 1) > 0)
+				write(1, buff, 1);
+			return (0); */
 			close(pipe_to_child[0]);
 			close(pipe_to_child[1]);
-			close(pipe_from_child[0]);
-			cout << "pipe from child: " << pipe_from_child[1] << endl;
-			request.getSocket().setCgiFd(pipe_from_child[1]);
+			close(pipe_from_child[1]);
+			request.getSocket().setCgiFd(pipe_from_child[0]);
+			request.getSocket().setCgi(true);
 			cout << "cgi" << endl;
 			return (CGI);
 		}
 	}
 	else
-	{						
+	{	
+		cout << "entramos en cgi output" << endl;
 		string content = parseCgiHeader(response, request.getCgiOutput());
 		response.setBody(content);
 		close(request.getSocket().getCgiFd());
