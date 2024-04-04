@@ -8,7 +8,7 @@ Server::Server()
 	ip = "";
 	server_name = "";
 	error_page = "";
-	body_size = 1048576;
+	body_size = 1048576; // 1Mib
 	methods[0] = 1;
 	methods[1] = 0;
 	methods[2] = 0;
