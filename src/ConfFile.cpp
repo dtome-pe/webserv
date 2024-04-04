@@ -239,7 +239,8 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 		else if (line.find("upload_store") != std::string::npos)
 		{
 			pos = line.find("upload_store ");
-			res = line.substr(pos + 13, fpos - pos);
+			cout << "fpos: " << fpos << "pos: " << pos << endl;
+			res = line.substr(pos + 13, fpos - pos - 13);
 			res = checkPath(res);
 			loc.setUploadStore(res);
 		}

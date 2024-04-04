@@ -20,9 +20,7 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
     {
         return (NULL);
     }
-    cout << "path que entra en cgi es: " << path << endl; 
 	std::string file = request.getTarget().substr(request.getTarget().find_last_of("/") + 1, request.getTarget().length()); // nos quedamos con lo que hay tras el ultimo slash
-	cout << "file: " << file << endl;
     std::vector<std::string>env;
 
     if (request.getHeaders().map.count("Authorization") > 0)
@@ -120,15 +118,12 @@ std::string parseCgiHeader(Response &response, std::string& content)
 {  
     std::string line;
 
-    // Read headers until an empty line is encountered
     line = content.substr(0, content.find("\n"));
-    cout << "line: " << line << endl << "length: " << line.length() << endl;
     while (line.length() > 1)
     {
         response.setHeader(line);
         content = content.substr(line.length() + 1, content.length());
         line = content.substr(0, content.find("\n"));
-        cout << "line: " << line << endl << "length: " << line.length() << endl;
     }
     return (content);
 }
