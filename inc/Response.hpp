@@ -31,6 +31,7 @@ class Response
 
 		std::string		getHeader(std::string _header);
 
+		void			setCode(std::string _code);
 		std::string		getCode();
 };
 

@@ -6,6 +6,7 @@
 using namespace std;
 
 #define CONTINUE 100
+#define CGI 42
 
 #define GET 0
 #define POST 1
@@ -55,7 +56,7 @@ class Server;
 	/*cgi*/
 
 	bool						checkCgi(Request &request, std::string &path, const Location *loc);
-	int							cgi(Response &response, Request &request, std::string &path, std::string method);
+	int							cgi(Response &response, Request &request, std::string path, std::string method);
 	int							setDel(Request &request, std::string &path, std::string method);
 	int							setPut(Response &response, Request &request, std::string &path, std::string method);
 	bool						checkPut(std::string &path);
@@ -72,7 +73,7 @@ class Server;
 	Socket						&findSocket(int socket_to_find, std::vector<Socket>&sock_vec,  unsigned int size);
 	Socket						&findListener(std::vector<Socket>&sock_vec, Socket &client, unsigned int size);
 	string						&bounceBuff(string &text, vector<unsigned char>&buff);
-	void						add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket &client, int fd);
+	void						add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket &client, int fd, bool cgi);
 	void						remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, int fd, unsigned int size);
 	
 	/*check GET path*/

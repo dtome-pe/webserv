@@ -37,6 +37,11 @@ class Request
 
 		int					trailSlashRedir;
 
+		bool				cgi;
+		std::string			cgiOutput;
+
+		Socket				&sock;
+
 	public:
 		Request(std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client);
 		~Request();
@@ -73,6 +78,11 @@ class Request
 
 		std::string			getUploadStore();
 
+		bool				getCgi();
+		std::string			&getCgiOutput();
+
+		Socket				&getSocket();
+
 		void				setCgiExtension(std::string &extension);
 		void				setCgiBinary(std::string &binary);
 
@@ -91,6 +101,8 @@ class Request
 
 		void				setUploadStore(std::string path);
 
+		void				setCgi(bool cgi);
+		void				setCgiOutput(std::string output);
 
 		bool				good;
 

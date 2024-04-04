@@ -43,7 +43,12 @@ void	Response::setBasicHeaders(int code, Request &request)
 
 void	Response::setResponse(int code, Request &request)
 {
-	cout << "code: " << code << endl;
+	//cout << "code: " << code << endl;
+	if (code == CGI)
+	{
+		setCode("42");
+		return ;
+	}
 	switch (code)
 	{
 		case 100:
@@ -192,6 +197,11 @@ void		Response::setHeader(std::string _header)
 void		Response::setBody(std::string _body)
 {
 	this->body = _body;
+}
+
+void		Response::setCode(std::string _code)
+{
+	this->code = _code;
 }
 
 std::string	Response::getHeader(std::string _header)

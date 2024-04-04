@@ -30,7 +30,7 @@ Socket &findSocket(int socket_to_find, std::vector<Socket>&sock_vec, unsigned in
 
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
-		if (sock_vec[i].getFd() == socket_to_find)
+		if (sock_vec[i].getFd() == socket_to_find || sock_vec[i].getCgiFd() == socket_to_find)
 			return (sock_vec[i]);
 	}
 	return (sock_vec[0]);
@@ -42,7 +42,7 @@ Socket &findListener(std::vector<Socket>&sock_vec, Socket &client, unsigned int 
 
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
-		if (sock_vec[i].getFd() == client.pointingTo)
+		if (sock_vec[i].getFd() == client.pointingTo || sock_vec[i].getCgiFd() == client.pointingTo)
 			return (sock_vec[i]);
 	}
 	return (sock_vec[0]);	
@@ -55,14 +55,15 @@ string &bounceBuff(string &text, vector<unsigned char>&buff)
 	return (text);
 }
 
-void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket &client, int fd)
+void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket &client, int fd, bool cgi)
 {
 	pollfd node;
 
 	node.fd = fd;
 	node.events = POLLIN;
 	pollVec.push_back(node);
-	sockVec.push_back(client);
+	if (!cgi)
+		sockVec.push_back(client);
 }
 
 void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, int fd, unsigned int size)
