@@ -68,8 +68,9 @@ class Server;
 	std::string	 				parseCgiHeader(Response &response, std::string& content);
 
 	/*poll utils*/
-	int							receive_response(int new_socket, std::vector<unsigned char> *buff);
+	int							receive_response(int new_socket, std::vector<unsigned char> *buff, std::vector<class Socket>&sock_vec);
 	bool						checkIfListener(int poll_fd, std::vector<class Socket>&sock_vec, unsigned int size);
+	bool						checkIfCgiFd(int socket, std::vector<class Socket>&sock_vec);
 	Socket						&findSocket(int socket_to_find, std::vector<Socket>&sock_vec,  unsigned int size);
 	Socket						&findListener(std::vector<Socket>&sock_vec, Socket &client, unsigned int size);
 	string						&bounceBuff(string &text, vector<unsigned char>&buff);

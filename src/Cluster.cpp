@@ -100,14 +100,16 @@ void	Cluster::run()
 				}
 				else // si no es listener el evento activado, es que es un cliente listo para transmitir informacion
 				{
+					//cout << "entramos en cliente. fd: " << _pollVec[i].fd << endl;
 					string	text = "";
 					int		nbytes;
 					int		flag = 1;
 					while (true)
 					{
 						std::vector<unsigned char> buff(5000);
-						nbytes = receive_response(_pollVec[i].fd, &buff); // recibimos respuesta (recv)
+						nbytes = receive_response(_pollVec[i].fd, &buff, _sockVec); // recibimos respuesta (recv) o (read) si es el retorno de un proceso cgi (fd no-socket)
 						//cout << "nbytes result: " << nbytes << endl;
+						//cout << strerror(errno) << endl;
 						if (nbytes == -1)
 						{	
 							if (errno != EAGAIN && errno != EWOULDBLOCK) // igual, estos dos errores son normales en non blocking
@@ -127,7 +129,7 @@ void	Cluster::run()
 					}
 					if (flag) //  si no ha habido un break por error o cierre de conexion, gestionamos peticion.
 					{	
-						cout << "entramos" << endl;
+						//cout << "entramos" << endl;
 						//se construye request con el texto y con el socket listener, para que nos de informacion
 						// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara
 						// bloque de server y location cuya configuracion se aplicara, tambien veremos si esta request tendra que gestionar el output de un proceso cgi.
@@ -136,25 +138,18 @@ void	Cluster::run()
 						/*si hemos respondido con continue o cgi, ponemos al socket de
 						cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
 						directamente, sin headers.*/
-						int ret = this->handleClient(req, _pollVec[i].fd);
+						int ret = this->handleClient(req);
 						if (ret == CONTINUE || ret == CGI) 
-						{
-							
 							findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).bouncePrevious(req, ret);
-							/* cout << findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).getPreviousRequestLine();
-							findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).getPreviousHeaders().printHeaders(); */
-						}
 						if (ret == CGI)
-						{
 							add_pollfd(_pollVec, _sockVec, req.getSocket(), req.getSocket().getCgiFd(), true);
-							//cout << req.getSocket().getCgiFd() << endl;
-						}
-						else if (!req.getKeepAlive())
+						if (req.getCgi())
 						{
-							cout << "entra en close conn" << endl;
-							closeConnection(i, _pollVec, _sockVec, &size, &flag);
+							remove_pollfd(_pollVec, _sockVec, req.getSocket().getCgiFd(), size); // quitamos el cgi fd del poll y lo cerramos
+							close(req.getSocket().getCgiFd());
 						}
-						cout << "hola" << endl;
+						if (!req.getKeepAlive())
+							closeConnection(i, _pollVec, _sockVec, &size, &flag);
 					}
 				}
 			}
@@ -162,11 +157,11 @@ void	Cluster::run()
 	}	
 }
 
-int	Cluster::handleClient(Request &request, int new_socket)
+int	Cluster::handleClient(Request &request)
 {	
 	Response	rsp; // declaramos response
 	if (request.getCgi())
-		cgi(rsp, request, "", "output");
+		rsp.setResponse(cgi(rsp, request, "", "output"), request);
 	else
 	{
 		if (!request.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
@@ -186,7 +181,7 @@ int	Cluster::handleClient(Request &request, int new_socket)
 	else
 	{
 		std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
-		send(new_socket, response.c_str(), response.length(), 0);
+		send(request.getSocket().getFd(), response.c_str(), response.length(), 0);
 		return (str_to_int(rsp.getCode())); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
 	}
 }

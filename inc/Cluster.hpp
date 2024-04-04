@@ -17,9 +17,8 @@ class Cluster
 		void 						parseConfig(char *file);
 		void 						setup();
 		void 						run();
-		void						clean();
 
-		int							handleClient(Request &request, int new_socket);
+		int							handleClient(Request &request);
 		int							handleRequest(Request &request, Response &response, const Server *serv, const Location *loc);
 		void						closeConnection(int i, std::vector<pollfd>&_pollVec,
 													std::vector<Socket>&_sockVec, unsigned int *size, int *flag);
