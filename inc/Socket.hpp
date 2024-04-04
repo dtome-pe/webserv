@@ -13,9 +13,12 @@ class Socket
 		std::string	 		_ip;
 		std::string 		_port;
 		int					_fd;
-		bool				_continueBool;
-		std::string			_continueRequestLine;
-		HeaderHTTP			_continueHeaders;
+		int					_cgiFd;
+
+		bool				_continue;
+		bool				_cgi;
+		std::string			_previousRequestLine;
+		HeaderHTTP			_previousHeaders;
 
 	
 	public:
@@ -47,9 +50,12 @@ class Socket
 		std::string		getIp() const;
 		int				getFd() const;
 
-		bool			getContinueBool();
-		std::string		getContinueRequestLine();
-		HeaderHTTP		&getContinueHeaders();
+		bool			getContinue();
+		std::string		getPreviousRequestLine();
+		HeaderHTTP		&getPreviousHeaders();
+
+		bool			getCgi();
+		int				getCgiFd();
 
 		//setters
 		void			setPort(std::string port);
@@ -57,10 +63,14 @@ class Socket
 		void			setHost(std::string host);
 		void			setFd(int fd);
 
-		void			bounceContinue(Request &request);
-		void			setContinueBool(bool c);
-		void			setContinueRequestLine(std::string text);
-		void			setContinueHeaders(HeaderHTTP headers);			
+		void			bouncePrevious(Request &request, int type);
+
+		void			setPreviousRequestLine(std::string text);
+		void			setPreviousHeaders(HeaderHTTP headers);
+
+		void			setContinue(bool c);
+		void			setCgi(bool cgi);
+		void			setCgiFd(int fd);
 };
 
 #endif

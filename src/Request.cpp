@@ -7,20 +7,30 @@
 #include <lib.hpp>
 #include <map>
 
-Request::Request(std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client)
+Request::Request(std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client) : sock(client)
 {
 	good = true; // por defecto, request correcta en parseo
+	cgi = false;
 	keepAlive = true; // por defecto
 	trailSlashRedir = false;
 	uploadStore = "";
-	if (client.getContinueBool())   						//si tenemos el continue
-	{														// solo volcamos request line y headers guardados en socket de cliente
-		setRequestLine(client.getContinueRequestLine());	// que envio el expect y recibio el 100 continue, pero no
-		setHeaders(client.getContinueHeaders());			// el header de expect
-		client.setContinueBool(false);
-		client.setContinueRequestLine("");
-		client.getContinueHeaders().clear();
-		setBody(buff);
+	if (client.getContinue() || client.getCgi())   
+	{														
+		setRequestLine(client.getPreviousRequestLine());	
+		setHeaders(client.getPreviousHeaders());
+		if (client.getContinue())
+		{
+			client.setContinue(false);
+			setBody(buff);
+		}
+		if (client.getCgi())
+		{
+			client.setCgi(false);
+			setCgi(true);
+			setCgiOutput(buff);
+		}
+	client.setPreviousRequestLine("");
+	client.getPreviousHeaders().clear();
 	}
 	else
 		splitRequest(buff); // sino es continue se parsea de manera normal
@@ -301,6 +311,15 @@ void	Request::setUploadStore(std::string path)
 	this->uploadStore = path;
 }
 
+void	Request::setCgi(bool cgi)
+{
+	this->cgi = cgi;
+}
+
+void	Request::setCgiOutput(std::string output)
+{
+	cgiOutput = output;
+}
 
 std::string Request::getMethod()
 {
@@ -395,6 +414,21 @@ std::string			Request::getExtension()
 std::string	Request::getUploadStore()
 {
 	return (uploadStore);
+}
+
+bool		Request::getCgi()
+{
+	return (cgi);
+}
+
+std::string	&Request::getCgiOutput()
+{
+	return(cgiOutput);
+}
+
+Socket		&Request::getSocket()
+{
+	return (sock);
 }
 
 std::string Request::makeRequest()
