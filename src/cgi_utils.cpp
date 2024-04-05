@@ -86,7 +86,7 @@ char* const* 	setArgv(Request &request, std::string &path, std::string &method)
     else if (method == "PUT")
     {
         arg.push_back("/usr/bin/python3");
-        arg.push_back("cgi-bin/put.py");
+        arg.push_back("cgi-bin/upload.py");
         arg.push_back(path);
     }
     else
