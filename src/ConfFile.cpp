@@ -29,6 +29,44 @@ int ConfFile::countServers(std::string content)
 	return (i);
 }
 
+void ConfFile::checkLine(std::string line)
+{
+	size_t semicolon;
+	size_t curly;
+
+	semicolon = line.find(";");
+	curly = line.find("{");
+	if (line[0] == '}' && (line[1] == '\0' || line[1] == '\n'))
+		return ;
+	else if (line[0] == '}' && line[1] != '\0')
+		throw std::runtime_error(line + " => invalid line");
+	if (semicolon == std::string::npos && curly == std::string::npos)
+		throw std::runtime_error(line + " => semicolon or curly brace missing.");
+	if (semicolon != std::string::npos && curly != std::string::npos)
+		throw std::runtime_error(line + " => invalid line");
+	else
+	{
+		if (semicolon != std::string::npos)
+		{
+			if (line[semicolon + 1] != '\0')
+				throw std::runtime_error(line + " => invalid line. Semicolon must be end of line");
+		}
+		if (curly != std::string::npos)
+		{
+			if (line[curly + 1] != '\0' && line[curly + 1] != '\n')
+				throw std::runtime_error(line + " => invalid line. Curly brace must be end of line");
+		}
+	}
+}
+
+void	ConfFile::checkInfo(std::string line)
+{
+	size_t pos = line.find(" ");
+	
+	if (pos != std::string::npos)
+		throw std::runtime_error(line + " => invalid line. This variable only needs one parameter.");
+}
+
 void ConfFile::trimSpaces(std::string& str)
 {
 	str.erase(0, str.find_first_not_of(" \t"));
@@ -178,6 +216,7 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 	trimSpaces(line);
 	if (line[0] == '#')
 		return ;
+	checkLine(line);
 	if (line.find(" /") != std::string::npos && loc.getLocation().empty())
 	{
 		pos = line.find("/");
@@ -295,6 +334,7 @@ int		ConfFile::parse_element(std::string &content, int i)
 	while (std::getline(iss, line, '\n'))
 	{
 		trimSpaces(line);
+		checkLine(line);
 		if (line[0] != '#' && line[0] != '\n')
 		{
 			if (line.find("server ") == 0)
