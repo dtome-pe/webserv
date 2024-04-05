@@ -23,6 +23,7 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 		fcntl(pipe_to_child[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 		fcntl(pipe_from_child[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 		fcntl(pipe_from_child[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+		cout << "body: " << request.getBody() << endl;
 		if (method == "POST" || method == "PUT")
 		{
 			ssize_t bytes_written = write(pipe_to_child[1], request.getBody().c_str(), request.getBody().size());

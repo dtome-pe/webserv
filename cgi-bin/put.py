@@ -20,4 +20,3 @@ elif not os.path.isfile(filePath):
     f.close()
     os.chmod(filePath, 0o664)
     print("Status: 201 Created")
-    print("Location: " + filePath)

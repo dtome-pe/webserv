@@ -77,6 +77,7 @@ class Request
 		bool				getKeepAlive();
 
 		std::string			getUploadStore();
+		std::string			getLocationDir();
 
 		bool				getCgi();
 		std::string			&getCgiOutput();

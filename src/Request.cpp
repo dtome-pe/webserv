@@ -437,6 +437,12 @@ std::string Request::makeRequest()
 			+ "\r\n" + this->body);
 }
 
+std::string Request::getLocationDir()
+{
+	return (getHeader("Host") + uploadStore.substr(uploadStore.find_last_of('/'), uploadStore.length())
+			+ target.substr(target.find_last_of('/'), target.length()));
+}
+
 void	Request::printRequest()
 {	
 	std::string str = this->makeRequest();
