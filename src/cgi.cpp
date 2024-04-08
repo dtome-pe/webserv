@@ -65,7 +65,7 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 			close(pipe_from_child[1]);
 			request.getSocket().setCgiFd(pipe_from_child[0]);
 			request.getSocket().setCgi(true);
-			//cout << "cgi" << endl;
+			request.getCluster().setPid(pid, pipe_from_child[0], request.getSocket());
 			return (CGI);
 		}
 	}

@@ -47,10 +47,10 @@ void	Cluster::run()
 	signal(SIGINT, SIG_DFL);
 	signal(SIGPIPE, SIG_IGN);
 	while (1)
-	{	
-		//cout << "poll" << endl;
+	{
 		unsigned int size = _pollVec.size();
-		int poll_count = poll(&_pollVec[0], size, -1); 
+		checkPids(&size);
+		int poll_count = poll(&_pollVec[0], size, 5); 
 		/*se hace el poll. el retorno es cuantos fds se han mostrado dispuestos a recibir informacion.
 		es decir, o una nueva conexion (si es un fd listener, server) o algo a recibir si es un fd de un cliente conectado.*/
 		if (poll_count == -1)
@@ -128,12 +128,11 @@ void	Cluster::run()
 						bounceBuff(text, buff); // vamos bounceando el buffer en una string, mientras siga el loop.
 					}
 					if (flag) //  si no ha habido un break por error o cierre de conexion, gestionamos peticion.
-					{	
-						//cout << "entramos" << endl;
+					{
 						//se construye request con el texto y con el socket listener, para que nos de informacion
 						// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara
 						// bloque de server y location cuya configuracion se aplicara, tambien veremos si esta request tendra que gestionar el output de un proceso cgi.
-						Request req(text, _servVec,
+						Request req(*this, text, _servVec,
 						findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size), findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()));
 						/*si hemos respondido con continue o cgi, ponemos al socket de
 						cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
@@ -147,6 +146,7 @@ void	Cluster::run()
 						{
 							remove_pollfd(_pollVec, _sockVec, req.getSocket().getCgiFd(), size); // quitamos el cgi fd del poll y lo cerramos
 							close(req.getSocket().getCgiFd());
+							req.getSocket().setCgiFd(-1);
 						}
 						if (!req.getKeepAlive())
 							closeConnection(i, _pollVec, _sockVec, &size, &flag);
@@ -291,10 +291,11 @@ void	Cluster::closeConnection(int i, std::vector<pollfd>&_pollVec,
 								std::vector<Socket>&_sockVec, unsigned int *size, int *flag)
 {
 	close(_pollVec[i].fd);
-						//	cout << "connexion with fd: " << pollVec[i].fd << " was closed with client. socket config is: " << endl;
+	_pollVec[i].fd = -1;
 	remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd, *size);
-	(*size)--; // si se quita un elemento del vector, reducimos size para buen funcionamiento
-	*flag = 0;	
+	(*size)--;
+	if (flag)
+		*flag = 0;
 }
 
 std::vector<Server>& Cluster::getServerVector()
@@ -339,5 +340,43 @@ void Cluster::printVectors()
 	{
 		std::cout << i << " socket fd: " << _pollVec[i].fd << std::endl;
 	}
-} 
+}
 
+void	Cluster::checkPids(unsigned int *size)
+{
+	(void) size;
+	for (unsigned int i = 0; i < _pidVec.size(); i++)
+	{
+		if (0 == kill(_pidVec[i].pid, 0)) // si pid esta activo, comprobamos timeout
+		{
+			if (timeEpoch() - _pidVec[i].time > TIMEOUT)
+			{	
+				cout << "Timeout!" << endl;
+				for (unsigned int j = 0; j < _pollVec.size(); j++)
+				{
+					if (_pollVec[j].fd == _pidVec[i].fd)
+						closeConnection(j, _pollVec, _sockVec, size, NULL);
+					else if (_pollVec[j].fd == _pidVec[i].client->getFd())
+						closeConnection(j, _pollVec, _sockVec, size, NULL);
+				}
+				close(_pidVec[i].fd);
+				kill(_pidVec[i].pid, SIGKILL);
+				waitpid(_pidVec[i].pid, NULL, 0);
+				_pidVec.erase(_pidVec.begin() + i);
+			}
+		}
+		else							//si pid no esta activo, simplemente eliminamos nodo
+			_pidVec.erase(_pidVec.begin() + i);
+	}
+}
+
+void	Cluster::setPid(pid_t pid, unsigned int fd, Socket &client)
+{
+	struct pidStruct	node;
+	node.pid = pid;
+	node.fd = fd;
+	node.time = timeEpoch();
+	node.client = &client;
+
+	_pidVec.push_back(node);
+}

@@ -7,6 +7,7 @@
 class Socket;
 class Server;
 class Location;
+class Cluster;
 
 class Request
 {	
@@ -41,9 +42,10 @@ class Request
 		std::string			cgiOutput;
 
 		Socket				&sock;
+		Cluster				&cluster;
 
 	public:
-		Request(std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client);
+		Request(Cluster &cluster, std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client);
 		~Request();
 			
 		void				setRequestLine(std::string _request_line);
@@ -83,6 +85,7 @@ class Request
 		std::string			&getCgiOutput();
 
 		Socket				&getSocket();
+		Cluster				&getCluster();
 
 		void				setCgiExtension(std::string &extension);
 		void				setCgiBinary(std::string &binary);
