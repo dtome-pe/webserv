@@ -26,7 +26,7 @@ class ConfFile
 		int		countServers(std::string content);
 		std::string findInfo(std::string line, std::string tofind);
 		void	findIp(Server& Serv, std::string newserv);
-		int		check_info();
+		void		checkInfo(std::string line);
 		void	copyInfo(Cluster &cluster);
 		void	print_servers();
 		void	print_sockets();
@@ -45,6 +45,7 @@ class ConfFile
 			return (pollVec);
 		}
 		std::string checkPath(std::string path);
+		void	checkLine(std::string line);
 };
 
 
