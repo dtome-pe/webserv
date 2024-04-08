@@ -10,6 +10,7 @@ void Cluster::parseConfig(char *file)
 	_conf.parse_config(*this, file);
 	_conf.print_servers();
 	MIME::initializeMIME();
+	MIME::initializeMIME();
 }
 
 void Cluster::setup()
@@ -44,6 +45,7 @@ void Cluster::setup()
 
 void	Cluster::run()
 {
+	signal(SIGINT, SIG_DFL);
 	signal(SIGINT, SIG_DFL);
 	signal(SIGPIPE, SIG_IGN);
 	while (1)
@@ -285,7 +287,7 @@ void Cluster::printVectors()
     std::cout << "Socket Vector:" << std::endl;
     for (unsigned int i = 0; i < _sockVec.size(); i++)
 	{
-		cout << "Socket " << i + 1 <<  " with fd " <<_sockVec[i].getFd()  << ". Is listener? " << _sockVec[i].listener << endl
+		cout << "Socket " << i + 1 <<  " with fd " << _sockVec[i].getFd()  << ". Is listener? " << _sockVec[i].listener << endl
 		<< "IP: " << _sockVec[i].getIp() << " Port: " << _sockVec[i].getPort() << endl;  
 	}
 
@@ -294,6 +296,7 @@ void Cluster::printVectors()
 	{
 		std::cout << i << " socket fd: " << _pollVec[i].fd << std::endl;
 	}
+}
 }
 
 void	Cluster::checkPids(unsigned int *size)

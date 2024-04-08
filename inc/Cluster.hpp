@@ -1,50 +1,65 @@
 #ifndef CLUSTER_HPP
-# define CLUSTER_HPP
+#define CLUSTER_HPP
 
-# include <webserv.hpp>
+#include <webserv.hpp>
 
-# define TIMEOUT 5
+#define TIMEOUT 5
 
 struct pidStruct
 {
-	pid_t			pid;
-	int				fd;
-	unsigned int	time;
-	Socket			*client;
+	pid_t pid;
+	int fd;
+	unsigned int time;
+	Socket *client;
+};
+
+#define TIMEOUT 5
+
+struct pidStruct
+{
+	pid_t pid;
+	int fd;
+	unsigned int time;
+	Socket *client;
 };
 
 class Cluster
-{	
-	private:
-		ConfFile								_conf;
-		std::vector<class Server>				_servVec;
-		std::vector<class Socket>				_sockVec;
-		std::vector<pollfd>						_pollVec;
-		std::vector<struct pidStruct>			_pidVec;
+{
+private:
+	ConfFile _conf;
+	std::vector<class Server> _servVec;
+	std::vector<class Socket> _sockVec;
+	std::vector<pollfd> _pollVec;
+	std::vector<struct pidStruct> _pidVec;
+	ConfFile _conf;
+	std::vector<class Server> _servVec;
+	std::vector<class Socket> _sockVec;
+	std::vector<pollfd> _pollVec;
+	std::vector<struct pidStruct> _pidVec;
 
-	public:
-		Cluster();
-		
-		void 									parseConfig(char *file);
-		void 									setup();
-		void 									run();
+public:
+	Cluster();
 
-		int										handleClient(Request &request);
-		int										handleRequest(Request &request, Response &response, const Server *serv, const Location *loc);
-		void									closeConnection(int i, std::vector<pollfd>&_pollVec, std::vector<Socket>&_sockVec, unsigned int *size);
-		
-		std::vector<Server>						&getServerVector();
-		std::vector<Socket>						&getSocketVector();
-		std::vector<pollfd>						&getPollVector();
+	void parseConfig(char *file);
+	void setup();
+	void run();
 
-		void									printVectors();
+	int handleClient(Request &request);
+	int handleRequest(Request &request, Response &response, const Server *serv, const Location *loc);
+	void closeConnection(int i, std::vector<pollfd> &_pollVec, std::vector<Socket> &_sockVec, unsigned int *size);
 
-		/*time out utils*/
-		void									checkPids(unsigned int *size);
-		void									setPid(pid_t pid, unsigned int fd, Socket &client);
+	std::vector<Server> &getServerVector();
+	std::vector<Socket> &getSocketVector();
+	std::vector<pollfd> &getPollVector();
 
-		int										addConnection(int i);
-		void									readFromConnection(int i, unsigned int *size);
+	void printVectors();
+
+	/*time out utils*/
+	void checkPids(unsigned int *size);
+	void setPid(pid_t pid, unsigned int fd, Socket &client);
+
+	int addConnection(int i);
+	void readFromConnection(int i, unsigned int *size);
 };
 
 #endif
