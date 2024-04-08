@@ -60,6 +60,7 @@ void	Request::splitRequest(std::string buff)
 	setRequestLine(buff.substr(0, finish - rec));
 	buff = buff.substr(finish + 1, buff.length());
 	while (buff.substr(0, 2) != "\r\n")
+	while (buff.substr(0, 2) != "\r\n")
 	{
 		try
 		{
@@ -67,6 +68,8 @@ void	Request::splitRequest(std::string buff)
 			finish = buff.find("\n");
 			if (buff[finish - 1] == '\r')
 				rec = 1;
+			if (this->headers.setHeader(buff.substr(0, finish - rec)) == 1)
+				good = false;
 			if (this->headers.setHeader(buff.substr(0, finish - rec)) == 1)
 				good = false;
 			buff = buff.substr(finish + 1, buff.length());
@@ -77,13 +80,19 @@ void	Request::splitRequest(std::string buff)
 	try
 	{
 		this->body = buff.substr(2, buff.length()); // nos quedamos el cuerpo sin el /r/n previo.
+		this->body = buff.substr(2, buff.length()); // nos quedamos el cuerpo sin el /r/n previo.
 	}
 	catch(const std::exception& e)
 	{	}
 	if (this->headers.map.find("Host") == this->headers.map.end())
 		good = false;
+	{	}
+	if (this->headers.map.find("Host") == this->headers.map.end())
+		good = false;
 }
 
+
+void	Request::setRequestLine(std::string reqLine)
 
 void	Request::setRequestLine(std::string reqLine)
 {
@@ -323,18 +332,212 @@ void	Request::setCgiOutput(std::string output)
 	cgiOutput = output;
 }
 
+void	Request::setCgiExtension(std::string &extension)
+{
+	cgiExtension = extension;
+}
+
+void	Request::setCgiBinary(std::string &binary)
+{
+	cgiBinary = binary;
+}
+
+void Request::setHost(std::string &host)
+{
+	this->host = host;
+}
+
+void Request::setIp(std::string &ip)
+{
+	this->ip = ip;
+}
+
+void Request::setPort(std::string &port)
+{
+	this->port = port;
+}
+
+void	Request::setTrailSlashRedir(bool redir)
+{
+	trailSlashRedir = redir;
+}
+
+void	Request::setPath(std::string path)
+{
+	this->path = path;
+	if (path.find_last_of(".") != std::string::npos)
+		setExtension(path.substr(path.find_last_of(".") + 1, path.length()));
+}
+
+void	Request::setExtension(std::string extension)
+{
+	this->extension = extension;
+}
+
+void	Request::setHeaders(HeaderHTTP headers)
+{
+	this->headers = headers;
+}
+
+void	Request::setUploadStore(std::string path)
+{
+	this->uploadStore = path;
+}
+
+void	Request::setCgi(bool cgi)
+{
+	this->cgi = cgi;
+}
+
+void	Request::setCgiOutput(std::string output)
+{
+	cgiOutput = output;
+}
+
 std::string Request::getMethod()
 {
+	return (method);
 	return (method);
 }
 
 std::string Request::getTarget()
 {
 	return (target);
+	return (target);
 }
 
 std::string Request::getVersion()
 {
+	return (version);
+}
+
+std::string Request::getRequestLine()
+{
+	return (request_line);
+}
+
+std::string	Request::getHeader(std::string header)
+{
+	return (headers.getHeader(header));
+}
+
+HeaderHTTP	Request::getHeaders()
+{
+	return (headers);
+}
+
+std::string Request::getBody()
+{
+	return (body);
+}
+
+std::string Request::getCgiExtension()
+{
+	return (cgiExtension);
+}
+
+std::string Request::getCgiBinary()
+{
+	return (cgiBinary);
+}
+
+std::string Request::getHost()
+{
+	return (host);
+}
+
+std::string Request::getIp()
+{
+	return (ip);
+}
+
+std::string Request::getPort()
+{
+	return (port);
+}
+
+bool		Request::getKeepAlive()
+{
+	return (keepAlive);
+}
+
+const Server		*Request::getServer()
+{
+	return(serv);
+}
+
+const Location		*Request::getLocation()
+{
+	return(loc);
+}
+
+bool				Request::getTrailSlashRedir()
+{
+	return(trailSlashRedir);
+}
+
+std::string			Request::getPath()
+{
+	return (path);
+}
+
+std::string			Request::getExtension()
+{
+	return (extension);
+}
+
+std::string	Request::getUploadStore()
+{
+	return (uploadStore);
+}
+
+bool		Request::getCgi()
+{
+	return (cgi);
+}
+
+std::string	&Request::getCgiOutput()
+{
+	return(cgiOutput);
+}
+
+Socket		&Request::getSocket()
+{
+	return (sock);
+}
+
+Cluster		&Request::getCluster()
+{
+	return (cluster);
+}
+
+std::string Request::makeRequest()
+{
+	return (this->request_line + this->headers.makeHeader()
+			+ "\r\n" + this->body);
+}
+
+std::string Request::getLocationDir()
+{
+	return (getHeader("Host") + uploadStore.substr(uploadStore.find_last_of('/'), uploadStore.length())
+			+ target.substr(target.find_last_of('/'), target.length()));
+}
+
+void	Request::printRequest()
+{	
+	std::string str = this->makeRequest();
+	for (size_t i = 0; i < str.length(); i++)
+	{
+		if (str[i] == '\r')
+		{
+			std::cout << "\\r";
+			continue ;
+		}
+		if (str[i] == '\n')
+			std::cout << "\\n";
+		std::cout << str[i];
+	}
+		std::cout << std::endl;
 	return (version);
 }
 
