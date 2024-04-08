@@ -9,6 +9,7 @@
 
 Request::Request(Cluster &cluster, std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client) : sock(client), cluster(cluster)
 {
+	//cout << "entra en request. text es: " << buff << endl;
 	good = true; // por defecto, request correcta en parseo
 	cgi = false;
 	keepAlive = true; // por defecto
@@ -42,6 +43,8 @@ Request::Request(Cluster &cluster, std::string buff, const std::vector<class Ser
 	setLocation(getServer());
 	if (loc && loc->getUploadStore() != "")   // seteamos uploadStore si toca
 		setUploadStore(loc->getUploadStore());
+	client.setTextRead(""); // limpiamos buffer
+	client.setReadAll(false);
 }
 
 Request::~Request()
@@ -93,7 +96,6 @@ void	Request::setRequestLine(std::string reqLine)
 	this->method = split[0];
 	this->target = split[1];
 	this->version = split[2];
-
 }
 
 static const Server *ip_port(const std::vector<class Server> &serv, Request &request)

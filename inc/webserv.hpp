@@ -13,6 +13,8 @@ using namespace std;
 #define DELETE 2
 #define PUT 3
 
+#define BUFF_SIZE 2000
+
 class Server;
 
 	typedef struct socket_list
@@ -68,7 +70,7 @@ class Server;
 	std::string	 				parseCgiHeader(Response &response, std::string& content);
 
 	/*poll utils*/
-	int							receive_response(int new_socket, std::vector<unsigned char> *buff, std::vector<class Socket>&sock_vec);
+	int							receive(int new_socket, std::vector<unsigned char> *buff, std::vector<class Socket>&sock_vec);
 	bool						checkIfListener(int poll_fd, std::vector<class Socket>&sock_vec, unsigned int size);
 	bool						checkIfCgiFd(int socket, std::vector<class Socket>&sock_vec);
 	Socket						&findSocket(int socket_to_find, std::vector<Socket>&sock_vec,  unsigned int size);
