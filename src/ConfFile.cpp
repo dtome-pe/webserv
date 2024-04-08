@@ -109,6 +109,7 @@ void	ConfFile::parse_config(Cluster &cluster, char *file)
 			trimSpaces(line);
 			if (line.find("server ") == 0)
 			{
+				checkLine(line);
 				parse_element(content, i);
 				i++;
 			}
