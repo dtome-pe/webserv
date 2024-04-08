@@ -72,6 +72,13 @@ std::string getLastModified(std::string path)
 	return ("error");
 }
 
+uint64_t timeEpoch()
+{
+	std::time_t currentTime;
+	currentTime = std::time(NULL);
+	return (static_cast<uint64_t>(currentTime));
+}
+
 /*nginx puede tener varios server blocks escuchando en la misma direccion:puerto, pero dos sockets no pueden
 bindearse al mismo puerto. Entonces, nginx debe primero resolver ip y puerto de cada listen directive uno a uno, y
 en el momento que encuentra otro listen con la misma direccion exacta, se lo debe saltar. Ya que al final, solo

@@ -7,7 +7,7 @@
 #include <lib.hpp>
 #include <map>
 
-Request::Request(std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client) : sock(client)
+Request::Request(Cluster &cluster, std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client) : sock(client), cluster(cluster)
 {
 	good = true; // por defecto, request correcta en parseo
 	cgi = false;
@@ -429,6 +429,11 @@ std::string	&Request::getCgiOutput()
 Socket		&Request::getSocket()
 {
 	return (sock);
+}
+
+Cluster		&Request::getCluster()
+{
+	return (cluster);
 }
 
 std::string Request::makeRequest()
