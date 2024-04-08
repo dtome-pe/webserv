@@ -10,46 +10,60 @@
             background-color: #f4f4f4;
             margin: 0;
             padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+			background: linear-gradient(115deg, #56d8e4 10%, #9f01ea 90%);
         }
         h2 {
             text-align: center;
             color: #333;
+			  background: -webkit-linear-gradient(right, #56d8e4, #9f01ea, #56d8e4, #9f01ea);
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  			font-size: 35px;
         }
         form {
-            max-width: 400px;
-            margin: 20px auto;
+            width: 600px; 
             background: #fff;
-            padding: 20px;
-            border-radius: 5px;
+            padding: 40px; 
+            border-radius: 20px;
             box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         label {
             font-weight: bold;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 10px; 
+            font-size: 18px; 
         }
         input[type="text"],
         input[type="email"],
         textarea {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
+            padding: 15px; 
+            margin-bottom: 20px; 
             border: 1px solid #ccc;
             border-radius: 4px;
             box-sizing: border-box;
+            font-size: 18px;
         }
         textarea {
             resize: vertical;
-            height: 100px;
+            height: 150px; 
         }
         input[type="submit"] {
             background: #333;
             color: #fff;
             border: 0;
-            padding: 10px 20px;
+            padding: 15px 30px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 18px; 
+            display: block;
+            margin-left: auto; 
+            margin-right: auto;
         }
         input[type="submit"]:hover {
             background: #555;
@@ -57,18 +71,21 @@
     </style>
 </head>
 <body>
-    <h2>Contact Form</h2>
     <form action="/cgi-bin/form_get.py" method="get">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" required><br>
+    <div>
+        <form action="/cgi-bin/form.php" method="get">
+			<h2>Contact Form</h2>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" required><br>
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" rows="4" required></textarea>
 
-        <label for="message">Message:</label>
-        <textarea id="message" name="message" rows="4" required></textarea><br>
-
-        <input type="submit" value="Submit">
-    </form>
+            <input type="submit" value="Submit">
+        </form>
+    </div>
 </body>
 </html>
+
