@@ -3,88 +3,127 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mini Juego de Adivinanzas</title>
+<title>Memory</title>
 <style>
-    body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background-color: #f0f0f0;
-        margin: 0;
-        padding: 0;
-    }
-    h1 {
-        color: #333;
-    }
-    .container {
-        max-width: 400px;
-        margin: 50px auto;
-        background-color: #fff;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-    }
-    p {
-        color: #666;
-    }
-    #guessInput {
-        padding: 10px;
-        width: 60px;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-    }
-    button {
-        padding: 10px 20px;
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    button:hover {
-        background-color: #45a049;
-    }
-    #result {
-        margin-top: 20px;
-        font-size: 1.2em;
-    }
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+	justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+	background: linear-gradient(115deg, #56d8e4 10%, #9f01ea 90%);
+  }
+
+  h1 {
+	color: white;
+  }
+  #title {
+    margin-bottom: 20px;
+  }
+  #gameBoard {
+    margin-top: 20px;
+  }
+  .row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 10px;
+  }
+  .card {
+    width: 100px;
+    height: 100px;
+    margin: 0 10px;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+	background-image: linear-gradient(to bottom right, #FDFCFB, #E2D1C3);
+  }
 </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Adivina el numero</h1>
-        <p>Estoy pensando en un número entre 1 y 100. ¿Puedes adivinar cuál?</p>
-        <form id="guessForm">
-            <input type="number" id="guessInput" min="1" max="100" required>
-            <button type="submit">Adivinar</button>
-        </form>
-        <div id="result"></div>
-    </div>
+<h1>Memory</h1>
+<div id="gameBoard">
+</div>
 
 <script>
-    const randomNumber = Math.floor(Math.random() * 100) + 1;
-    
-    const guessForm = document.getElementById('guessForm');
-    const guessInput = document.getElementById('guessInput');
-    const resultDiv = document.getElementById('result');
+  const images = [
+    "🐱", "🐭", "🐶", "🐻", "🐰", "🐰", "🐭", "🐱",
+    "🐹", "🐨", "🐼", "🐻", "🐼", "🐶", "🐹", "🐨"
+  ];
 
-    guessForm.addEventListener('submit', function(event) {
-        event.preventDefault();
+  let firstCard = null;
+  let secondCard = null;
+  let lockBoard = false;
 
-        const userGuess = parseInt(guessInput.value);
-
-        if (userGuess === randomNumber) {
-            resultDiv.textContent = '¡Felicidades! ¡Has adivinado el número!';
-            resultDiv.style.color = '#4CAF50';
-            guessInput.disabled = true;
-        } else if (userGuess < randomNumber) {
-            resultDiv.textContent = 'El número es mayor. Intenta de nuevo.';
-            resultDiv.style.color = '#f44336';
-        } else {
-            resultDiv.textContent = 'El número es menor. Intenta de nuevo.';
-            resultDiv.style.color = '#f44336';
-        }
+  function createBoard() {
+    const gameBoard = document.getElementById("gameBoard");
+    let row;
+    let cardCount = 0;
+    images.forEach((image, index) => {
+      if (cardCount % 4 === 0) {
+        row = document.createElement("div");
+        row.classList.add("row");
+        gameBoard.appendChild(row);
+      }
+      const card = document.createElement("div");
+      card.classList.add("card");
+      card.dataset.index = index;
+      card.textContent = "?";
+      card.addEventListener("click", flipCard);
+      row.appendChild(card);
+      cardCount++;
     });
+  }
+
+  function flipCard() {
+    if (lockBoard) return;
+    if (this === firstCard) return;
+    
+    this.textContent = images[this.dataset.index];
+    
+    if (!firstCard) {
+      firstCard = this;
+      return;
+    }
+    
+    secondCard = this;
+    checkForMatch();
+  }
+
+  function checkForMatch() {
+    let isMatch = firstCard.textContent === secondCard.textContent;
+    isMatch ? disableCards() : unflipCards();
+  }
+
+  function disableCards() {
+    firstCard.removeEventListener("click", flipCard);
+    secondCard.removeEventListener("click", flipCard);
+    
+    resetBoard();
+  }
+
+  function unflipCards() {
+    lockBoard = true;
+
+    setTimeout(() => {
+      firstCard.textContent = "?";
+      secondCard.textContent = "?";
+      
+      resetBoard();
+    }, 1000);
+  }
+
+  function resetBoard() {
+    [firstCard, secondCard] = [null, null];
+    lockBoard = false;
+  }
+
+  createBoard();
 </script>
 </body>
 </html>
