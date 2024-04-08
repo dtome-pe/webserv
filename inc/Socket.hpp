@@ -20,6 +20,9 @@ class Socket
 		std::string			_previousRequestLine;
 		HeaderHTTP			_previousHeaders;
 
+		std::string			_textRead;
+		bool				_readAll;
+
 	
 	public:
 
@@ -57,6 +60,10 @@ class Socket
 		bool			getCgi();
 		int				getCgiFd();
 
+		std::string		getTextRead();
+
+		bool			getReadAll();
+
 		//setters
 		void			setPort(std::string port);
 		void			setIp(std::string ip);
@@ -71,6 +78,11 @@ class Socket
 		void			setContinue(bool c);
 		void			setCgi(bool cgi);
 		void			setCgiFd(int fd);
+		
+		void			setReadAll(bool readAll);
+
+		void			appendTextRead(std::string text);
+		void			setTextRead(std::string text);
 };
 
 #endif

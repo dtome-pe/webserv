@@ -31,8 +31,8 @@ class Cluster
 
 		int										handleClient(Request &request);
 		int										handleRequest(Request &request, Response &response, const Server *serv, const Location *loc);
-		void									closeConnection(int i, std::vector<pollfd>&_pollVec,
-																std::vector<Socket>&_sockVec, unsigned int *size, int *flag);
+		void									closeConnection(int i, std::vector<pollfd>&_pollVec, std::vector<Socket>&_sockVec, unsigned int *size);
+		
 		std::vector<Server>						&getServerVector();
 		std::vector<Socket>						&getSocketVector();
 		std::vector<pollfd>						&getPollVector();
@@ -42,6 +42,9 @@ class Cluster
 		/*time out utils*/
 		void									checkPids(unsigned int *size);
 		void									setPid(pid_t pid, unsigned int fd, Socket &client);
+
+		int										addConnection(int i);
+		void									readFromConnection(int i, unsigned int *size);
 };
 
 #endif

@@ -4,6 +4,8 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 {
 	_cgiFd = -1;
 	_cgi = false;
+	_textRead = "";
+	_readAll = false;
 	if (s_ptr) // listener
 	{
 		/*trocemos host y port para meterlas en funcion get_addr_info*/
@@ -163,6 +165,16 @@ int		Socket::getCgiFd()
 	return (_cgiFd);
 }
 
+std::string		Socket::getTextRead()
+{
+	return (_textRead);
+}
+
+bool	Socket::getReadAll()
+{
+	return (_readAll);
+}
+
 void	Socket::setHost(std::string host)
 {
 	_host = host;
@@ -206,6 +218,21 @@ void	Socket::setCgi(bool cgi)
 void	Socket::setCgiFd(int fd)
 {
 	_cgiFd = fd;
+}
+
+void	Socket::setReadAll(bool readAll)
+{
+	_readAll = readAll;
+}
+
+void	Socket::appendTextRead(std::string text)
+{
+	_textRead += text;
+}
+
+void	Socket::setTextRead(std::string text)
+{
+	_textRead = text;
 }
 
 void	Socket::bouncePrevious(Request &request, int type)
