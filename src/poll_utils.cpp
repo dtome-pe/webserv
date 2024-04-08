@@ -81,7 +81,6 @@ string &bounceBuff(string &text, vector<unsigned char>&buff)
 }
 
 void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket &client, int fd, bool cgi)
-void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket &client, int fd, bool cgi)
 {
 	pollfd node;
 
