@@ -27,6 +27,7 @@
 #include <cstddef>
 #include <cstdio>
 #include <ctime>
+#include <signal.h>
 
 // Element headers
 #include <sys/socket.h>
