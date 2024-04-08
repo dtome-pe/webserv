@@ -56,6 +56,22 @@ std::string getCurrentTime()
     return buffer;
 }
 
+std::string getLastModified(std::string path) 
+{
+	struct stat result;
+    if (stat(path.c_str(), &result) == 0) 
+    {
+        std::time_t mod_time = result.st_mtime; // Get last modified time
+        std::tm* timeinfo = std::gmtime(&mod_time);
+
+        char buffer[80];
+        std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
+
+        return std::string(buffer);
+    }
+	return ("error");
+}
+
 /*nginx puede tener varios server blocks escuchando en la misma direccion:puerto, pero dos sockets no pueden
 bindearse al mismo puerto. Entonces, nginx debe primero resolver ip y puerto de cada listen directive uno a uno, y
 en el momento que encuentra otro listen con la misma direccion exacta, se lo debe saltar. Ya que al final, solo

@@ -88,6 +88,7 @@ class Server;
 	std::string					int_to_str(int n);
 	unsigned int				str_to_int(std::string str);
 	std::string					getCurrentTime();
+	std::string					getLastModified(std::string path);
 	bool						look_for_same(Socket &sock, std::vector<Socket>&sock_vec);
 
 #endif

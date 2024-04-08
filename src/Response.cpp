@@ -36,6 +36,9 @@ void	Response::setBasicHeaders(int code, Request &request)
 	}
 	if (code == 201)
 		setHeader("Location: http://" + request.getLocationDir());
+	std::string lastMod = getLastModified(request.getPath());
+	if (lastMod != "error" && request.getMethod() == "GET" && !request.getCgi())
+		setHeader("Last-Modified: " + lastMod);
 	setHeader("Connection: keep-alive");
 	if (getHeader("Status") != "not found")
 		headers.removeHeader("Status");
