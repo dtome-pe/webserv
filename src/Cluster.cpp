@@ -60,14 +60,13 @@ void	Cluster::run()
 		}
 		for (unsigned int i = 0; i < size; i++) // iteramos a todo el vector
 		{
-			if (_pollVec[i].revents == 0) // buscamos que socket esta listo para recibir cliente
+			if (_pollVec[i].revents == 0) // si no ha habido ningun evento, seguimos el loop
 				continue ;
 			if (_pollVec[i].revents & POLLIN) // hay alguien listo para leer = hay un intento de conexion
 			{
 				if (checkIfListener(_pollVec[i].fd, _sockVec, size)) // si se trata de un listener, aceptamos conexion
 				{
-				//	cout << "se entra en pollin listener fd:" << pollVec[i].fd << " i es: " << i << endl;
-					while (true) 
+					while (true)
 					{
 						/*datos para nueva conexion*/
 						int c_fd;
@@ -108,8 +107,6 @@ void	Cluster::run()
 					{
 						std::vector<unsigned char> buff(5000);
 						nbytes = receive_response(_pollVec[i].fd, &buff, _sockVec); // recibimos respuesta (recv) o (read) si es el retorno de un proceso cgi (fd no-socket)
-						//cout << "nbytes result: " << nbytes << endl;
-						//cout << strerror(errno) << endl;
 						if (nbytes == -1)
 						{	
 							if (errno != EAGAIN && errno != EWOULDBLOCK) // igual, estos dos errores son normales en non blocking
@@ -117,7 +114,6 @@ void	Cluster::run()
 								closeConnection(i, _pollVec, _sockVec, &size, &flag);
 								break ;
 							}
-							//cout << "EAGAIN / EWOULDBLOCK" << endl; salimos en caso EAGAIN para gestionar informacion
 							break ;	
 						}
 						else if (nbytes == 0) // si 0, se ha cerrado conexion, tambien quitamos a cliente de vectores.
@@ -150,6 +146,7 @@ void	Cluster::run()
 						}
 						if (!req.getKeepAlive())
 							closeConnection(i, _pollVec, _sockVec, &size, &flag);
+						break ;
 					}
 				}
 			}
