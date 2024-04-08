@@ -252,7 +252,6 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 			int methods[4] = {0, 0, 0, 0};
 			pos = line.find("allow_methods ");
 			res = (line.substr(pos + 14, fpos - pos));
-			std::cout << res << std::endl;
 			if (res.find("GET") != std::string::npos)
 				methods[GET] = 1;
 			if (res.find("POST") != std::string::npos)
@@ -279,7 +278,6 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 		else if (line.find("upload_store") != std::string::npos)
 		{
 			pos = line.find("upload_store ");
-			cout << "fpos: " << fpos << "pos: " << pos << endl;
 			res = line.substr(pos + 13, fpos - pos - 13);
 			res = checkPath(res);
 			loc.setUploadStore(res);
