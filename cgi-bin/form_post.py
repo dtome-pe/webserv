@@ -4,7 +4,7 @@ import sys
 import urllib.parse
 
 input_string = sys.stdin.read()
-print(input_string)
+
 print ("Content-type: text/html; charset=UTF-8")
 print()
 print ('''<!DOCTYPE html>
