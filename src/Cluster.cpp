@@ -38,7 +38,7 @@ void Cluster::setup()
 										// va investigando si tienen algo que leer o no
 
 		node.fd = _sockVec[i].getFd();
-		node.events = POLLIN | POLLOUT; // esto es lo que determina que estamos interesados en eventos de lectura y escritura. recv.
+		node.events = POLLIN; // esto es lo que determina que estamos interesados en eventos de lectura, al ser los sockets listeners
 		_pollVec.push_back(node);
 	}
 }
@@ -46,14 +46,13 @@ void Cluster::setup()
 void	Cluster::run()
 {
 	signal(SIGINT, SIG_DFL);
-	signal(SIGINT, SIG_DFL);
 	signal(SIGPIPE, SIG_IGN);
 	while (true)
 	{
 		unsigned int size = _pollVec.size();
 		checkPids(&size);
 		int poll_count = poll(&_pollVec[0], size, POLL_TIMEOUT);
-		cout << "poll: " << poll_count << endl;
+		//cout << "poll: " << poll_count << endl;
 		if (poll_count == -1)
 		{
 			print_error("poll error");
@@ -61,15 +60,14 @@ void	Cluster::run()
 		}
 		if (poll_count == 0)
 			continue ;
-		for (unsigned int i = 0; i < size; i++) // iteramos a todo el vector
+		for (unsigned int i = 0; i < size; i++)
 		{
-			//cout << _pollVec[i].fd << endl;
 			if (_pollVec[i].revents == 0)
 			{	
-				cout << "revents 0. fd: " <<  _pollVec[i].fd << endl;
+				//cout << "revents 0. fd: " <<  _pollVec[i].fd << endl;
 				continue ;
 			}
-			if (_pollVec[i].revents & POLLIN) // hay alguien listo para leer = hay un intento de conexion
+			if (_pollVec[i].revents & POLLIN)
 			{
 				if (checkIfListener(_pollVec[i].fd, _sockVec, size))
 				{
@@ -101,7 +99,7 @@ int		Cluster::addConnection(int i)
 		struct sockaddr_in c_addr;
 		socklen_t addrlen = sizeof (sockaddr_in);
 		/*datos para nueva conexion*/
-		c_fd = accept(_pollVec[i].fd, (struct sockaddr *) &c_addr, &addrlen); // se acepta nuevo cliente
+		c_fd = accept(_pollVec[i].fd, (struct sockaddr *) &c_addr, &addrlen);
 		if (c_fd == -1)
 		{	
 			if (errno != EAGAIN && errno != EWOULDBLOCK) // EAGAIN y EWOULDBLOCK se comprueban aparte
@@ -111,10 +109,10 @@ int		Cluster::addConnection(int i)
 				cout << "accept: " << strerror(errno) << endl;
 				return 1;
 			}
-			else			// aqui se sale al recibir EGAIN, arriba se comprueba cualquier otro -1, es decir, error.
+			else			// aqui se sale al recibir EGAIN/EWOULDBOCK, es decir, ya no hay mas clientes que aceptar, arriba se comprueba cualquier otro -1, es decir, error.
 				return 0;
 		}
-		else
+		else // mientras accept no de error o EAGAIN, creamos socket cliente, y anadimos al pollfd
 		{
 			Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL);  // se construye socket cliente
 						// pero con menos pasos que los listeners.
@@ -145,7 +143,16 @@ void	Cluster::readFromConnection(int i, unsigned int *size)
 				return ;
 			}
 			cout << "sale EAGAIN" << endl;
-			_pollVec[i].events = POLLIN | POLLOUT;
+			if (_pollVec[i].fd == findSocket(_pollVec[i].fd, _sockVec, *size).getCgiFd())
+			{
+				for (unsigned int j = 0; j < *size; j++)
+				{
+					if (_pollVec[j].fd == findSocket(_pollVec[i].fd, _sockVec, *size).getFd())
+						_pollVec[j].events = POLLIN | POLLOUT;
+				}
+			}
+			else
+				_pollVec[i].events = POLLIN | POLLOUT;
 			return ;	// asi que si aparecen, todo bien, salimos de funcion
 		}
 		else if (nbytes == 0) // si 0, se ha cerrado conexion, tambien quitamos a cliente de vectores.
@@ -154,29 +161,32 @@ void	Cluster::readFromConnection(int i, unsigned int *size)
 			closeConnection(i, _pollVec, _sockVec, size);
 			return ;
 		}
-		bounceBuff(text, buff); // volcamos vector de chars en std::string
+		bounceBuff(text, buff);
 		findSocket(_pollVec[i].fd, _sockVec, *size).appendTextRead(text);
 	}
 }
 
 void	Cluster::writeToConnection(int i, unsigned int size)
 {
-	//cout << "entramos en pollout. fd es: " << _pollVec[i].fd << endl << "request text: " << findSocket(_pollVec[i].fd, _sockVec, size).getTextRead() << endl;
 	//se construye request con el texto de un pollin previo y con el socket listener, para que nos de informacion
 	// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara
 	// bloque de server y location cuya configuracion se aplicara, tambien veremos si esta request tendra que gestionar el output de un proceso cgi.
 	Request req(*this, findSocket(_pollVec[i].fd, _sockVec, size).getTextRead(), _servVec,
 	findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size), findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()));
 	int ret = this->handleClient(req);
+	_pollVec[i].events = POLLIN;
 	/*si hemos respondido con continue o cgi, ponemos al socket de
 	cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
 	directamente, sin headers.*/
-	_pollVec[i].events = POLLIN;
 	if (ret == CONTINUE || ret == CGI) 
 		findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).bouncePrevious(req, ret);
-	if (ret == CGI)
-		add_pollfd(_pollVec, _sockVec, req.getSocket(), req.getSocket().getCgiFd(), true);
-	if (req.getCgi())
+	if (ret == CGI) // se ha iniciado proceso cgi
+	{
+		cout << "proceso cgi" << endl;
+		add_pollfd(_pollVec, _sockVec, req.getSocket(), req.getSocket().getCgiFd(), true); // anadimos proceso cgi al pollfd
+		return ;
+	}
+	if (req.getCgi()) // ya se ha gestionado el retorno del cgi en la respuesta dada
 	{
 		remove_pollfd(_pollVec, _sockVec, req.getSocket().getCgiFd(), size); // quitamos el cgi fd del poll y lo cerramos
 		close(req.getSocket().getCgiFd());
