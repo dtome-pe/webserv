@@ -13,24 +13,9 @@ struct pidStruct
 	Socket *client;
 };
 
-#define TIMEOUT 5
-
-struct pidStruct
-{
-	pid_t pid;
-	int fd;
-	unsigned int time;
-	Socket *client;
-};
-
 class Cluster
 {
 private:
-	ConfFile _conf;
-	std::vector<class Server> _servVec;
-	std::vector<class Socket> _sockVec;
-	std::vector<pollfd> _pollVec;
-	std::vector<struct pidStruct> _pidVec;
 	ConfFile _conf;
 	std::vector<class Server> _servVec;
 	std::vector<class Socket> _sockVec;
