@@ -48,39 +48,42 @@ void	Cluster::run()
 	signal(SIGINT, SIG_DFL);
 	signal(SIGINT, SIG_DFL);
 	signal(SIGPIPE, SIG_IGN);
-	while (1)
+	while (true)
 	{
 		unsigned int size = _pollVec.size();
 		checkPids(&size);
-		int poll_count = poll(&_pollVec[0], size, 5000);
+		int poll_count = poll(&_pollVec[0], size, POLL_TIMEOUT);
 		cout << "poll: " << poll_count << endl;
 		if (poll_count == -1)
 		{
 			print_error("poll error");
 			exit(EXIT_FAILURE);
 		}
+		if (poll_count == 0)
+			continue ;
 		for (unsigned int i = 0; i < size; i++) // iteramos a todo el vector
 		{
-			if (_pollVec[i].revents == 0) // si no ha habido ningun evento, seguimos el loop
-			{
-				//cout << "no events" << endl;
+			//cout << _pollVec[i].fd << endl;
+			if (_pollVec[i].revents == 0)
+			{	
+				cout << "revents 0. fd: " <<  _pollVec[i].fd << endl;
 				continue ;
 			}
 			if (_pollVec[i].revents & POLLIN) // hay alguien listo para leer = hay un intento de conexion
 			{
-				if (checkIfListener(_pollVec[i].fd, _sockVec, size)) // si se trata de un listener, aceptamos conexion
+				if (checkIfListener(_pollVec[i].fd, _sockVec, size))
 				{
 					cout << "Add connection. fd es: " << _pollVec[i].fd << endl;
 					addConnection(i);
 					break ;
 				}
-				else // si no es listener el evento activado, es que es un cliente listo para transmitir informacion
+				else
 				{
 					cout << "Read from connection. fd es: " << _pollVec[i].fd  << endl;
 					readFromConnection(i, &size);
 				}
 			}
-			else if (_pollVec[i].revents & POLLOUT && findSocket(_pollVec[i].fd, _sockVec, size).getReadAll() == true) // si esta disponible y  ha recibido peticion
+			else if (_pollVec[i].revents & POLLOUT)
 			{
 				cout << "Write to connection. fd es: " << _pollVec[i].fd  << endl;
 				writeToConnection(i, size);
@@ -142,6 +145,7 @@ void	Cluster::readFromConnection(int i, unsigned int *size)
 				return ;
 			}
 			cout << "sale EAGAIN" << endl;
+			_pollVec[i].events = POLLIN | POLLOUT;
 			return ;	// asi que si aparecen, todo bien, salimos de funcion
 		}
 		else if (nbytes == 0) // si 0, se ha cerrado conexion, tambien quitamos a cliente de vectores.
@@ -151,9 +155,7 @@ void	Cluster::readFromConnection(int i, unsigned int *size)
 			return ;
 		}
 		bounceBuff(text, buff); // volcamos vector de chars en std::string
-		cout << "text: " << text << endl;
 		findSocket(_pollVec[i].fd, _sockVec, *size).appendTextRead(text);
-		findSocket(_pollVec[i].fd, _sockVec, *size).setReadAll(true);
 	}
 }
 
@@ -169,6 +171,7 @@ void	Cluster::writeToConnection(int i, unsigned int size)
 	/*si hemos respondido con continue o cgi, ponemos al socket de
 	cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
 	directamente, sin headers.*/
+	_pollVec[i].events = POLLIN;
 	if (ret == CONTINUE || ret == CGI) 
 		findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).bouncePrevious(req, ret);
 	if (ret == CGI)
@@ -208,7 +211,7 @@ int	Cluster::handleClient(Request &request)
 	{
 		std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
 		send(request.getSocket().getFd(), response.c_str(), response.length(), 0);
-		cout << "response sent: " << response << endl;
+		cout << "response sent: " << endl;
 		return (str_to_int(rsp.getCode())); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
 	}
 }
@@ -378,7 +381,7 @@ void	Cluster::checkPids(unsigned int *size)
 	{
 		if (0 == kill(_pidVec[i].pid, 0)) // si pid esta activo, comprobamos timeout
 		{
-			if (timeEpoch() - _pidVec[i].time > TIMEOUT)
+			if (timeEpoch() - _pidVec[i].time > CGI_TIMEOUT)
 			{	
 				cout << "Timeout!" << endl;
 				for (unsigned int j = 0; j < _pollVec.size(); j++)
