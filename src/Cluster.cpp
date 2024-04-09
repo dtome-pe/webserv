@@ -83,7 +83,7 @@ void	Cluster::run()
 			}
 			else if (_pollVec[i].revents & POLLOUT && findSocket(_pollVec[i].fd, _sockVec, size).getReadAll() == true)
 			{
-				cout << "entramos en pollout. fd es: " << _pollVec[i].fd << endl;
+				//cout << "entramos en pollout. fd es: " << _pollVec[i].fd << endl << "request text: " << findSocket(_pollVec[i].fd, _sockVec, size).getTextRead() << endl;
 				//se construye request con el texto y con el socket listener, para que nos de informacion
 				// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara
 				// bloque de server y location cuya configuracion se aplicara, tambien veremos si esta request tendra que gestionar el output de un proceso cgi.
@@ -296,7 +296,6 @@ void Cluster::printVectors()
 	{
 		std::cout << i << " socket fd: " << _pollVec[i].fd << std::endl;
 	}
-}
 }
 
 void	Cluster::checkPids(unsigned int *size)

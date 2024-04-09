@@ -37,16 +37,6 @@ bool	checkIfCgiFd(int fd, std::vector<class Socket>&sock_vec)
 	return (false);
 }
 
-bool	checkIfCgiFd(int fd, std::vector<class Socket>&sock_vec)
-{
-	for (unsigned int i = 0; i < sock_vec.size(); i++)
-	{
-		if (fd == sock_vec[i].getCgiFd())
-			return (true);
-	}
-	return (false);
-}
-
 Socket &findSocket(int socket_to_find, std::vector<Socket>&sock_vec, unsigned int size)
 {	
 	(void) size;
