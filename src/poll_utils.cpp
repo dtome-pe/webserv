@@ -44,7 +44,6 @@ Socket &findSocket(int socket_to_find, std::vector<Socket>&sock_vec, unsigned in
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
 		if (sock_vec[i].getFd() == socket_to_find || sock_vec[i].getCgiFd() == socket_to_find)
-		if (sock_vec[i].getFd() == socket_to_find || sock_vec[i].getCgiFd() == socket_to_find)
 			return (sock_vec[i]);
 	}
 	return (sock_vec[0]);
@@ -56,7 +55,6 @@ Socket &findListener(std::vector<Socket>&sock_vec, Socket &client, unsigned int 
 
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
-		if (sock_vec[i].getFd() == client.pointingTo || sock_vec[i].getCgiFd() == client.pointingTo)
 		if (sock_vec[i].getFd() == client.pointingTo || sock_vec[i].getCgiFd() == client.pointingTo)
 			return (sock_vec[i]);
 	}
@@ -78,8 +76,6 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 	//cout << "fd added: " << fd << endl;
 	node.events = POLLIN | POLLOUT;
 	pollVec.push_back(node);
-	if (!cgi)
-		sockVec.push_back(client);
 	if (!cgi)
 		sockVec.push_back(client);
 }

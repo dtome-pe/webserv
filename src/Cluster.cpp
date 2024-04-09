@@ -53,9 +53,7 @@ void	Cluster::run()
 		unsigned int size = _pollVec.size();
 		checkPids(&size);
 		int poll_count = poll(&_pollVec[0], size, 5000);
-		//cout << "poll: " << poll_count << endl;
-		/*se hace el poll. el retorno es cuantos fds se han mostrado dispuestos a recibir informacion.
-		es decir, o una nueva conexion (si es un fd listener, server) o algo a recibir si es un fd de un cliente conectado.*/
+		cout << "poll: " << poll_count << endl;
 		if (poll_count == -1)
 		{
 			print_error("poll error");
@@ -74,6 +72,7 @@ void	Cluster::run()
 				{
 					cout << "Add connection. fd es: " << _pollVec[i].fd << endl;
 					addConnection(i);
+					break ;
 				}
 				else // si no es listener el evento activado, es que es un cliente listo para transmitir informacion
 				{
@@ -81,37 +80,110 @@ void	Cluster::run()
 					readFromConnection(i, &size);
 				}
 			}
-			else if (_pollVec[i].revents & POLLOUT && findSocket(_pollVec[i].fd, _sockVec, size).getReadAll() == true)
+			else if (_pollVec[i].revents & POLLOUT && findSocket(_pollVec[i].fd, _sockVec, size).getReadAll() == true) // si esta disponible y  ha recibido peticion
 			{
-				//cout << "entramos en pollout. fd es: " << _pollVec[i].fd << endl << "request text: " << findSocket(_pollVec[i].fd, _sockVec, size).getTextRead() << endl;
-				//se construye request con el texto y con el socket listener, para que nos de informacion
-				// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara
-				// bloque de server y location cuya configuracion se aplicara, tambien veremos si esta request tendra que gestionar el output de un proceso cgi.
-				Request req(*this, findSocket(_pollVec[i].fd, _sockVec, size).getTextRead(), _servVec,
-				findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size), findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()));
-				/*si hemos respondido con continue o cgi, ponemos al socket de
-				cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
-				directamente, sin headers.*/
-				int ret = this->handleClient(req);
-				if (ret == CONTINUE || ret == CGI) 
-					findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).bouncePrevious(req, ret);
-				if (ret == CGI)
-					add_pollfd(_pollVec, _sockVec, req.getSocket(), req.getSocket().getCgiFd(), true);
-				if (req.getCgi())
-				{
-					remove_pollfd(_pollVec, _sockVec, req.getSocket().getCgiFd(), size); // quitamos el cgi fd del poll y lo cerramos
-					close(req.getSocket().getCgiFd());
-					req.getSocket().setCgiFd(-1);
-				}
-				if (!req.getKeepAlive())
-				{	
-					cout << "entra en close conn" << endl;
-					closeConnection(i, _pollVec, _sockVec, &size);
-				}
-				break ;
+				cout << "Write to connection. fd es: " << _pollVec[i].fd  << endl;
+				writeToConnection(i, size);
 			}
 		}
 	}	
+}
+
+int		Cluster::addConnection(int i)
+{
+	while (true)
+	{
+		/*datos para nueva conexion*/
+		int c_fd;
+		struct sockaddr_in c_addr;
+		socklen_t addrlen = sizeof (sockaddr_in);
+		/*datos para nueva conexion*/
+		c_fd = accept(_pollVec[i].fd, (struct sockaddr *) &c_addr, &addrlen); // se acepta nuevo cliente
+		if (c_fd == -1)
+		{	
+			if (errno != EAGAIN && errno != EWOULDBLOCK) // EAGAIN y EWOULDBLOCK se comprueban aparte
+							//ya que en situacion de sockets no blocking, esto es un retorno normal
+							// y de hecho es el retorno para salir del loop y gestionar peticion
+			{
+				cout << "accept: " << strerror(errno) << endl;
+				return 1;
+			}
+			else			// aqui se sale al recibir EGAIN, arriba se comprueba cualquier otro -1, es decir, error.
+				return 0;
+		}
+		else
+		{
+			Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL);  // se construye socket cliente
+						// pero con menos pasos que los listeners.
+			client.pointTo(_pollVec[i].fd); // solo queremos saber a que listener apunta, esta relacionado
+			client.setFd(c_fd);			// ponemos su fd, que es el retorno de accept.
+			client.setNonBlocking(c_fd); // lo ponemos non blocking
+			add_pollfd(_pollVec, _sockVec, client, c_fd, false); // y lo anadimos tanto al vector de poll, como al de sockets.
+		}
+	}
+}
+
+void	Cluster::readFromConnection(int i, unsigned int *size)
+{
+	string	text;
+	int		nbytes;
+
+	std::vector<unsigned char> buff(BUFF_SIZE);
+	while (true)
+	{
+		text = "";
+		nbytes = receive(_pollVec[i].fd, &buff, _sockVec); // recibimos respuesta (recv) o (read) si es el retorno de un proceso cgi (fd no-socket)
+		cout << "nbytes leidos: " << nbytes << endl;
+		if (nbytes == -1)
+		{	
+			if (errno != EAGAIN && errno != EWOULDBLOCK) // igual, estos dos errores son normales en non blocking
+			{
+				closeConnection(i, _pollVec, _sockVec, size);
+				return ;
+			}
+			cout << "sale EAGAIN" << endl;
+			return ;	// asi que si aparecen, todo bien, salimos de funcion
+		}
+		else if (nbytes == 0) // si 0, se ha cerrado conexion, tambien quitamos a cliente de vectores.
+		{	
+			cout << "entra en 0 bytes" << endl;
+			closeConnection(i, _pollVec, _sockVec, size);
+			return ;
+		}
+		bounceBuff(text, buff); // volcamos vector de chars en std::string
+		cout << "text: " << text << endl;
+		findSocket(_pollVec[i].fd, _sockVec, *size).appendTextRead(text);
+		findSocket(_pollVec[i].fd, _sockVec, *size).setReadAll(true);
+	}
+}
+
+void	Cluster::writeToConnection(int i, unsigned int size)
+{
+	//cout << "entramos en pollout. fd es: " << _pollVec[i].fd << endl << "request text: " << findSocket(_pollVec[i].fd, _sockVec, size).getTextRead() << endl;
+	//se construye request con el texto de un pollin previo y con el socket listener, para que nos de informacion
+	// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara
+	// bloque de server y location cuya configuracion se aplicara, tambien veremos si esta request tendra que gestionar el output de un proceso cgi.
+	Request req(*this, findSocket(_pollVec[i].fd, _sockVec, size).getTextRead(), _servVec,
+	findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size), findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()));
+	int ret = this->handleClient(req);
+	/*si hemos respondido con continue o cgi, ponemos al socket de
+	cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
+	directamente, sin headers.*/
+	if (ret == CONTINUE || ret == CGI) 
+		findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()).bouncePrevious(req, ret);
+	if (ret == CGI)
+		add_pollfd(_pollVec, _sockVec, req.getSocket(), req.getSocket().getCgiFd(), true);
+	if (req.getCgi())
+	{
+		remove_pollfd(_pollVec, _sockVec, req.getSocket().getCgiFd(), size); // quitamos el cgi fd del poll y lo cerramos
+		close(req.getSocket().getCgiFd());
+		req.getSocket().setCgiFd(-1);
+	}
+	if (!req.getKeepAlive())
+	{	
+		cout << "entra en close conn" << endl;
+		closeConnection(i, _pollVec, _sockVec, &size);
+	}
 }
 
 int	Cluster::handleClient(Request &request)
@@ -136,6 +208,7 @@ int	Cluster::handleClient(Request &request)
 	{
 		std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
 		send(request.getSocket().getFd(), response.c_str(), response.length(), 0);
+		cout << "response sent: " << response << endl;
 		return (str_to_int(rsp.getCode())); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
 	}
 }
@@ -335,70 +408,4 @@ void	Cluster::setPid(pid_t pid, unsigned int fd, Socket &client)
 	node.client = &client;
 
 	_pidVec.push_back(node);
-}
-
-int		Cluster::addConnection(int i)
-{
-	while (true)
-	{
-		/*datos para nueva conexion*/
-		int c_fd;
-		struct sockaddr_in c_addr;
-		socklen_t addrlen = sizeof (sockaddr_in);
-		/*datos para nueva conexion*/
-		c_fd = accept(_pollVec[i].fd, (struct sockaddr *) &c_addr, &addrlen); // se acepta nuevo cliente
-		if (c_fd == -1)
-		{	
-			if (errno != EAGAIN && errno != EWOULDBLOCK) // EAGAIN y EWOULDBLOCK se comprueban aparte
-							//ya que en situacion de sockets no blocking, esto es un retorno normal
-							// y de hecho es el retorno para salir del loop y gestionar peticion
-			{
-				cout << "accept: " << strerror(errno) << endl;
-				return 1;
-			}
-			else			// aqui se sale al recibir EGAIN, arriba se comprueba cualquier otro -1, es decir, error.
-				return 0;
-		}
-		else
-		{
-			Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL);  // se construye socket cliente
-						// pero con menos pasos que los listeners.
-			client.pointTo(_pollVec[i].fd); // solo queremos saber a que listener apunta, esta relacionado
-			client.setFd(c_fd);			// ponemos su fd, que es el retorno de accept.
-			client.setNonBlocking(c_fd); // lo ponemos non blocking
-			add_pollfd(_pollVec, _sockVec, client, c_fd, false); // y lo anadimos tanto al vector de poll, como al de sockets.
-		}
-	}
-}
-
-void	Cluster::readFromConnection(int i, unsigned int *size)
-{
-	string	text;
-	int		nbytes;
-
-	std::vector<unsigned char> buff(BUFF_SIZE);
-	while (true)
-	{
-		text = "";
-		nbytes = receive(_pollVec[i].fd, &buff, _sockVec); // recibimos respuesta (recv) o (read) si es el retorno de un proceso cgi (fd no-socket)
-		cout << "nbytes leidos: " << nbytes << endl;
-		if (nbytes == -1)
-		{	
-			if (errno != EAGAIN && errno != EWOULDBLOCK) // igual, estos dos errores son normales en non blocking
-			{
-				closeConnection(i, _pollVec, _sockVec, size);
-				return ;
-			}
-			findSocket(_pollVec[i].fd, _sockVec, *size).setReadAll(true);
-			return ;	// asi que si aparecen, todo bien, salimos de funcion
-		}
-		else if (nbytes == 0) // si 0, se ha cerrado conexion, tambien quitamos a cliente de vectores.
-		{	
-			cout << "entra en 0 bytes" << endl;
-			closeConnection(i, _pollVec, _sockVec, size);
-			return ;
-		}
-		bounceBuff(text, buff); // volcamos vector de chars en std::string
-		findSocket(_pollVec[i].fd, _sockVec, *size).appendTextRead(text);
-	}
 }
