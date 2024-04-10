@@ -18,6 +18,7 @@ class Response
 		std::string		line;
 		HeaderHTTP		headers;
 		std::string 	body;
+
 		std::string 	makeResponse(); // devuelve el texto con el formato completo
 		
 		void			makeDefault(int code, Request &request, Response &response, const std::string &file, const Server *serv);
@@ -26,6 +27,7 @@ class Response
 		void			setHeader(std::string _header);
 		void			setBody(std::string _body);
 
+		int				getResponseCode(Request &request, const Server *serv, const Location *loc);
 		void			setResponse(int code, Request &request);
 		void			setBasicHeaders(int code, Request &request);
 
