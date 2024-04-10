@@ -71,30 +71,30 @@ void	Cluster::run()
 			{
 				if (checkIfListener(_pollVec[i].fd, _sockVec, size))
 				{
-					cout << "Add connection. fd es: " << _pollVec[i].fd << endl;
-					addConnection(i);
+					cout << "Add client. fd es: " << _pollVec[i].fd << endl;
+					addClient(i);
 					break ;
 				}
 				else
 				{
-					cout << "Read from connection. fd es: " << _pollVec[i].fd  << endl;
-					readFromConnection(i, &size);
+					cout << "Read from. fd es: " << _pollVec[i].fd  << endl;
+					readFrom(i, &size);
 				}
 			}
 			else if (_pollVec[i].revents & POLLOUT)
 			{
-				cout << "Write to connection. fd es: " << _pollVec[i].fd  << endl;
-				writeToConnection(i, size);
+				cout << "Write to. fd es: " << _pollVec[i].fd  << endl;
+				writeTo(i, size);
 			}
 		}
 	}	
 }
 
-int		Cluster::addConnection(int i)
+int		Cluster::addClient(int i)
 {
 	while (true)
 	{
-		/*datos para nueva conexion*/
+		/*datos para nuevo cliente*/
 		int c_fd;
 		struct sockaddr_in c_addr;
 		socklen_t addrlen = sizeof (sockaddr_in);
@@ -124,7 +124,7 @@ int		Cluster::addConnection(int i)
 	}
 }
 
-void	Cluster::readFromConnection(int i, unsigned int *size)
+void	Cluster::readFrom(int i, unsigned int *size)
 {
 	string	text;
 	int		nbytes;
@@ -166,7 +166,7 @@ void	Cluster::readFromConnection(int i, unsigned int *size)
 	}
 }
 
-void	Cluster::writeToConnection(int i, unsigned int size)
+void	Cluster::writeTo(int i, unsigned int size)
 {
 	//se construye request con el texto de un pollin previo y con el socket listener, para que nos de informacion
 	// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara

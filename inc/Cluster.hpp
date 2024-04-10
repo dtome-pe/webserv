@@ -30,9 +30,10 @@ public:
 	void 							setup();
 	void 							run();
 
-	int 							addConnection(int i);
-	void 							readFromConnection(int i, unsigned int *size);
-	void							writeToConnection(int i, unsigned int size);
+	int 							addClient(int i);
+	void 							readFrom(int i, unsigned int *size);
+	void							writeTo(int i, unsigned int size);
+	
 	int 							handleClient(Request &request);
 	int 							handleRequest(Request &request, Response &response, const Server *serv, const Location *loc);
 	void 							closeConnection(int i, std::vector<pollfd> &_pollVec, std::vector<Socket> &_sockVec, unsigned int *size);
