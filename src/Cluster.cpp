@@ -173,7 +173,31 @@ void	Cluster::writeTo(int i, unsigned int size)
 	// bloque de server y location cuya configuracion se aplicara, tambien veremos si esta request tendra que gestionar el output de un proceso cgi.
 	Request req(*this, findSocket(_pollVec[i].fd, _sockVec, size).getTextRead(), _servVec,
 	findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size), findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()));
-	int ret = this->handleClient(req);
+	Response rsp;
+	int ret;
+	if (req.getCgi())
+		rsp.setResponse(cgi(rsp, req, "", "output"), req);
+	else
+	{
+		if (!req.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
+			rsp.setResponse(400, req);
+		/*si no es un metodo reconocido, devolvemos 501*/
+		else if (req.getMethod() != "GET" && req.getMethod() != "PUT" && req.getMethod() != "DELETE" && req.getMethod() != "POST")
+			rsp.setResponse(501, req);
+		else
+			/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
+			rsp.setResponse(rsp.getResponseCode(req, req.getServer(), req.getLocation()), req);
+	}
+	if (str_to_int(rsp.getCode()) == CGI)
+		ret = CGI;
+	else
+	{
+		std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
+		send(req.getSocket().getFd(), response.c_str(), response.length(), 0);
+		cout << "response sent: " << endl;
+		ret = str_to_int(rsp.getCode()); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
+	}
+	//int ret = this->handleClient(req);
 	_pollVec[i].events = POLLIN;
 	/*si hemos respondido con continue o cgi, ponemos al socket de
 	cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
@@ -196,137 +220,6 @@ void	Cluster::writeTo(int i, unsigned int size)
 	{	
 		cout << "entra en close conn" << endl;
 		closeConnection(i, _pollVec, _sockVec, &size);
-	}
-}
-
-int	Cluster::handleClient(Request &request)
-{	
-	Response	rsp; // declaramos response
-	if (request.getCgi())
-		rsp.setResponse(cgi(rsp, request, "", "output"), request);
-	else
-	{
-		if (!request.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400
-			rsp.setResponse(400, request);
-		/*si no es un metodo reconocido, devolvemos 501*/
-		else if (request.getMethod() != "GET" && request.getMethod() != "PUT" && request.getMethod() != "DELETE" && request.getMethod() != "POST")
-			rsp.setResponse(501, request);
-		else
-			/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
-			rsp.setResponse(handleRequest(request, rsp, request.getServer(), request.getLocation()), request);
-	}
-	if (str_to_int(rsp.getCode()) == CGI)
-		return (CGI);
-	else
-	{
-		std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
-		send(request.getSocket().getFd(), response.c_str(), response.length(), 0);
-		cout << "response sent: " << endl;
-		return (str_to_int(rsp.getCode())); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
-	}
-}
-
-int		Cluster::handleRequest(Request &request, Response &response, const Server *serv, const Location *loc)
-{
-	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
-	if (request.getHeader("Content-Length") != "not found")
-	{
-		if (str_to_int(request.getHeader("Content-Length")) > serv->getMaxBodySize())
-			return (413);
-	}
-	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
-//	cout << "con path: " << path << " con method " << request.getMethod() << endl;
-	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
-	{
-		if (!check_method(request.getMethod(), NULL, serv)) // bloqueamos toda peticion que no sea GET, 405
-			return (405);
-		/*Si la peticion es al root, damos pagina default, si no 404*/
-		if (request.getTarget() == "/")
-		{
-			response.setBody(readFileContents(request, "default/default.html"));
-			return (200);
-		}
-		else
-			return (404);
-	}
-	else
-	{
-		if (!check_method(request.getMethod(), loc, serv)) // si metodo no permitido, 405
-		{
-			return (405);
-		}
-		if (loc && loc->getRedirection().length() > 0) // comprobar si hay directive return
-			return (loc->getRedirectionNumber());
-		if (!checkGood(path))  // si el path que ha resultado no existe, comprobamos si es un put y se puede acceder a la carpeta previa
-		{
-			if (request.getMethod() == "PUT")
-			{
-				if (checkPutFile(path)) // si server puede acceder a la carpeta donde se quiere crear el archivo, hacemos put
-					return (cgi(response, request, path, request.getMethod()));
-			}
-			else
-				return (404);
-		}
-		if (request.getMethod() == "GET" &&  checkFileOrDir(path) == "dir" && !checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
-		{	
-			request.setTrailSlashRedir(true);
-			return (301);
-		}
-		if (request.getMethod() == "DELETE")
-			return (cgi(response, request, path, request.getMethod()));
-		if (request.getMethod() == "PUT")
-		{	
-			if (path[path.length() - 1] != '/')  // comprobamos que el put no tenga como target un directorio, entonces se devuelve 409
-				return (cgi(response, request, path, request.getMethod()));
-			else
-				return (409);
-		}
-		if (checkFileOrDir(path) == "file")
-		{
-			if (checkCgi(request, path, loc)) // chequearemos si location tiene activado el cgi y para que extensiones
-				return (cgi(response, request, path, request.getMethod()));
-			else
-			{
-				response.setBody(readFileContents(request, path)); //sino servimos el recurso de manera normal
-				return (200); 
-			}
-		}
-		else // si corresponde a un directorio, primero miramos que no haya un index file
-		{
-			if (serv->getVIndex().size() > 0 || (loc && loc->getIndex().size() > 0)) // si hay index directive
-			{
-				std::string index_file = findIndex(path, serv, loc); // localizamos si el camino lleva a un archivo
-				if (index_file != "")  // en caso afirmativo, se sirve
-				{
-					response.setBody(readFileContents(request, index_file));
-					return (200);
-				}
-				else // si no, damos un forbidden, como nginx
-					return (403);
-			}
-			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
-			{
-				response.setBody(readFileContents(request, path + "index.html"));
-				return (200);
-			}
-			else // sino, comprobamos si tiene autoindex activado para mostrar listado directorio
-			{
-				if (!loc || !loc->getAutoindex()) // si no tiene autoindex (como solo lo puede tener un location, de momento), devolvemos 403 ya que no esta activado el directorylisting
-											// y no tenemos permiso para coger ningun archivo de directorio
-					return (403);
-				else
-				{
-					std::string content = generateDirectoryListing(path);
-					if (content == "Error 500") // por si da algun error interno el server.
-						return (500);
-					else
-					{
-						response.setBody(content);
-						return (200);
-					}
-				}
-			}		
-		}
 	}
 }
 
