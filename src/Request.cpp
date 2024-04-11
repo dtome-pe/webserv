@@ -9,10 +9,9 @@
 
 Request::Request(Cluster &cluster, std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client) : sock(client), cluster(cluster)
 {
-	//cout << "entra en request. text es: " << buff << endl;
-	good = true; // por defecto, request correcta en parseo
+	good = true;
 	cgi = false;
-	keepAlive = true; // por defecto
+	keepAlive = true;
 	trailSlashRedir = false;
 	uploadStore = "";
 	if (client.getContinue() || client.getCgi())   
