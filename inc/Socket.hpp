@@ -39,14 +39,14 @@ class Socket
 		
 		void			start();
 
-		void			get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
-		void			create_s(struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen);
-		void 			bind_s(struct addrinfo *s_addr);
-		void 			listen_s();
+		int			get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
+		int			create_s(struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen);
+		int 			bind_s(struct addrinfo *s_addr);
+		int 			listen_s();
 
 		/*cliente*/
 		void			pointTo(int fd);
-		void			setNonBlocking(int fd);
+		int			setNonBlocking(int fd);
 
 		//getters
 		std::string		getPort() const;
