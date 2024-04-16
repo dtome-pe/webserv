@@ -171,6 +171,7 @@ void	Cluster::writeTo(int i, unsigned int size)
 	//se construye request con el texto de un pollin previo y con el socket listener, para que nos de informacion
 	// de a que ip y puerto iba destinado esta peticion. tambien en el constructor se determinara
 	// bloque de server y location cuya configuracion se aplicara, tambien veremos si esta request tendra que gestionar el output de un proceso cgi.
+	//cout << "req: " << findSocket(_pollVec[i].fd, _sockVec, size).getTextRead() << endl;
 	Request req(*this, findSocket(_pollVec[i].fd, _sockVec, size).getTextRead(), _servVec,
 	findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()), size), findSocket(_pollVec[i].fd, _sockVec, _sockVec.size()));
 	Response rsp;

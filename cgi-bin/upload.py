@@ -1,23 +1,40 @@
 #!/usr/bin/python3
 import os
 import sys
+import cgi
+import cgitb
 
-fileContent = sys.stdin.read()
-uploadDir = os.environ['UPLOAD_DIR']
+cgitb.enable()
 
-fileName = os.environ['FILENAME']
-filePath = uploadDir + fileName
 
-if os.path.isfile(filePath):
-    f = open(filePath, "w")
-    f.write(fileContent)
+
+form = cgi.FieldStorage(keep_blank_values=True)
+
+print("Content-type: text/html")
+print()
+
+if form['file'].filename:
+    uploadDir = os.environ['UPLOAD_DIR'] + "/" + form['file'].filename
+    f = open(uploadDir, "wb")
+    f.write(form['file'].file.read())
     f.close()
-    os.chmod(filePath, 0o664)
-    print("Status: 204 No Content")
+    print (f'''<!DOCTYPE html>
+    <html>
+    <head>
+    <title>UPLOAD FILE</title>
+    </head>
+    <body>
+    <h1>FILE UPLOADED CORRECTLY AT {uploadDir} </h1>
+    </body>
+    </html>''')
 
-elif not os.path.isfile(filePath):
-    f = open(filePath, "x")
-    f.write(fileContent)
-    f.close()
-    os.chmod(filePath, 0o664)
-    print("Status: 201 Created")
+else:
+    print ('''<!DOCTYPE html>
+    <html>
+    <head>
+    <title>UPLOAD FILE</title>
+    </head>
+    <body>
+    <h1>PLEASE, GO BACK AND SELECT A FILE</h1>
+    </body>
+    </html>''')

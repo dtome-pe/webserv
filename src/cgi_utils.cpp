@@ -14,6 +14,31 @@ static char* strdup_cpp98(const char* str)
     return (newStr);
 }
 
+/* static void	parseMultipart(std::vector<std::string>&env, std::string body, std::string boundary)
+{
+	(void) env;
+
+	cout << "body: " << body << endl;
+
+	std::istringstream iss(body);
+
+	int n = 0;
+	std::string line;
+	std::getline(iss, line);
+	while (line != "--" + boundary + "--")
+	{
+		if (line == "--" + boundary)
+		{
+			cout << "boundary found" << endl;
+			std::getline(iss, line);
+			env.push_back("FILENAME_" + int_to_str(n + 1) + "=" +  line.substr(line.find("filename=") + 10, line.length() - 1));
+			n++;
+		}
+		std::getline(iss, line);
+	}
+	cout << "sale de aqui" << endl;
+} */
+
 char* const*	setEnvp(Request &request, std::string &path, std::string &method)
 {	
     if (method == "DELETE")
@@ -31,7 +56,14 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
     {
         env.push_back("CONTENT_LENGTH=" + int_to_str(request.getBody().length()));
         if (request.getHeaders().map.count("Content-Type") > 0)
-            env.push_back("CONTENT_TYPE=" + request.getHeader("Content-Type"));
+		{
+			env.push_back("CONTENT_TYPE=" + request.getHeader("Content-Type"));
+			if (request.getHeader("Content-Type").compare(0, 20, "multipart/form-data"))
+			{
+				env.push_back("BOUNDARY=" + request.getHeader("Content-Type").substr(request.getHeader("Content-Type").find("=") + 1, request.getHeader("Content-Type").length()));
+				//parseMultipart(env, request.getBody(), request.getHeader("Content-Type").substr(request.getHeader("Content-Type").find("=") + 1, request.getHeader("Content-Type").length()));
+			}
+		}
     }
     env.push_back("GATEWAY_INTERFACE=CGI/1.1");
     env.push_back("PATH_INFO=" + path);
