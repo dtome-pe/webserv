@@ -51,8 +51,8 @@ std::string getCurrentTime()
 
     std::time(&rawtime);
     timeinfo = std::gmtime(&rawtime);
+	timeinfo->tm_hour += 2;
     std::strftime(buffer, sizeof(buffer), "%a, %d %b %Y %H:%M:%S GMT", timeinfo);
-
     return buffer;
 }
 
