@@ -91,10 +91,7 @@ void	ConfFile::parse_config(Cluster &cluster, char *file)
 
 	in.open(file, std::ios::in);
  	if (!in.is_open())
-	{
-		print_error("File could not be found or opened.\n");
-		exit(EXIT_FAILURE);
-	}
+		throw std::runtime_error("File could not be found or opened.");
 	while (std::getline(in, line))
 		content += line + "\n";
 	servers = countServers(content);
@@ -280,6 +277,8 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 			pos = line.find("upload_store ");
 			res = line.substr(pos + 13, fpos - pos - 13);
 			res = checkPath(res);
+			if (access(res.c_str(), F_OK) == -1 || access(res.c_str(), W_OK) == -1)
+				throw std::runtime_error(res + " => this folder does not exist or you don't have permission");
 			loc.setUploadStore(res);
 		}
 		else if (line.find("cgi") != std::string::npos)
