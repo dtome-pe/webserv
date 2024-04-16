@@ -5,7 +5,7 @@ int	main(int argc, char *argv[])
 	if (argc != 2)
 	{
 		print_error("Wrong number of arguments.");
-		exit(EXIT_SUCCESS);
+		return (0);
 	}
 
 	Cluster		webserv;
@@ -13,7 +13,7 @@ int	main(int argc, char *argv[])
 	try {
 	webserv.parseConfig(argv[1]); // parseamos conf file y volcamos informacion en Cluster
 	webserv.setup();  // juntamos el antiguo create / start / init poll de ConfFile
-	webserv.run(); // basicamente es el loop del poll con la gestion de la peticion / envío respuesta
+	webserv.run();	// basicamente es el loop del poll con la gestion de la peticion / envío respuesta
 	}
 	catch (std::exception &e)
 	{

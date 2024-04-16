@@ -54,10 +54,7 @@ void	Cluster::run()
 		int poll_count = poll(&_pollVec[0], size, POLL_TIMEOUT);
 		//cout << "poll: " << poll_count << endl;
 		if (poll_count == -1)
-		{
-			print_error("poll error");
-			exit(EXIT_FAILURE);
-		}
+			throw std::runtime_error("poll error");
 		if (poll_count == 0)
 			continue ;
 		for (unsigned int i = 0; i < size; i++)
@@ -72,7 +69,8 @@ void	Cluster::run()
 				if (checkIfListener(_pollVec[i].fd, _sockVec, size))
 				{
 					cout << "Add client. fd es: " << _pollVec[i].fd << endl;
-					addClient(i);
+					if (addClient(i) == 1)
+						throw std::runtime_error("couldn't set the non-blocking mode on the file descriptor.");
 					break ;
 				}
 				else
@@ -118,7 +116,8 @@ int		Cluster::addClient(int i)
 						// pero con menos pasos que los listeners.
 			client.pointTo(_pollVec[i].fd); // solo queremos saber a que listener apunta, esta relacionado
 			client.setFd(c_fd);			// ponemos su fd, que es el retorno de accept.
-			client.setNonBlocking(c_fd); // lo ponemos non blocking
+			if (client.setNonBlocking(c_fd) == 1)
+			   return (1);	// lo ponemos non blocking
 			add_pollfd(_pollVec, _sockVec, client, c_fd, false); // y lo anadimos tanto al vector de poll, como al de sockets.
 		}
 	}

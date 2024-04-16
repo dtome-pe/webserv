@@ -12,7 +12,8 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 		_host = host_port.substr(0, host_port.find(":"));
 		_port = host_port.substr(host_port.find(":") + 1, host_port.length());
 
-		this->get_addr_info(&s_addr, _host.c_str(), _port.c_str()); // obtenemos datos y se resuelve dominio y se introduce ip y puerto.
+		if (this->get_addr_info(&s_addr, _host.c_str(), _port.c_str()) == 1)
+		   throw std::runtime_error("Error obtaining address information for the specified host and port.");	// obtenemos datos y se resuelve dominio y se introduce ip y puerto.
 		struct sockaddr_in *addr = (sockaddr_in *)s_addr->ai_addr;	// se castea para poder obtener ip
 		_ip = ip_to_str(addr);										// volcamos ip de network byte order a string, para luego chequear sockets duplicados
 							   // y posteriormente pasar informacion a server correspondiente
@@ -34,13 +35,16 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 
 void Socket::start()
 {
-	create_s(s_addr, sock_addr, sock_addrlen); // creamos el fd del socket
-	bind_s(s_addr);							   // bindeamos
-	listen_s();
+	if (create_s(s_addr, sock_addr, sock_addrlen) == 1)
+	   throw std::runtime_error("error creating socket");	// creamos el fd del socket
+	if (bind_s(s_addr) == 1)
+		throw std::runtime_error("error executing the bind.");		// bindeamos
+	if (listen_s() == 1)
+		throw std::runtime_error("error setting up the socket to listen for incoming connections.");
 	freeaddrinfo(s_addr);
 }
 
-void Socket::get_addr_info(struct addrinfo **s_addr, const char *host, const char *port)
+int Socket::get_addr_info(struct addrinfo **s_addr, const char *host, const char *port)
 {
 	int status;
 	struct addrinfo hints;
@@ -51,36 +55,30 @@ void Socket::get_addr_info(struct addrinfo **s_addr, const char *host, const cha
 	hints.ai_flags = AI_PASSIVE;
 	status = getaddrinfo(host, port, &hints, s_addr);
 	if (status != 0)
-	{
-		print_error(gai_strerror(status));
-		exit(1);
-	}
+		return (1);
+	return (0);
 }
 
-void Socket::create_s(struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen)
+int Socket::create_s(struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen)
 {
 	_fd = socket(s_addr->ai_family, s_addr->ai_socktype, s_addr->ai_protocol);
 	if (_fd < 0)
 	{
-		print_error(strerror(errno));
 		close(_fd);
-		exit(EXIT_FAILURE);
+		return (1);
 	}
 	if (fcntl(_fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
 	{
-		print_error(strerror(errno));
 		close(_fd);
-		exit(EXIT_FAILURE);
+		return (1);
 	}
 	sock_addrlen = sizeof(sock_addr);
 	if (getsockname(_fd, (struct sockaddr *)&sock_addr, &sock_addrlen) == -1)
-	{
-		print_error("error getting sock name");
-		exit(1);
-	}
+		return (1);
+	return (0);
 }
 
-void Socket::bind_s(struct addrinfo *s_addr)
+int Socket::bind_s(struct addrinfo *s_addr)
 {
 	int yes = 1;
 
@@ -88,25 +86,24 @@ void Socket::bind_s(struct addrinfo *s_addr)
 
 	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) == -1)
 	{
-		print_error(strerror(errno));
-		exit(1);
+		return (1);
 	}
 	if (bind(_fd, (const sockaddr *)addr, s_addr->ai_addrlen) < 0) // hacemos bind
 	{
-		print_error(strerror(errno));
 		close(_fd);
-		exit(EXIT_FAILURE);
+		return (1);
 	}
+	return (0);
 }
 
-void Socket::listen_s()
+int Socket::listen_s()
 {
 	if (listen(_fd, 10) < 0)
 	{
-		print_error(strerror(errno));
 		close(_fd);
-		exit(EXIT_FAILURE);
+		return (1);
 	}
+	return (0);
 }
 
 void Socket::pointTo(int fd)
@@ -114,14 +111,11 @@ void Socket::pointTo(int fd)
 	pointingTo = fd;
 }
 
-void Socket::setNonBlocking(int fd)
+int Socket::setNonBlocking(int fd)
 {
 	if (fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
-	{
-		print_error(strerror(errno));
-		close(fd);
-		exit(EXIT_FAILURE);
-	}
+		return (1);
+	return (0);
 }
 
 std::string Socket::getPort() const
