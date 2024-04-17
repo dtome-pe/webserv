@@ -8,7 +8,7 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 	_textRead = "";
 	_readAll = false;
 	_request = NULL;
-	_waitingForBody = false;
+	_response = NULL;
 	if (s_ptr) // listener
 	{
 		/*trocemos host y port para meterlas en funcion get_addr_info*/
@@ -108,52 +108,96 @@ int Socket::listen_s()
 	return (0);
 }
 
-int	Socket::addToClientRequest(std::string text)
+int	Socket::addToClient(std::string text, bool cgi)
 {
 	appendTextRead(text);
 
 	size_t i = 0;
 
-	while (i < _textRead.length())
+	if (!cgi)
 	{
-		if (!_waitingForBody)
+		while (i < _textRead.length())
 		{
-			if (_textRead[i] == '\r' && (i + 1) < _textRead.length() && _textRead[i + 1] == '\n')
+			if (!getRequest()->getWaitingForBody())
 			{
-				getRequest()->parseRequest(_textRead.substr(0, i + 2));
-				_textRead = _textRead.substr(i + 2, _textRead.length());
-				i = 0;
-				continue ;
+				if (_textRead[i] == '\r' && (i + 1) < _textRead.length() && _textRead[i + 1] == '\n')
+				{
+					getRequest()->parseRequest(_textRead.substr(0, i + 2), cgi);
+					_textRead = _textRead.substr(i + 2, _textRead.length());
+					i = 0;
+					continue ;
+				}
 			}
+			else
+				break ;
+			i++;
 		}
-		else
-			break ;
-		i++;
-	}
-	if (_waitingForBody)
-	{
-		if (_request->getHeader("Content-Length") == "not found" && _request->getHeader("Transfer-Encoding") == "not found")
-		{	
-			cout << "waiting for body but no body to receive, request done" << endl;
-			setTextRead("");
-			return (REQUEST_DONE);
-		}
-		if (_request->getHeader("Content-Length") != "not found")
+		if (getRequest()->getWaitingForBody())
 		{
-			if (_textRead.length() >= str_to_int(_request->getHeader("Content-Length")))
-			{
-				_request->setBody(_textRead.substr(0, str_to_int(_request->getHeader("Content-Length"))));
+			if (_request->getHeader("Content-Length") == "not found" && _request->getHeader("Transfer-Encoding") == "not found")
+			{	
+				cout << "waiting for body but no body to receive, request done" << endl;
 				setTextRead("");
-				_waitingForBody = false;
-				return (REQUEST_DONE);
+				getRequest()->setWaitingForBody(false);
+				return (DONE);
+			}
+			else if (_request->getHeader("Content-Length") != "not found")
+			{
+				cout << "content-length: " << str_to_int(_request->getHeader("Content-Length")) << endl << "textRead len: " << _textRead.length() << endl;
+				if (_textRead.length() >= str_to_int(_request->getHeader("Content-Length")))
+				{
+					_request->setBody(_textRead.substr(0, str_to_int(_request->getHeader("Content-Length"))));
+					setTextRead("");
+					getRequest()->setWaitingForBody(false);
+					return (DONE);
+				}
+			}
+			else if (_request->getHeader("Transfer-Encoding") == "chunked")
+			{
+				cout << "chunked" << endl;
 			}
 		}
-		else if (_request->getHeader("Transfer-Encoding") == "chunked")
-		{
-			cout << "chunked" << endl;
-		}
+		return (NOT_DONE);
 	}
-	return (REQUEST_NOT_DONE);
+	else
+	{
+		if (!getResponse())
+			setResponse(new Response());
+		while (i < _textRead.length())
+		{
+			if (!getResponse()->waitingForBody)
+			{
+				if (_textRead[i] == '\n')
+				{
+					getResponse()->parseCgi(_textRead.substr(0, i + 1));
+					_textRead = _textRead.substr(i + 1, _textRead.length());
+					i = 0;
+					continue ;
+				}
+			}
+			else
+				break ;
+			i++;
+		}
+		if (getResponse()->waitingForBody)
+		{
+			if (_response->getHeader("Content-Length") != "not found")
+			{
+				if (_textRead.length() >= str_to_int(_response->getHeader("Content-Length")))
+				{
+					_response->setBody(_textRead.substr(0, str_to_int(_response->getHeader("Content-Length"))));
+					setTextRead("");
+					getResponse()->waitingForBody = false;
+					return (DONE);
+				}
+			}
+			else
+			{
+				cout << "need to find EOF" << endl;
+			}
+		}
+		return (NOT_DONE);
+	}
 }
 
 void Socket::pointTo(int fd)
@@ -193,17 +237,17 @@ std::string Socket::getPreviousRequestLine()
 	return (_previousRequestLine);
 }
 
-HeaderHTTP &Socket::getPreviousHeaders()
+HeaderHTTP 	&Socket::getPreviousHeaders()
 {
 	return (_previousHeaders);
 }
 
-bool Socket::getCgi()
+bool 		Socket::getCgi()
 {
 	return (_cgi);
 }
 
-int Socket::getCgiFd()
+int 		Socket::getCgiFd()
 {
 	return (_cgiFd);
 }
@@ -213,15 +257,21 @@ std::string Socket::getTextRead()
 	return (_textRead);
 }
 
-bool Socket::getReadAll()
+bool 		Socket::getReadAll()
 {
 	return (_readAll);
 }
 
-Request	*Socket::getRequest()
+Request		*Socket::getRequest()
 {
 	return (_request);
 }
+
+Response	*Socket::getResponse()
+{
+	return (_response);
+}
+
 
 void Socket::setHost(std::string host)
 {
@@ -288,9 +338,9 @@ void	Socket::setRequest(Request *request)
 	_request = request;
 }
 
-void	Socket::setWaitingForBody(bool waiting)
+void	Socket::setResponse(Response *response)
 {
-	_waitingForBody = waiting;
+	_response = response;
 }
 
 void	Socket::setBodyType(int type)

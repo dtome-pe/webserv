@@ -10,6 +10,8 @@
 #define B_CHUNKED 6
 #define B_CGI 7
 
+class Response;
+
 class Socket
 {
 	private:
@@ -27,10 +29,10 @@ class Socket
 		std::string			_textRead;
 		bool				_readAll;
 
-		bool 				_waitingForBody;
 		int					_bodyType;
 
 		Request				*_request;
+		Response			*_response;
 
 	
 	public:
@@ -52,7 +54,7 @@ class Socket
 		int 			bind_s(struct addrinfo *s_addr);
 		int 			listen_s();
 
-		int				addToClientRequest(std::string text);
+		int				addToClient(std::string text, bool cgi);
 
 		/*cliente*/
 		void			pointTo(int fd);
@@ -75,6 +77,7 @@ class Socket
 		bool			getReadAll();
 
 		Request			*getRequest();
+		Response		*getResponse();
 
 		//setters
 		void			setPort(std::string port);
@@ -92,6 +95,7 @@ class Socket
 		void			setCgiFd(int fd);
 
 		void			setRequest(Request *request);
+		void			setResponse(Response *response);
 		
 		void			setReadAll(bool readAll);
 

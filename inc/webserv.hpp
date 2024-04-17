@@ -13,8 +13,8 @@ using namespace std;
 #define DELETE 2
 #define PUT 3
 
-#define REQUEST_NOT_DONE 0
-#define REQUEST_DONE 1
+#define NOT_DONE 0
+#define DONE 1
 
 #define BUFF_SIZE 10
 
