@@ -148,12 +148,15 @@ void	Cluster::readFrom(int i, unsigned int *size)
 
 void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 {
-	//cout << "req: " << findSocket(_pollVec[i].fd, _sockVec, size).getTextRead() << endl;
 	Request &req = (*findSocket(_pollVec[i].fd, _sockVec).getRequest());
 	client.setRequest(NULL); // eliminamos pointer de Cliente a Request, ya que se genera una nueva a cada vuelta.
-	req.otherInit();
 	if (!client.getResponse())
 		client.setResponse(new Response());
+	if (client.getResponse()->getCode() != "") // si ya hay un code es que ha habido algun error previo
+	{
+		client.getResponse()->setResponse(str_to_int(client.getResponse()->getCode()), req);
+		return ;
+	}
 	int ret;
 	if (req.getCgi())
 		client.getResponse()->setResponse(cgi((*client.getResponse()), req, "", "output"), req);
@@ -179,8 +182,6 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 		send(req.getClient().getFd(), response.c_str(), response.length(), 0);
 		cout << "response sent: " << endl;
 		ret = str_to_int(client.getResponse()->getCode()); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
-
-
 	}
 	//int ret = this->handleClient(req);
 	_pollVec[i].events = POLLIN;

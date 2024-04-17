@@ -17,6 +17,7 @@ class Response
 		std::string		text;
 		std::string		line;
 		HeaderHTTP		headers;
+		HeaderHTTP		cgiHeaders;
 		std::string 	body;
 
 		bool			waitingForBody;
@@ -29,6 +30,7 @@ class Response
 
 		void			setStatusLine(std::string _status_line);
 		void			setHeader(std::string _header);
+		void			setCgiHeader(std::string _cgiHeader);
 		void			setBody(std::string _body);
 
 		int				getResponseCode(Request &request, const Server *serv, const Location *loc);
@@ -36,6 +38,7 @@ class Response
 		void			setBasicHeaders(int code, Request &request);
 
 		std::string		getHeader(std::string _header);
+		std::string		getCgiHeader(std::string _cgiHeader);
 
 		void			setCode(std::string _code);
 		std::string		getCode();
