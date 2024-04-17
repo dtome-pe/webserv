@@ -6,6 +6,10 @@
 # include "Request.hpp"
 # include <poll.h>
 
+#define B_LENGTH 5
+#define B_CHUNKED 6
+#define B_CGI 7
+
 class Socket
 {
 	private:
@@ -23,6 +27,11 @@ class Socket
 		std::string			_textRead;
 		bool				_readAll;
 
+		bool 				_waitingForBody;
+		int					_bodyType;
+
+		Request				*_request;
+
 	
 	public:
 
@@ -34,19 +43,20 @@ class Socket
 		struct addrinfo 	*s_addr;
 		struct sockaddr_in 	sock_addr;
 		socklen_t 			sock_addrlen;
-		Request				*request_ptr;
 		
 		
 		void			start();
 
-		int			get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
-		int			create_s(struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen);
+		int				get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
+		int				create_s(struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen);
 		int 			bind_s(struct addrinfo *s_addr);
 		int 			listen_s();
 
+		int				addToClientRequest(std::string text);
+
 		/*cliente*/
 		void			pointTo(int fd);
-		int			setNonBlocking(int fd);
+		int				setNonBlocking(int fd);
 
 		//getters
 		std::string		getPort() const;
@@ -64,6 +74,8 @@ class Socket
 
 		bool			getReadAll();
 
+		Request			*getRequest();
+
 		//setters
 		void			setPort(std::string port);
 		void			setIp(std::string ip);
@@ -78,8 +90,13 @@ class Socket
 		void			setContinue(bool c);
 		void			setCgi(bool cgi);
 		void			setCgiFd(int fd);
+
+		void			setRequest(Request *request);
 		
 		void			setReadAll(bool readAll);
+
+		void			setWaitingForBody(bool waiting);
+		void			setBodyType(int type);
 
 		void			appendTextRead(std::string text);
 		void			setTextRead(std::string text);

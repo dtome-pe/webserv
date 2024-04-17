@@ -7,33 +7,36 @@
 #include <lib.hpp>
 #include <map>
 
-Request::Request(Cluster &cluster, std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client) : sock(client), cluster(cluster)
+Request::Request(Cluster &cluster, const std::vector<class Server> &server, Socket &listener, Socket &client) : cluster(cluster), client(client), listener(listener), server(server)
 {
 	good = true;
 	cgi = false;
 	keepAlive = true;
 	trailSlashRedir = false;
 	uploadStore = "";
+	request_line = "";
+
 	if (client.getContinue() || client.getCgi())   
-	{														
+	{
+		cout << "entra en get continue" << endl;										
 		setRequestLine(client.getPreviousRequestLine());	
 		setHeaders(client.getPreviousHeaders());
 		if (client.getContinue())
-		{
 			client.setContinue(false);
-			setBody(buff);
-		}
 		if (client.getCgi())
 		{
 			client.setCgi(false);
 			setCgi(true);
-			setCgiOutput(buff);
+			client.setBodyType(B_CGI);
 		}
-	client.setPreviousRequestLine("");
-	client.getPreviousHeaders().clear();
+		client.setPreviousRequestLine("");
+		client.getPreviousHeaders().clear();
+		client.setWaitingForBody(true);
 	}
-	else
-		splitRequest(buff); // sino es continue se parsea de manera normal
+}
+
+void Request::otherInit()
+{
 	setIpPortHost(listener);
 	if (getHeader("Connection") == "close") // cambiamos keepAlive si explicitamente se solicita la finalizacion de la conexion
 		keepAlive = false;
@@ -48,6 +51,22 @@ Request::Request(Cluster &cluster, std::string buff, const std::vector<class Ser
 
 Request::~Request()
 {
+
+}
+
+void	Request::parseRequest(std::string text)
+{
+	//cout << "entra en parse request" << endl << text << endl;
+	if (request_line == "")
+		setRequestLine(text);
+	else
+	{
+		if (text == "\r\n")
+			client.setWaitingForBody(true);
+		else
+			setHeader(text.substr(0, text.length() - 2));
+	}
+	cout << makeRequest() << endl;
 }
 
 void	Request::splitRequest(std::string buff)
@@ -85,7 +104,7 @@ void	Request::splitRequest(std::string buff)
 
 void	Request::setRequestLine(std::string reqLine)
 {
-	this->request_line = reqLine + "\r\n";
+	this->request_line = reqLine;
 	std::vector<std::string> split = HeaderHTTP::split(reqLine, " ");
 
 	if (split.size() != 3)
@@ -241,7 +260,6 @@ void Request::setLocation(const Server *serv)
 	}		
 	loc = ret;
 }
-
 
 void	Request::setHeader(std::string _header)
 {
@@ -428,9 +446,9 @@ std::string	&Request::getCgiOutput()
 	return(cgiOutput);
 }
 
-Socket		&Request::getSocket()
+Socket		&Request::getClient()
 {
-	return (sock);
+	return (client);
 }
 
 Cluster		&Request::getCluster()
