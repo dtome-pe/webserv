@@ -4,8 +4,11 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 {
 	_cgiFd = -1;
 	_cgi = false;
+	_continue = false;
 	_textRead = "";
 	_readAll = false;
+	_request = NULL;
+	_waitingForBody = false;
 	if (s_ptr) // listener
 	{
 		/*trocemos host y port para meterlas en funcion get_addr_info*/
@@ -28,7 +31,6 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 	{
 		_host = host_port.substr(0, host_port.find(":"));
 		listener = 0;
-		_continue = false;
 		_continue = false;
 	}
 }
@@ -106,6 +108,54 @@ int Socket::listen_s()
 	return (0);
 }
 
+int	Socket::addToClientRequest(std::string text)
+{
+	appendTextRead(text);
+
+	size_t i = 0;
+
+	while (i < _textRead.length())
+	{
+		if (!_waitingForBody)
+		{
+			if (_textRead[i] == '\r' && (i + 1) < _textRead.length() && _textRead[i + 1] == '\n')
+			{
+				getRequest()->parseRequest(_textRead.substr(0, i + 2));
+				_textRead = _textRead.substr(i + 2, _textRead.length());
+				i = 0;
+				continue ;
+			}
+		}
+		else
+			break ;
+		i++;
+	}
+	if (_waitingForBody)
+	{
+		if (_request->getHeader("Content-Length") == "not found" && _request->getHeader("Transfer-Encoding") == "not found")
+		{	
+			cout << "waiting for body but no body to receive, request done" << endl;
+			setTextRead("");
+			return (REQUEST_DONE);
+		}
+		if (_request->getHeader("Content-Length") != "not found")
+		{
+			if (_textRead.length() >= str_to_int(_request->getHeader("Content-Length")))
+			{
+				_request->setBody(_textRead.substr(0, str_to_int(_request->getHeader("Content-Length"))));
+				setTextRead("");
+				_waitingForBody = false;
+				return (REQUEST_DONE);
+			}
+		}
+		else if (_request->getHeader("Transfer-Encoding") == "chunked")
+		{
+			cout << "chunked" << endl;
+		}
+	}
+	return (REQUEST_NOT_DONE);
+}
+
 void Socket::pointTo(int fd)
 {
 	pointingTo = fd;
@@ -168,6 +218,11 @@ bool Socket::getReadAll()
 	return (_readAll);
 }
 
+Request	*Socket::getRequest()
+{
+	return (_request);
+}
+
 void Socket::setHost(std::string host)
 {
 	_host = host;
@@ -226,6 +281,21 @@ void Socket::appendTextRead(std::string text)
 void Socket::setTextRead(std::string text)
 {
 	_textRead = text;
+}
+
+void	Socket::setRequest(Request *request)
+{
+	_request = request;
+}
+
+void	Socket::setWaitingForBody(bool waiting)
+{
+	_waitingForBody = waiting;
+}
+
+void	Socket::setBodyType(int type)
+{
+	_bodyType = type;
 }
 
 void Socket::bouncePrevious(Request &request, int type)

@@ -63,9 +63,9 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 			close(pipe_to_child[0]);
 			close(pipe_to_child[1]);
 			close(pipe_from_child[1]);
-			request.getSocket().setCgiFd(pipe_from_child[0]);
-			request.getSocket().setCgi(true);
-			request.getCluster().setPid(pid, pipe_from_child[0], request.getSocket());
+			request.getClient().setCgiFd(pipe_from_child[0]);
+			request.getClient().setCgi(true);
+			request.getCluster().setPid(pid, pipe_from_child[0], request.getClient());
 			return (CGI);
 		}
 	}
@@ -73,7 +73,7 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 	{
 		string content = parseCgiHeader(response, request.getCgiOutput());
 		response.setBody(content);
-		close(request.getSocket().getCgiFd());
+		close(request.getClient().getCgiFd());
 		if (response.getHeader("Status") != "not found")
 			return (str_to_int(response.getHeader("Status").substr(0, response.getHeader("Status").find(" "))));
 		else

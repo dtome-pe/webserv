@@ -17,9 +17,9 @@ int	receive(int fd, std::vector<unsigned char>*buff, std::vector<class Socket>&s
 		return (result);
 }
 
-bool	checkIfListener(int poll_fd, std::vector<class Socket>&sock_vec, unsigned int size)
+bool	checkIfListener(int poll_fd, std::vector<class Socket>&sock_vec)
 {
-	for (unsigned int i = 0; i < size; i++)
+	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
 		if (poll_fd == sock_vec[i].getFd() && sock_vec[i].listener)
 			return (true);
@@ -37,10 +37,8 @@ bool	checkIfCgiFd(int fd, std::vector<class Socket>&sock_vec)
 	return (false);
 }
 
-Socket &findSocket(int socket_to_find, std::vector<Socket>&sock_vec, unsigned int size)
-{	
-	(void) size;
-
+Socket &findSocket(int socket_to_find, std::vector<Socket>&sock_vec)
+{
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
 		if (sock_vec[i].getFd() == socket_to_find || sock_vec[i].getCgiFd() == socket_to_find)
@@ -49,10 +47,8 @@ Socket &findSocket(int socket_to_find, std::vector<Socket>&sock_vec, unsigned in
 	return (sock_vec[0]);
 }
 
-Socket &findListener(std::vector<Socket>&sock_vec, Socket &client, unsigned int size)
-{	
-	(void) size;
-
+Socket &findListener(std::vector<Socket>&sock_vec, Socket &client)
+{
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
 	{
 		if (sock_vec[i].getFd() == client.pointingTo || sock_vec[i].getCgiFd() == client.pointingTo)
@@ -80,10 +76,8 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 		sockVec.push_back(client);
 }
 
-void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, int fd, unsigned int size)
+void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, int fd)
 {
-	(void) size;
-
 	for (unsigned int i = 0; i < pollVec.size(); i++)
 	{
 		if (pollVec[i].fd == fd)
@@ -95,7 +89,9 @@ void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, in
 	for (unsigned int i = 0; i < sockVec.size(); i++)
 	{
 		if (sockVec[i].getFd() == fd)
-		{
+		{	
+			sockVec[i].setFd(-1);
+			close(sockVec[i].getFd());
 			sockVec.erase(sockVec.begin() + i);
 			break ;
 		}

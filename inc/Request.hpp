@@ -13,46 +13,52 @@ class Request
 {	
 	private:
 		/*request elements*/	
-		std::string			method;
-		std::string 		target;
-		std::string			version;
-		std::string			request_line;
-		HeaderHTTP			headers;
-		std::string 		body;
+		std::string					method;
+		std::string 				target;
+		std::string					version;
+		std::string					request_line;
+		HeaderHTTP					headers;
+		std::string 				body;
 
-		std::string			path;
-		std::string			extension;
+		std::string					path;
+		std::string					extension;
 
-		std::string 		ip;
-		std::string 		host;
-		std::string 		port;
+		std::string 				ip;
+		std::string 				host;
+		std::string 				port;
 
-		std::string			cgiExtension;
-		std::string			cgiBinary;
+		std::string					cgiExtension;
+		std::string					cgiBinary;
 
-		std::string			uploadStore;
+		std::string					uploadStore;
 
-		bool				keepAlive;
-		const Server		*serv;
-		const Location		*loc;
+		bool						keepAlive;
+		const Server				*serv;
+		const Location				*loc;
 
-		int					trailSlashRedir;
+		int							trailSlashRedir;
 
-		bool				cgi;
-		std::string			cgiOutput;
+		bool						cgi;
+		std::string					cgiOutput;
 
-		Socket				&sock;
-		Cluster				&cluster;
+		Cluster						&cluster;
+		Socket						&client;
+		Socket						&listener;
+		const std::vector<Server> 	&server;
 
 	public:
-		Request(Cluster &cluster, std::string buff, const std::vector<class Server> &server, Socket &listener, Socket &client);
+		Request(Cluster &cluster, const std::vector<class Server> &server, Socket &listener, Socket &client);
 		~Request();
-			
+		
+		void				otherInit();
+
 		void				setRequestLine(std::string _request_line);
 		void				setHeader(std::string _header);
 		void				setHeaders(HeaderHTTP headers);
 		void				setBody(std::string _body);
 
+
+		void				parseRequest(std::string text);
 		void				splitRequest(std::string buff);
 		
 		std::string 		getMethod();
@@ -84,7 +90,7 @@ class Request
 		bool				getCgi();
 		std::string			&getCgiOutput();
 
-		Socket				&getSocket();
+		Socket				&getClient();
 		Cluster				&getCluster();
 
 		void				setCgiExtension(std::string &extension);
