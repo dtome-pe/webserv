@@ -19,6 +19,10 @@ class Response
 		HeaderHTTP		headers;
 		std::string 	body;
 
+		bool			waitingForBody;
+
+		void			parseCgi(std::string text);
+
 		std::string 	makeResponse(); // devuelve el texto con el formato completo
 		
 		void			makeDefault(int code, Request &request, Response &response, const std::string &file, const Server *serv);

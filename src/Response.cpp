@@ -3,6 +3,7 @@
 Response::Response()
 {	
 	body = "";
+	waitingForBody = false;
 }
 
 Response::~Response()
@@ -284,6 +285,15 @@ std::string Response::makeResponse()
 {
 	return (line + this->headers.makeHeader()
 			+ "\r\n" + this->body);
+}
+
+void	Response::parseCgi(std::string text)
+{
+	//cout << "entra en parse request" << endl << text << endl;
+	if (text == "\n")
+		waitingForBody = true;
+	else
+		setHeader(text.substr(0, text.length() - 1));
 }
 
 void		Response::setStatusLine(std::string _status_line)

@@ -32,7 +32,7 @@ public:
 
 	int 							addClient(int i);
 	void 							readFrom(int i, unsigned int *size);
-	void							writeTo(int i, unsigned int size);
+	void							writeTo(int i, unsigned int size, Socket &client);
 	
 	int 							handleClient(Request &request);
 	int 							handleRequest(Request &request, Response &response, const Server *serv, const Location *loc);

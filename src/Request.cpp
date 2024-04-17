@@ -15,23 +15,24 @@ Request::Request(Cluster &cluster, const std::vector<class Server> &server, Sock
 	trailSlashRedir = false;
 	uploadStore = "";
 	request_line = "";
+	waitingForBody = false;
 
 	if (client.getContinue() || client.getCgi())   
 	{
-		cout << "entra en get continue" << endl;										
-		setRequestLine(client.getPreviousRequestLine());	
+		cout << "entra en get continue | cgi" << endl;										
+		setRequestLine(client.getPreviousRequestLine());
 		setHeaders(client.getPreviousHeaders());
+		if (client.getCgi())
+			headers.removeHeader("Content-Length");
 		if (client.getContinue())
 			client.setContinue(false);
 		if (client.getCgi())
 		{
 			client.setCgi(false);
 			setCgi(true);
-			client.setBodyType(B_CGI);
 		}
 		client.setPreviousRequestLine("");
 		client.getPreviousHeaders().clear();
-		client.setWaitingForBody(true);
 	}
 }
 
@@ -54,19 +55,19 @@ Request::~Request()
 
 }
 
-void	Request::parseRequest(std::string text)
+void	Request::parseRequest(std::string text, bool cgi)
 {
 	//cout << "entra en parse request" << endl << text << endl;
-	if (request_line == "")
+	if (request_line == "" && !cgi)
 		setRequestLine(text);
 	else
 	{
 		if (text == "\r\n")
-			client.setWaitingForBody(true);
+			setWaitingForBody(true);
 		else
 			setHeader(text.substr(0, text.length() - 2));
 	}
-	cout << makeRequest() << endl;
+	//cout << makeRequest() << endl;
 }
 
 void	Request::splitRequest(std::string buff)
@@ -339,6 +340,11 @@ void	Request::setCgiOutput(std::string cgiOutput)
 	this->cgiOutput = cgiOutput;
 }
 
+void	Request::setWaitingForBody(bool waiting)
+{
+		waitingForBody = waiting;
+}
+
 std::string Request::getMethod()
 {
 	return (method);
@@ -404,6 +410,11 @@ std::string Request::getPort()
 bool		Request::getKeepAlive()
 {
 	return (keepAlive);
+}
+
+bool	Request::getWaitingForBody()
+{
+		return (waitingForBody);
 }
 
 const Server		*Request::getServer()

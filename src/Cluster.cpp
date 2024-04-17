@@ -68,7 +68,7 @@ void	Cluster::run()
 			else if (_pollVec[i].revents & POLLOUT)
 			{
 				cout << "Write to. fd es: " << _pollVec[i].fd  << endl;
-				writeTo(i, size);
+				writeTo(i, size, findSocket(_pollVec[i].fd, _sockVec));
 			}
 		}
 	}	
@@ -138,7 +138,7 @@ void	Cluster::readFrom(int i, unsigned int *size)
 																			findSocket(_pollVec[i].fd, _sockVec)));
 		}
 		bounceBuff(text, buff);
-		if (findSocket(_pollVec[i].fd, _sockVec).addToClientRequest(text) == REQUEST_DONE)
+		if (findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getCgi()) == DONE)
 		{
 			_pollVec[i].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
 			findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
@@ -146,38 +146,39 @@ void	Cluster::readFrom(int i, unsigned int *size)
 	}
 }
 
-void	Cluster::writeTo(int i, unsigned int size)
+void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 {
 	//cout << "req: " << findSocket(_pollVec[i].fd, _sockVec, size).getTextRead() << endl;
 	Request &req = (*findSocket(_pollVec[i].fd, _sockVec).getRequest());
+	client.setRequest(NULL); // eliminamos pointer de Cliente a Request, ya que se genera una nueva a cada vuelta.
 	req.otherInit();
-
-	Response rsp;
+	if (!client.getResponse())
+		client.setResponse(new Response());
 	int ret;
 	if (req.getCgi())
-		rsp.setResponse(cgi(rsp, req, "", "output"), req);
+		client.getResponse()->setResponse(cgi((*client.getResponse()), req, "", "output"), req);
 	else
 	{
 		if (!req.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400 y se cierra conexion
 		{
-			rsp.setResponse(400, req);
+			client.getResponse()->setResponse(400, req);
 			closeConnection(i, _pollVec, _sockVec, &size);
 		}
 		/*si no es un metodo reconocido, devolvemos 501*/
 		else if (req.getMethod() != "GET" && req.getMethod() != "PUT" && req.getMethod() != "DELETE" && req.getMethod() != "POST")
-			rsp.setResponse(501, req);
+			client.getResponse()->setResponse(501, req);
 		else
 			/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
-			rsp.setResponse(rsp.getResponseCode(req, req.getServer(), req.getLocation()), req);
+			client.getResponse()->setResponse(client.getResponse()->getResponseCode(req, req.getServer(), req.getLocation()), req);
 	}
-	if (str_to_int(rsp.getCode()) == CGI)
+	if (str_to_int(client.getResponse()->getCode()) == CGI)
 		ret = CGI;
 	else
 	{
-		std::string response = rsp.makeResponse(); // hacemos respuesta con los valores del clase Response
+		std::string response = client.getResponse()->makeResponse(); // hacemos respuesta con los valores del clase Response
 		send(req.getClient().getFd(), response.c_str(), response.length(), 0);
 		cout << "response sent: " << endl;
-		ret = str_to_int(rsp.getCode()); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
+		ret = str_to_int(client.getResponse()->getCode()); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
 
 
 	}
@@ -202,7 +203,6 @@ void	Cluster::writeTo(int i, unsigned int size)
 	}
 	if (!req.getKeepAlive())
 		closeConnection(i, _pollVec, _sockVec, &size);
-	findSocket(_pollVec[i].fd, _sockVec).setRequest(NULL);
 }
 
 void	Cluster::closeConnection(int i, std::vector<pollfd>&_pollVec,

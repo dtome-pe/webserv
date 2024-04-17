@@ -46,6 +46,9 @@ class Request
 		Socket						&listener;
 		const std::vector<Server> 	&server;
 
+		bool						waitingForBody;
+
+
 	public:
 		Request(Cluster &cluster, const std::vector<class Server> &server, Socket &listener, Socket &client);
 		~Request();
@@ -57,8 +60,7 @@ class Request
 		void				setHeaders(HeaderHTTP headers);
 		void				setBody(std::string _body);
 
-
-		void				parseRequest(std::string text);
+		void				parseRequest(std::string text, bool cgi);
 		void				splitRequest(std::string buff);
 		
 		std::string 		getMethod();
@@ -93,6 +95,8 @@ class Request
 		Socket				&getClient();
 		Cluster				&getCluster();
 
+		bool				getWaitingForBody();
+
 		void				setCgiExtension(std::string &extension);
 		void				setCgiBinary(std::string &binary);
 
@@ -113,6 +117,8 @@ class Request
 
 		void				setCgi(bool cgi);
 		void				setCgiOutput(std::string output);
+
+		void				setWaitingForBody(bool waiting);
 
 		bool				good;
 
