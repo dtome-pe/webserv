@@ -99,16 +99,11 @@ bool 			checkGood(const std::string &path);
 std::string 	checkFileOrDir(const std::string &path);
 
 /*utils*/
-/*utils*/
+
+bool			checkIfHeader(std::string text);
 void 			print_error(const char *str);
 std::string 	ip_to_str(sockaddr_in *addr);
 std::string 	port_to_str(sockaddr_in *addr);
-std::string 	int_to_str(int n);
-unsigned int 	str_to_int(std::string str);
-std::string 	getCurrentTime();
-std::string 	getLastModified(std::string path);
-uint64_t 		timeEpoch();
-bool 			look_for_same(Socket &sock, std::vector<Socket> &sock_vec);
 std::string 	int_to_str(int n);
 unsigned int 	str_to_int(std::string str);
 std::string 	getCurrentTime();

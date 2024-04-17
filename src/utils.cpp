@@ -104,3 +104,10 @@ bool look_for_same(Socket &sock, std::vector<Socket>&sock_vec)
 	}
 	return (false);
 }
+
+bool	checkIfHeader(std::string text)
+{
+	if (text.compare(0, 15, "Content-Type: ") || text.compare(0, 9, "Status: ") || text.compare(0, 11, "Location: "))
+		return (false);
+	return (true);
+}

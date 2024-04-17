@@ -4,6 +4,7 @@ Response::Response()
 {	
 	body = "";
 	waitingForBody = false;
+	code = "";
 }
 
 Response::~Response()
@@ -293,7 +294,7 @@ void	Response::parseCgi(std::string text)
 	if (text == "\n")
 		waitingForBody = true;
 	else
-		setHeader(text.substr(0, text.length() - 1));
+		setCgiHeader(text.substr(0, text.length() - 1));
 }
 
 void		Response::setStatusLine(std::string _status_line)
@@ -311,6 +312,11 @@ void		Response::setHeader(std::string _header)
 	this->headers.setHeader(_header);
 }
 
+void		Response::setCgiHeader(std::string _cgiHeader)
+{
+	this->cgiHeaders.setHeader(_cgiHeader);
+}
+
 void		Response::setBody(std::string _body)
 {
 	this->body = _body;
@@ -324,6 +330,11 @@ void		Response::setCode(std::string _code)
 std::string	Response::getHeader(std::string _header)
 {
 	return (this->headers.getHeader(_header));
+}
+
+std::string	Response::getCgiHeader(std::string _cgiHeader)
+{
+	return (this->cgiHeaders.getHeader(_cgiHeader));
 }
 
 std::string Response::getCode()

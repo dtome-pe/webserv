@@ -112,6 +112,7 @@ int	Socket::addToClient(std::string text, bool cgi)
 {
 	appendTextRead(text);
 
+	int flag = 0;
 	size_t i = 0;
 
 	if (!cgi)
@@ -169,6 +170,15 @@ int	Socket::addToClient(std::string text, bool cgi)
 			{
 				if (_textRead[i] == '\n')
 				{
+					if (!flag)
+					{
+						if (!checkIfHeader(text)) // si la primera linea del output no es ninguno de los tres headers esenciales, damos 500. nos aseguramos de que haya algun header.
+						{
+							getResponse()->setCode("500");
+							return (DONE);
+						}
+						flag = 1;
+					}
 					getResponse()->parseCgi(_textRead.substr(0, i + 1));
 					_textRead = _textRead.substr(i + 1, _textRead.length());
 					i = 0;
@@ -181,11 +191,11 @@ int	Socket::addToClient(std::string text, bool cgi)
 		}
 		if (getResponse()->waitingForBody)
 		{
-			if (_response->getHeader("Content-Length") != "not found")
+			if (_response->getCgiHeader("Content-Length") != "not found")
 			{
-				if (_textRead.length() >= str_to_int(_response->getHeader("Content-Length")))
+				if (_textRead.length() >= str_to_int(_response->getCgiHeader("Content-Length")))
 				{
-					_response->setBody(_textRead.substr(0, str_to_int(_response->getHeader("Content-Length"))));
+					_response->setBody(_textRead.substr(0, str_to_int(_response->getCgiHeader("Content-Length"))));
 					setTextRead("");
 					getResponse()->waitingForBody = false;
 					return (DONE);
@@ -193,7 +203,6 @@ int	Socket::addToClient(std::string text, bool cgi)
 			}
 			else
 			{
-				cout << "need to find EOF" << endl;
 			}
 		}
 		return (NOT_DONE);
