@@ -50,7 +50,6 @@ std::string getPath(Request &request, const Server *serv, const Location *loc)
 {	
 	std::string path;
 
-	cout << "entra en get path" << endl;
 	if (loc)
 	{
 		if (loc->getRoot().length() > 0)
@@ -73,8 +72,7 @@ std::string getPath(Request &request, const Server *serv, const Location *loc)
 }
 
 std::string readFileContents(Request &request,const std::string& filename) 
-{	
-	//cout << filename << endl;
+{
     std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
     if (!file) {
         std::cerr << "Error opening file: " << filename << std::endl;
@@ -109,17 +107,11 @@ std::string checkFileOrDir(const std::string &path)
 	stat(path.c_str(), &fileInfo);
 
 	if(fileInfo.st_mode & S_IFDIR )
-    {
-		//cout << "es dir" << endl;
         return ("dir");
-    }
-    else if(fileInfo.st_mode & S_IFREG )
-    {	
-		//cout << "es file" << endl;
+    else if (fileInfo.st_mode & S_IFREG )
         return ("file");
-    }
-	cout << "tras primer file or dir" << endl;
-	return ("");
+	else
+		return ("");
 }
 
 bool findIndexHtml(std::string &path) 
