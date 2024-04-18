@@ -89,9 +89,9 @@ void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, in
 	for (unsigned int i = 0; i < sockVec.size(); i++)
 	{
 		if (sockVec[i].getFd() == fd)
-		{	
-			sockVec[i].setFd(-1);
+		{
 			close(sockVec[i].getFd());
+			sockVec[i].setFd(-1);
 			sockVec.erase(sockVec.begin() + i);
 			break ;
 		}

@@ -50,6 +50,7 @@ std::string getPath(Request &request, const Server *serv, const Location *loc)
 {	
 	std::string path;
 
+	cout << "entra en get path" << endl;
 	if (loc)
 	{
 		if (loc->getRoot().length() > 0)
@@ -67,11 +68,8 @@ std::string getPath(Request &request, const Server *serv, const Location *loc)
 		request.setPath(path.substr(0, path.find('?')));
 		return (path.substr(0, path.find('?')));
 	}
-	else
-	{
-		return ("none"); // vacio, sin root directives no hay camino al filesystem del server
-					// y solo devolveremos una pagina de cortesia si se accede al mismo '/', como nginx
-	}
+	cout << "sale en none" << endl;
+	return ("none"); 
 }
 
 std::string readFileContents(Request &request,const std::string& filename) 
