@@ -108,14 +108,23 @@ int Socket::listen_s()
 	return (0);
 }
 
-int	Socket::addToClient(std::string text, bool cgi)
+int	Socket::addToClient(std::string text, bool cgi, int type)
 {
+	//cout << "text has EOF: " << (text[63] == '\0') << endl;
 	appendTextRead(text);
 
 	static int 	flag;
 	size_t i = 0;
 
-	//cout << "add to client: cgi: " << cgi << endl;
+	if (cgi && type == POLLHUP)
+	{
+		getResponse()->setBody(_textRead);
+		setTextRead("");
+		getResponse()->waitingForBody = false;
+		return (DONE);
+	}
+
+	cout << "add to client: cgi: " << cgi << endl;
 	if (!cgi)
 	{
 		while (i < _textRead.length())
@@ -192,6 +201,7 @@ int	Socket::addToClient(std::string text, bool cgi)
 		}
 		if (getResponse()->waitingForBody)
 		{
+			cout << "body: " << _textRead << endl;
 			if (_response->getCgiHeader("Content-Length") != "not found")
 			{
 				if (_textRead.length() >= str_to_int(_response->getCgiHeader("Content-Length")))
@@ -202,9 +212,6 @@ int	Socket::addToClient(std::string text, bool cgi)
 					flag = 0;
 					return (DONE);
 				}
-			}
-			else
-			{
 			}
 		}
 		return (NOT_DONE);

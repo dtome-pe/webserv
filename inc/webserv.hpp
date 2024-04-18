@@ -85,7 +85,7 @@ std::string 	bounceContent(int fd);
 std::string 	parseCgiHeader(Response &response, std::string &content);
 
 /*poll utils*/
-int 			receive(int new_socket, std::vector<unsigned char> *buff, std::vector<class Socket> &sock_vec);
+int 			receive(int new_socket, std::vector<unsigned char> &buff, std::vector<class Socket> &sock_vec);
 bool 			checkIfListener(int poll_fd, std::vector<class Socket> &sock_vec);
 bool 			checkIfCgiFd(int socket, std::vector<class Socket> &sock_vec);
 bool 			checkIfCgiFd(int socket, std::vector<class Socket> &sock_vec);

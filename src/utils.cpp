@@ -108,7 +108,7 @@ bool look_for_same(Socket &sock, std::vector<Socket>&sock_vec)
 bool	checkIfHeader(std::string text)
 {
 	//cout << "entra en checkifheader. text: " << text << endl;
-	if (text.compare(0, 14, "Content-type: ") || text.compare(0, 9, "Status: ") || text.compare(0, 11, "Location: "))
+	if (text.compare(0, 14, "Content-type: ") && text.compare(0, 9, "Status: ") && text.compare(0, 11, "Location: "))
 		return (false);
 	cout << "check if header true" << endl;
 	return (true);

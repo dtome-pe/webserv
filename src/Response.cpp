@@ -293,7 +293,11 @@ void	Response::parseCgi(std::string text)
 {
 	cout << "entra en parse cgi" << endl << text << endl;
 	if (text == "\n")
+	
+	{
 		waitingForBody = true;
+		cout << "ya es cuerpo" << endl;
+	}
 	else
 	{
 		setCgiHeader(text.substr(0, text.length() - 1));
