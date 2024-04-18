@@ -78,33 +78,29 @@ int		Cluster::addClient(int i)
 {
 	while (true)
 	{
-		/*datos para nuevo cliente*/
 		int c_fd;
 		struct sockaddr_in c_addr;
 		socklen_t addrlen = sizeof (sockaddr_in);
-		/*datos para nueva conexion*/
+
 		c_fd = accept(_pollVec[i].fd, (struct sockaddr *) &c_addr, &addrlen);
 		if (c_fd == -1)
 		{	
-			if (errno != EAGAIN && errno != EWOULDBLOCK) // EAGAIN y EWOULDBLOCK se comprueban aparte
-							//ya que en situacion de sockets no blocking, esto es un retorno normal
-							// y de hecho es el retorno para salir del loop y gestionar peticion
+			if (errno != EAGAIN && errno != EWOULDBLOCK)
 			{
 				cout << "accept: " << strerror(errno) << endl;
 				return 1;
 			}
-			else			// aqui se sale al recibir EGAIN/EWOULDBOCK, es decir, ya no hay mas clientes que aceptar, arriba se comprueba cualquier otro -1, es decir, error.
+			else
 				return 0;
 		}
-		else // mientras accept no de error o EAGAIN, creamos socket cliente, y anadimos al pollfd
+		else
 		{
-			Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL);  // se construye socket cliente
-						// pero con menos pasos que los listeners.
-			client.pointTo(_pollVec[i].fd); // solo queremos saber a que listener apunta, esta relacionado
-			client.setFd(c_fd);			// ponemos su fd, que es el retorno de accept.
+			Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL);
+			client.pointTo(_pollVec[i].fd);
+			client.setFd(c_fd);
 			if (client.setNonBlocking(c_fd) == 1)
-			   return (1);	// lo ponemos non blocking
-			add_pollfd(_pollVec, _sockVec, client, c_fd, false); // y lo anadimos tanto al vector de poll, como al de sockets.
+			   return (1);
+			add_pollfd(_pollVec, _sockVec, client, c_fd, false);
 		}
 	}
 }
@@ -116,8 +112,8 @@ void	Cluster::readFrom(int i, unsigned int *size)
 
 	std::vector<unsigned char> buff(BUFF_SIZE);
 	text = "";
-	nbytes = receive(_pollVec[i].fd, &buff, _sockVec); // recibimos respuesta (recv) o (read) si es el retorno de un proceso cgi (fd no-socket)
-	//cout << "nbytes leidos: " << nbytes << endl;
+	nbytes = receive(_pollVec[i].fd, &buff, _sockVec);
+	cout << "nbytes leidos: " << nbytes << endl;
 	if (nbytes == -1)
 	{	
 		closeConnection(i, _pollVec, _sockVec, size);
@@ -138,42 +134,52 @@ void	Cluster::readFrom(int i, unsigned int *size)
 																			findSocket(_pollVec[i].fd, _sockVec)));
 		}
 		bounceBuff(text, buff);
-		if (findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getCgi()) == DONE)
+		if (findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi()) == DONE)
 		{
+			cout << "DONE" << endl;
 			_pollVec[i].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
+			findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
+		}
+		else if (findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi()) == DONE_ERROR)
+		{
+			cout << "DONE ERROR" << endl;
+			close(_pollVec[i].fd);
+			_pollVec[findPoll(_pollVec, findSocket(_pollVec[i].fd, _sockVec))].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
 			findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
 		}
 	}
 }
 
 void	Cluster::writeTo(int i, unsigned int size, Socket &client)
-{
+{	
+	int ret;
 	Request &req = (*findSocket(_pollVec[i].fd, _sockVec).getRequest());
-	cout << "entra en write to, req:"  << req.makeRequest() << endl;
+	//cout << "entra en write to, req:"  << req.makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	if (client.getResponse()->getCode() != "") // si ya hay un code es que ha habido algun error previo
 	{
 		cout << "entra aqui. code: " << client.getResponse()->getCode()  << endl;
 		client.getResponse()->setResponse(str_to_int(client.getResponse()->getCode()), req);
-		return ;
 	}
-	int ret;
-	if (req.getCgi())
-		client.getResponse()->setResponse(cgi((*client.getResponse()), req, "", "output"), req);
 	else
 	{
-		if (!req.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400 y se cierra conexion
-		{
-			client.getResponse()->setResponse(400, req);
-			closeConnection(i, _pollVec, _sockVec, &size);
-		}
-		/*si no es un metodo reconocido, devolvemos 501*/
-		else if (req.getMethod() != "GET" && req.getMethod() != "PUT" && req.getMethod() != "DELETE" && req.getMethod() != "POST")
-			client.getResponse()->setResponse(501, req);
+		if (req.getCgi())
+		client.getResponse()->setResponse(cgi((*client.getResponse()), req, "", "output"), req);
 		else
-			/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
-			client.getResponse()->setResponse(client.getResponse()->getResponseCode(req, req.getServer(), req.getLocation()), req);
+		{
+			if (!req.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400 y se cierra conexion
+			{
+				client.getResponse()->setResponse(400, req);
+				closeConnection(i, _pollVec, _sockVec, &size);
+			}
+			/*si no es un metodo reconocido, devolvemos 501*/
+			else if (req.getMethod() != "GET" && req.getMethod() != "PUT" && req.getMethod() != "DELETE" && req.getMethod() != "POST")
+				client.getResponse()->setResponse(501, req);
+			else
+				/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
+				client.getResponse()->setResponse(client.getResponse()->getResponseCode(req, req.getServer(), req.getLocation()), req);
+		}	
 	}
 	if (str_to_int(client.getResponse()->getCode()) == CGI)
 		ret = CGI;

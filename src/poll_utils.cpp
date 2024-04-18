@@ -37,6 +37,16 @@ bool	checkIfCgiFd(int fd, std::vector<class Socket>&sock_vec)
 	return (false);
 }
 
+int		findPoll(std::vector<pollfd>&pollVec, Socket &sock)
+{
+	for (unsigned int i = 0; i < pollVec.size(); i++)
+	{
+		if (pollVec[i].fd == sock.getFd())
+			return (i);
+	}
+	return (0);
+}
+
 Socket &findSocket(int socket_to_find, std::vector<Socket>&sock_vec)
 {
 	for (unsigned int i = 0; i < sock_vec.size(); i++)
