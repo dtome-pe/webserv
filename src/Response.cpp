@@ -295,7 +295,10 @@ void	Response::parseCgi(std::string text)
 	if (text == "\n")
 		waitingForBody = true;
 	else
+	{
 		setCgiHeader(text.substr(0, text.length() - 1));
+		cout << "set cgi header: " << text.substr(0, text.length() - 1) << endl;
+	}
 }
 
 void		Response::setStatusLine(std::string _status_line)

@@ -112,9 +112,10 @@ int	Socket::addToClient(std::string text, bool cgi)
 {
 	appendTextRead(text);
 
-	int flag = 0;
+	static int 	flag;
 	size_t i = 0;
 
+	//cout << "add to client: cgi: " << cgi << endl;
 	if (!cgi)
 	{
 		while (i < _textRead.length())
@@ -175,7 +176,7 @@ int	Socket::addToClient(std::string text, bool cgi)
 						if (!checkIfHeader(text)) // si la primera linea del output no es ninguno de los tres headers esenciales, damos 500. nos aseguramos de que haya algun header.
 						{
 							getResponse()->setCode("500");
-							return (DONE);
+							return (DONE_ERROR);
 						}
 						flag = 1;
 					}
@@ -198,6 +199,7 @@ int	Socket::addToClient(std::string text, bool cgi)
 					_response->setBody(_textRead.substr(0, str_to_int(_response->getCgiHeader("Content-Length"))));
 					setTextRead("");
 					getResponse()->waitingForBody = false;
+					flag = 0;
 					return (DONE);
 				}
 			}
