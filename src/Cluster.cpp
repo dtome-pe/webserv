@@ -124,7 +124,7 @@ void	Cluster::readFrom(int i, unsigned int *size, int type)
 	std::string text = "";
 	std::vector<unsigned char> buff(BUFF_SIZE);
 	nbytes = receive(_pollVec[i].fd, buff, _sockVec);
-	cout << "nbytes leidos: " << nbytes << endl;
+	//cout << "nbytes leidos: " << nbytes << endl;
 	if (nbytes == -1)
 	{	
 		closeConnection(i, _pollVec, _sockVec, size);
@@ -140,12 +140,12 @@ void	Cluster::readFrom(int i, unsigned int *size, int type)
 	{
 		if (!findSocket(_pollVec[i].fd, _sockVec).getRequest())
 		{	
-			cout << "se crea request" << endl;
+			//cout << "se crea request" << endl;
 			findSocket(_pollVec[i].fd, _sockVec).setRequest(new Request(*this, _servVec, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec)),
 																			findSocket(_pollVec[i].fd, _sockVec)));
 		}
 		bounceBuff(text, buff);
-		cout << "text leido: " << text << endl;
+		//cout << "text leido: " << text << endl;
 		int ret = findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi(), POLLIN);
 		if (ret == DONE)
 		{
@@ -169,15 +169,9 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 	Request &req = (*findSocket(_pollVec[i].fd, _sockVec).getRequest());
 	//cout << "entra en write to, req:"  << req.makeRequest() << endl;
 	if (!client.getResponse())
-	{
-		cout << "se genera respuesta de cero" << endl;
 		client.setResponse(new Response());
-	}
 	if (client.getResponse()->getCode() != "") // si ya hay un code es que ha habido algun error previo
-	{
-		cout << "entra aqui. code: " << client.getResponse()->getCode()  << endl;
 		client.getResponse()->setResponse(str_to_int(client.getResponse()->getCode()), req);
-	}
 	else
 	{
 		if (req.getCgi())
@@ -216,7 +210,7 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 		findSocket(_pollVec[i].fd, _sockVec).bouncePrevious(req, ret);
 	if (ret == CGI) // se ha iniciado proceso cgi
 	{
-		cout << "proceso cgi" << endl;
+		//cout << "proceso cgi" << endl;
 		add_pollfd(_pollVec, _sockVec, req.getClient(), req.getClient().getCgiFd(), true); // anadimos proceso cgi al pollfd
 		return ;
 	}
