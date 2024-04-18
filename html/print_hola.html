@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+			background: linear-gradient(115deg, #3CA55C 10%, #B5AC49 90%);
+        }
+
+        .container {
+            width: 400px;
+			height: 400px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+			font-size: 40px;
+			background: -webkit-linear-gradient(right, #3CA55C, #B5AC49);
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+        }
+        form {
+            text-align: center;
+        }
+        label {
+            font-weight: bold;
+			font-size: 20px;
+        }
+        input[type="file"] {
+            margin-bottom: 20px;
+        }
+		#file {
+			padding: 40px;
+			font-size: 18px;
+		}
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px 40px;
+			font-size: 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        input[type="submit"]:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Upload a File</h2>
+        <form action="/cgi-bin/print_hola.py" method="post" enctype="multipart/form-data">
+            <label for="file">Select a file:</label><br>
+            <input type="file" id="file" name="file" accept="*"><br><br>
+            <input type="submit" id="submit" value="print Hola">
+        </form>
+    </div>
+</body>
+</html>
+

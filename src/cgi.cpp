@@ -71,8 +71,7 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 	}
 	else
 	{
-		string content = parseCgiHeader(response, request.getCgiOutput());
-		response.setBody(content);
+		cout << "entra en cgi output" << endl;
 		close(request.getClient().getCgiFd());
 		if (response.getHeader("Status") != "not found")
 			return (str_to_int(response.getHeader("Status").substr(0, response.getHeader("Status").find(" "))));

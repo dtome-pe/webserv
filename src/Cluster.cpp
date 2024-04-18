@@ -62,8 +62,13 @@ void	Cluster::run()
 				else
 				{
 					cout << "Read from. fd es: " << _pollVec[i].fd  << endl;
-					readFrom(i, &size);
+					readFrom(i, &size, POLLIN);
 				}
+			}
+			else if (_pollVec[i].revents & POLLHUP)
+			{
+					cout << "Pollhup. fd es: " << _pollVec[i].fd << endl;
+					readFrom(i, &size, POLLHUP);	
 			}
 			else if (_pollVec[i].revents & POLLOUT)
 			{
@@ -105,14 +110,20 @@ int		Cluster::addClient(int i)
 	}
 }
 
-void	Cluster::readFrom(int i, unsigned int *size)
+void	Cluster::readFrom(int i, unsigned int *size, int type)
 {
-	string	text;
+	if (type == POLLHUP)
+	{
+		cout << "entra en pollhup" << endl;
+		findSocket(_pollVec[i].fd, _sockVec).addToClient("", findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi(), POLLHUP);
+		_pollVec[findPoll(_pollVec, findSocket(_pollVec[i].fd, _sockVec))].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
+		findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
+	}
 	int		nbytes;
 
+	std::string text = "";
 	std::vector<unsigned char> buff(BUFF_SIZE);
-	text = "";
-	nbytes = receive(_pollVec[i].fd, &buff, _sockVec);
+	nbytes = receive(_pollVec[i].fd, buff, _sockVec);
 	cout << "nbytes leidos: " << nbytes << endl;
 	if (nbytes == -1)
 	{	
@@ -134,13 +145,15 @@ void	Cluster::readFrom(int i, unsigned int *size)
 																			findSocket(_pollVec[i].fd, _sockVec)));
 		}
 		bounceBuff(text, buff);
-		if (findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi()) == DONE)
+		cout << "text leido: " << text << endl;
+		int ret = findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi(), POLLIN);
+		if (ret == DONE)
 		{
 			cout << "DONE" << endl;
 			_pollVec[i].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
 			findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
 		}
-		else if (findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi()) == DONE_ERROR)
+		else if (ret == DONE_ERROR)
 		{
 			cout << "DONE ERROR" << endl;
 			close(_pollVec[i].fd);
@@ -156,7 +169,10 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 	Request &req = (*findSocket(_pollVec[i].fd, _sockVec).getRequest());
 	//cout << "entra en write to, req:"  << req.makeRequest() << endl;
 	if (!client.getResponse())
+	{
+		cout << "se genera respuesta de cero" << endl;
 		client.setResponse(new Response());
+	}
 	if (client.getResponse()->getCode() != "") // si ya hay un code es que ha habido algun error previo
 	{
 		cout << "entra aqui. code: " << client.getResponse()->getCode()  << endl;
@@ -165,7 +181,7 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 	else
 	{
 		if (req.getCgi())
-		client.getResponse()->setResponse(cgi((*client.getResponse()), req, "", "output"), req);
+			client.getResponse()->setResponse(cgi((*client.getResponse()), req, "", "output"), req);
 		else
 		{
 			if (!req.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400 y se cierra conexion
@@ -282,6 +298,7 @@ void	Cluster::checkPids(unsigned int *size)
 				{
 					close(_pidVec[i].fd);
 					kill(_pidVec[i].pid, SIGKILL);
+					cout << "pid with fd: " << _pidVec[i].fd << endl;
 					_pidVec.erase(_pidVec.begin() + i);
 				}
 			}

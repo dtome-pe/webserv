@@ -1,16 +1,16 @@
 #include <webserv.hpp>
 
-int	receive(int fd, std::vector<unsigned char>*buff, std::vector<class Socket>&sock_vec)
+int	receive(int fd, std::vector<unsigned char> &buff, std::vector<class Socket>&sock_vec)
 {
 	int	result;
 
 	if (checkIfCgiFd(fd, sock_vec))
-		result = read(fd, buff->data(), BUFF_SIZE);
+		result = read(fd, buff.data(), BUFF_SIZE);
 	else
-		result = recv(fd, buff->data(), BUFF_SIZE, 0);
+		result = recv(fd, buff.data(), BUFF_SIZE, 0);
 	if (result != -1)
 	{
-		(*buff).resize(result);
+		buff.resize(result);
 		return (result);
 	}
 	else

@@ -54,7 +54,7 @@ class Socket
 		int 			bind_s(struct addrinfo *s_addr);
 		int 			listen_s();
 
-		int				addToClient(std::string text, bool cgi);
+		int				addToClient(std::string text, bool cgi, int type);
 
 		/*cliente*/
 		void			pointTo(int fd);
