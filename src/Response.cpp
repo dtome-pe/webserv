@@ -122,14 +122,19 @@ void	Response::setBasicHeaders(int code, Request &request)
 	setHeader("Server: Webserv");
 	setHeader("Date: " + getCurrentTime());
 	if (body != "")
-	{
-		if (getHeader("Content-type") == "not found") // si no esta seteado, (por cgi), se pone setea.
-			setHeader("Content-type: " + MIME::getMIMEType(request.getExtension()));
-		setHeader("Content-Length: " + getLengthAsString(body));
+	{	
+		if (getCgiHeader("Content-Type") != "not found")
+			setHeader("Content-Type: " + getCgiHeader("Content-type"));
+		if (getHeader("Content-Type") == "not found") // si no esta seteado, (por cgi), se pone setea.
+			setHeader("Content-Type: " + MIME::getMIMEType(request.getExtension()));
+		if (getCgiHeader("Content-Length") != "not found")
+			setHeader("Content-Length: " + getCgiHeader("Content-Length"));
+		if (getHeader("Content-Length") == "not found")
+			setHeader("Content-Length: " + getLengthAsString(body));
 	}
 	if (body == "" && code == 200)
 	{
-		setHeader("Content-type: text/plain");
+		setHeader("Content-Type: text/plain");
 		setHeader("Content-Length: 0");
 	}
 	if (code == 201)
@@ -147,8 +152,6 @@ void	Response::setBasicHeaders(int code, Request &request)
 	if (lastMod != "error" && request.getMethod() == "GET" && !request.getCgi())
 		setHeader("Last-Modified: " + lastMod);
 	setHeader("Connection: keep-alive");
-	if (getHeader("Status") != "not found")
-		headers.removeHeader("Status");
 }
 
 void	Response::setResponse(int code, Request &request)

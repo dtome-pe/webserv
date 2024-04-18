@@ -73,8 +73,8 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 	{
 		cout << "entra en cgi output" << endl;
 		close(request.getClient().getCgiFd());
-		if (response.getHeader("Status") != "not found")
-			return (str_to_int(response.getHeader("Status").substr(0, response.getHeader("Status").find(" "))));
+		if (response.getCgiHeader("Status") != "not found")
+			return (str_to_int(response.getCgiHeader("Status").substr(0, response.getHeader("Status").find(" "))));
 		else
 			return (200);
 	}
