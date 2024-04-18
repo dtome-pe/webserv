@@ -13,7 +13,8 @@ Response::~Response()
 }
 
 int		Response::getResponseCode(Request &request, const Server *serv, const Location *loc)
-{
+{	
+	cout << "entra en getResponseCode" << endl;
 	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
 	if (request.getHeader("Content-Length") != "not found")
 	{
@@ -290,7 +291,7 @@ std::string Response::makeResponse()
 
 void	Response::parseCgi(std::string text)
 {
-	//cout << "entra en parse request" << endl << text << endl;
+	cout << "entra en parse cgi" << endl << text << endl;
 	if (text == "\n")
 		waitingForBody = true;
 	else

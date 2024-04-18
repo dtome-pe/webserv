@@ -16,7 +16,7 @@ using namespace std;
 #define NOT_DONE 0
 #define DONE 1
 
-#define BUFF_SIZE 10
+#define BUFF_SIZE 100
 
 class Server;
 

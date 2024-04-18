@@ -117,7 +117,7 @@ void	Cluster::readFrom(int i, unsigned int *size)
 	std::vector<unsigned char> buff(BUFF_SIZE);
 	text = "";
 	nbytes = receive(_pollVec[i].fd, &buff, _sockVec); // recibimos respuesta (recv) o (read) si es el retorno de un proceso cgi (fd no-socket)
-	cout << "nbytes leidos: " << nbytes << endl;
+	//cout << "nbytes leidos: " << nbytes << endl;
 	if (nbytes == -1)
 	{	
 		closeConnection(i, _pollVec, _sockVec, size);
@@ -149,11 +149,12 @@ void	Cluster::readFrom(int i, unsigned int *size)
 void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 {
 	Request &req = (*findSocket(_pollVec[i].fd, _sockVec).getRequest());
-	client.setRequest(NULL); // eliminamos pointer de Cliente a Request, ya que se genera una nueva a cada vuelta.
+	cout << "entra en write to, req:"  << req.makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	if (client.getResponse()->getCode() != "") // si ya hay un code es que ha habido algun error previo
 	{
+		cout << "entra aqui. code: " << client.getResponse()->getCode()  << endl;
 		client.getResponse()->setResponse(str_to_int(client.getResponse()->getCode()), req);
 		return ;
 	}
@@ -183,8 +184,9 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 		cout << "response sent: " << endl;
 		ret = str_to_int(client.getResponse()->getCode()); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
 	}
-	//int ret = this->handleClient(req);
 	_pollVec[i].events = POLLIN;
+	client.setResponse(NULL);
+	client.setRequest(NULL);
 	/*si hemos respondido con continue o cgi, ponemos al socket de
 	cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
 	directamente, sin headers.*/
