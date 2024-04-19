@@ -1,8 +1,9 @@
 #!/usr/bin/python3
 import os
 import sys
+import cgi
 
-fileContent = sys.stdin.read()
+form = cgi.FieldStorage(keep_blank_values=True)
 
 print ("Content-Type: text/html; charset=UTF-8")
 
@@ -15,9 +16,9 @@ print ('''<!DOCTYPE html>
 </head>
 <body>
 <h1>File content is:</h1>
-<p> ''')
-print (fileContent)
-print ('''</p>
+<pre> ''')
+print (form['file'].file.read().decode('utf-8'))
+print ('''<pre>
 </body>
 </html>''')
 
