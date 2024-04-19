@@ -124,7 +124,7 @@ void	Cluster::readFrom(int i, unsigned int *size, int type)
 	std::string text = "";
 	std::vector<unsigned char> buff(BUFF_SIZE);
 	nbytes = receive(_pollVec[i].fd, buff, _sockVec);
-	//cout << "nbytes leidos: " << nbytes << endl;
+	cout << "nbytes leidos: " << nbytes << endl;
 	if (nbytes == -1)
 	{	
 		closeConnection(i, _pollVec, _sockVec, size);
@@ -145,7 +145,7 @@ void	Cluster::readFrom(int i, unsigned int *size, int type)
 																			findSocket(_pollVec[i].fd, _sockVec)));
 		}
 		bounceBuff(text, buff);
-		//cout << "text leido: " << text << endl;
+		cout << "text leido: " << text << endl;
 		int ret = findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi(), POLLIN);
 		if (ret == DONE)
 		{
