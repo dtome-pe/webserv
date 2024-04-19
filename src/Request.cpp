@@ -63,11 +63,64 @@ void	Request::parseRequest(std::string text, bool cgi)
 	else
 	{
 		if (text == "\r\n")
+		{	
+			//cout << "ya cuerpo" << endl;
 			setWaitingForBody(true);
+		}
 		else
+		{
 			setHeader(text.substr(0, text.length() - 2));
+			//cout << "header set: " << text.substr(0, text.length() - 2) << endl;
+		}
 	}
 	//cout << makeRequest() << endl;
+}
+
+int	Request::parseChunked(std::string &textRead)
+{
+	static uint64_t		actualChunkSize = 0;
+	static std::string	body = "";
+	unsigned int		i = 0;
+
+	while (i < textRead.size())
+	{
+		if (!actualChunkSize)
+		{
+			if (textRead[i] == ';' || (textRead[i] == '\r' && textRead.length() > i + 1 && textRead[i + 1] == '\n'))
+			{
+				//cout << "chunk size: " << textRead.substr(0, i) << endl;
+				actualChunkSize = hexStringToDecimalUint(textRead.substr(0, i));
+				if (actualChunkSize == 0)
+				{
+					textRead = "";
+					setBody(body);
+					setHeader("Content-Length: " + int_to_str(body.length()));
+					return (DONE);
+				}
+				//cout << "chunk in decimal: " << actualChunkSize << endl;
+				if (textRead[i] == ';')
+					textRead = textRead.substr(i + 1, textRead.length());
+				else
+					textRead = textRead.substr(i + 2, textRead.length());
+				i = 0;
+				//cout << "resto de textRead: " << textRead << endl;
+				continue ;
+			}
+			i++;
+		}
+		else
+		{
+			if (textRead.size() >= actualChunkSize)
+			{
+				//cout << "body to append: " << textRead.substr(0, actualChunkSize) << endl;
+				body.append(textRead.substr(0, actualChunkSize));
+				textRead = textRead.substr(actualChunkSize + 1, textRead.length());
+				//cout << "resto de textRead: " << textRead << endl;
+				actualChunkSize = 0;
+			}
+		}
+	}
+	return (NOT_DONE);
 }
 
 void	Request::splitRequest(std::string buff)

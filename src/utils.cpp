@@ -113,3 +113,17 @@ bool	checkIfHeader(std::string text)
 	cout << "check if header true" << endl;
 	return (true);
 }
+
+uint64_t hexStringToDecimalUint(const std::string& hexString) 
+{
+    if (hexString.empty()) 
+        return 0;
+
+    std::stringstream ss;
+    ss << std::hex << hexString;
+
+    uint64_t result;
+    ss >> result;
+
+    return result;
+}

@@ -110,7 +110,6 @@ int Socket::listen_s()
 
 int	Socket::addToClient(std::string text, bool cgi, int type)
 {
-	//cout << "text has EOF: " << (text[63] == '\0') << endl;
 	appendTextRead(text);
 
 	static int 	flag;
@@ -123,8 +122,7 @@ int	Socket::addToClient(std::string text, bool cgi, int type)
 		getResponse()->waitingForBody = false;
 		return (DONE);
 	}
-
-	cout << "add to client: cgi: " << cgi << endl;
+	//cout << "add to client: cgi: " << cgi << endl;
 	if (!cgi)
 	{
 		while (i < _textRead.length())
@@ -165,7 +163,8 @@ int	Socket::addToClient(std::string text, bool cgi, int type)
 			}
 			else if (_request->getHeader("Transfer-Encoding") == "chunked")
 			{
-				cout << "chunked" << endl;
+				if (_request->parseChunked(_textRead) == DONE)
+					return (DONE);
 			}
 		}
 		return (NOT_DONE);
