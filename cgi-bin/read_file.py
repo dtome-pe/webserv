@@ -4,7 +4,7 @@ import sys
 
 fileContent = sys.stdin.read()
 
-print ("Content-type: text/html; charset=UTF-8")
+print ("Content-Type: text/html; charset=UTF-8")
 
 print()
 

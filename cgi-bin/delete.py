@@ -3,7 +3,7 @@ import os
 import sys
 import shutil
 
-print ("Content-type: text/html; charset=UTF-8")
+print ("Content-Type: text/html; charset=UTF-8")
 
 if not os.path.exists(sys.argv[1]):
     print("Status: 404 Not Found")

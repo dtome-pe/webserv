@@ -1,5 +1,5 @@
 import sys
-print("Content-type: text/plain")
+print("Content-Type: text/plain")
 print()
 print("hola")
 sys.exit()

@@ -149,13 +149,13 @@ void	Cluster::readFrom(int i, unsigned int *size, int type)
 		int ret = findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi(), POLLIN);
 		if (ret == DONE)
 		{
-			cout << "DONE" << endl;
+			//cout << "DONE" << endl;
 			_pollVec[i].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
 			findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
 		}
 		else if (ret == DONE_ERROR)
 		{
-			cout << "DONE ERROR" << endl;
+			//cout << "DONE ERROR" << endl;
 			close(_pollVec[i].fd);
 			_pollVec[findPoll(_pollVec, findSocket(_pollVec[i].fd, _sockVec))].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
 			findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
@@ -167,7 +167,7 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 {	
 	int ret;
 	Request &req = (*findSocket(_pollVec[i].fd, _sockVec).getRequest());
-	cout << "entra en write to, req:"  << req.makeRequest() << endl;
+	//cout << "entra en write to, req:"  << req.makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	if (client.getResponse()->getCode() != "") // si ya hay un code es que ha habido algun error previo
@@ -197,7 +197,7 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 	{
 		std::string response = client.getResponse()->makeResponse(); // hacemos respuesta con los valores del clase Response
 		send(req.getClient().getFd(), response.c_str(), response.length(), 0);
-		cout << "response sent: " << endl;
+		//cout << "response sent: " << endl;
 		ret = str_to_int(client.getResponse()->getCode()); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
 	}
 	_pollVec[i].events = POLLIN;
