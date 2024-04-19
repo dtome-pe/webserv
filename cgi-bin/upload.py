@@ -16,7 +16,8 @@ print()
 if form['file'].filename:
     uploadDir = os.environ['UPLOAD_DIR'] + "/" + form['file'].filename
     f = open(uploadDir, "wb")
-    f.write(form['file'].file.read())
+    fileContents = form['file'].file.read()
+    f.write(fileContents)
     f.close()
     print (f'''<!DOCTYPE html>
     <html>
