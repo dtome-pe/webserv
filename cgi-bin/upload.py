@@ -10,7 +10,7 @@ cgitb.enable()
 
 form = cgi.FieldStorage(keep_blank_values=True)
 
-print("Content-type: text/html")
+print("Content-Type: text/html")
 print()
 
 if form['file'].filename:

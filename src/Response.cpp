@@ -123,7 +123,7 @@ void	Response::setBasicHeaders(int code, Request &request)
 	if (body != "")
 	{	
 		if (getCgiHeader("Content-Type") != "not found")
-			setHeader("Content-Type: " + getCgiHeader("Content-type"));
+			setHeader("Content-Type: " + getCgiHeader("Content-Type"));
 		if (getHeader("Content-Type") == "not found") // si no esta seteado, (por cgi), se pone setea.
 			setHeader("Content-Type: " + MIME::getMIMEType(request.getExtension()));
 		if (getCgiHeader("Content-Length") != "not found")

@@ -5,7 +5,7 @@ import urllib.parse
 
 input_string = os.environ['QUERY_STRING']
 
-print ("Content-type: text/html; charset=UTF-8")
+print ("Content-Type: text/html; charset=UTF-8")
 print()
 print ('''<!DOCTYPE html>
 <html>

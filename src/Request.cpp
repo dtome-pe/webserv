@@ -19,7 +19,7 @@ Request::Request(Cluster &cluster, const std::vector<class Server> &server, Sock
 
 	if (client.getContinue() || client.getCgi())   
 	{
-		cout << "entra en get continue | cgi" << endl;										
+		//cout << "entra en get continue | cgi" << endl;										
 		setRequestLine(client.getPreviousRequestLine());
 		setHeaders(client.getPreviousHeaders());
 		if (client.getCgi())
@@ -92,9 +92,11 @@ int	Request::parseChunked(std::string &textRead)
 				actualChunkSize = hexStringToDecimalUint(textRead.substr(0, i));
 				if (actualChunkSize == 0)
 				{
-					textRead = "";
 					setBody(body);
 					setHeader("Content-Length: " + int_to_str(body.length()));
+					headers.removeHeader("Transfer-Encoding");
+					textRead = "";
+					body = "";
 					return (DONE);
 				}
 				//cout << "chunk in decimal: " << actualChunkSize << endl;
