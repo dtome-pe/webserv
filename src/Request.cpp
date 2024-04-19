@@ -88,7 +88,7 @@ int	Request::parseChunked(std::string &textRead)
 		{
 			if (textRead[i] == ';' || (textRead[i] == '\r' && textRead.length() > i + 1 && textRead[i + 1] == '\n'))
 			{
-				//cout << "chunk size: " << textRead.substr(0, i) << endl;
+				cout << "chunk size: " << textRead.substr(0, i) << endl;
 				actualChunkSize = hexStringToDecimalUint(textRead.substr(0, i));
 				if (actualChunkSize == 0)
 				{
@@ -99,28 +99,28 @@ int	Request::parseChunked(std::string &textRead)
 					body = "";
 					return (DONE);
 				}
-				//cout << "chunk in decimal: " << actualChunkSize << endl;
+				cout << "chunk in decimal: " << actualChunkSize << endl;
 				if (textRead[i] == ';')
 					textRead = textRead.substr(i + 1, textRead.length());
 				else
 					textRead = textRead.substr(i + 2, textRead.length());
 				i = 0;
-				//cout << "resto de textRead: " << textRead << endl;
+				cout << "resto de textRead: " << textRead << endl;
 				continue ;
 			}
-			i++;
 		}
 		else
 		{
 			if (textRead.size() >= actualChunkSize)
 			{
-				//cout << "body to append: " << textRead.substr(0, actualChunkSize) << endl;
+				cout << "body to append: " << textRead.substr(0, actualChunkSize) << endl;
 				body.append(textRead.substr(0, actualChunkSize));
-				textRead = textRead.substr(actualChunkSize + 1, textRead.length());
+				textRead = textRead.substr(actualChunkSize, textRead.length());
 				//cout << "resto de textRead: " << textRead << endl;
 				actualChunkSize = 0;
 			}
 		}
+		i++;
 	}
 	return (NOT_DONE);
 }
