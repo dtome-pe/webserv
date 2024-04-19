@@ -167,7 +167,7 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 {	
 	int ret;
 	Request &req = (*findSocket(_pollVec[i].fd, _sockVec).getRequest());
-	//cout << "entra en write to, req:"  << req.makeRequest() << endl;
+	cout << "entra en write to, req:"  << req.makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	if (client.getResponse()->getCode() != "") // si ya hay un code es que ha habido algun error previo
