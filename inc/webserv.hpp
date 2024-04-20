@@ -43,25 +43,33 @@ typedef struct data
 } t_data;
 
 /*response utils*/
-bool 			check_method(std::string method, const Location *loc, const Server *serv);
-std::string 	getPath(Request &request, const Server *serv, const Location *loc);
-bool 			check_method(std::string method, const Location *loc, const Server *serv);
+
 std::string 	getPath(Request &request, const Server *serv, const Location *loc);
 std::string 	removeDoubleSlashes(const std::string &input);
-std::string 	readFileContents(Request &request, const std::string &filename);
 std::string 	readFileContents(Request &request, const std::string &filename);
 std::string 	getLengthAsString(std::string &content);
 bool 			findIndexHtml(std::string &path);
 std::string 	findIndex(std::string &path, const Server *serv, const Location *loc);
-std::string 	findIndex(std::string &path, const Server *serv, const Location *loc);
 std::string 	generateDirectoryListing(const std::string &path);
-bool 			checkTrailingSlash(std::string &path);
 std::string 	checkReturn(const Location *loc);
-std::string 	checkReturn(const Location *loc);
+
 
 bool 			checkDefaultPath();
 std::string 	getDefaultPath();
 std::string 	getDefaultFile(const std::string &file);
+
+bool			entityTooLarge(Request &request, const Server *serv);
+int				noRoot(Response &response, Request &request, const Server *serv);
+bool 			methodNotAllowed(std::string method, const Location *loc, const Server *serv);
+bool 			pathIsGood(const std::string &path);
+bool 			previousDirIsGood(std::string &path);
+int				putOr404(Response &response, Request &request, std::string &path);
+bool			thereIsTrailingSlash(std::string &path);
+int				trailSlashRedir(Request &request);
+bool			needTrailSlashRedir(Request &request, std::string &path);
+int 			putOrDel(Response &response, Request &request, std::string &path);
+int 			cgiOr200(Response &response, Request &request, std::string &path, const Location *loc);;
+int				indexDirectiveOrIndexOrAutoIndex(Response &response, Request &request, std::string &path, const Server *serv, const Location *loc);
 
 /*cgi*/
 
@@ -77,7 +85,7 @@ std::string 	parseCgiHeader(Response &response, std::string &content);
 bool 			checkCgi(Request &request, std::string &path, const Location *loc);
 int 			cgi(Response &response, Request &request, std::string path, std::string method);
 bool 			checkPut(std::string &path);
-bool 			checkPutFile(std::string &path);
+
 
 char *const 	*setEnvp(Request &request, std::string &path, std::string &method);
 char *const 	*setArgv(Request &request, std::string &path, std::string &method);
@@ -97,7 +105,7 @@ void 			add_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, S
 void 			remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, int fd);
 
 /*check GET path*/
-bool 			checkGood(const std::string &path);
+
 std::string 	checkFileOrDir(const std::string &path);
 
 /*utils*/

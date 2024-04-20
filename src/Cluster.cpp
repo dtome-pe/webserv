@@ -62,13 +62,13 @@ void	Cluster::run()
 				else
 				{
 					cout << "Read from. fd es: " << _pollVec[i].fd  << endl;
-					readFrom(i, &size, POLLIN);
+					readFrom(i, &size, POLLIN, findSocket(_pollVec[i].fd, _sockVec));
 				}
 			}
 			else if (_pollVec[i].revents & POLLHUP)
 			{
 					cout << "Pollhup. fd es: " << _pollVec[i].fd << endl;
-					readFrom(i, &size, POLLHUP);	
+					readFrom(i, &size, POLLHUP, findSocket(_pollVec[i].fd, _sockVec));	
 			}
 			else if (_pollVec[i].revents & POLLOUT)
 			{
@@ -110,14 +110,14 @@ int		Cluster::addClient(int i)
 	}
 }
 
-void	Cluster::readFrom(int i, unsigned int *size, int type)
+void	Cluster::readFrom(int i, unsigned int *size, int type, Socket &client)
 {
 	if (type == POLLHUP)
 	{
 		cout << "entra en pollhup" << endl;
-		findSocket(_pollVec[i].fd, _sockVec).addToClient("", findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi(), POLLHUP);
-		_pollVec[findPoll(_pollVec, findSocket(_pollVec[i].fd, _sockVec))].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
-		findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
+		client.addToClient("", client.getRequest()->getCgi(), POLLHUP);
+		_pollVec[findPoll(_pollVec, client)].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
+		client.getRequest()->otherInit();
 	}
 	int		nbytes;
 
@@ -138,27 +138,23 @@ void	Cluster::readFrom(int i, unsigned int *size, int type)
 	}
 	else
 	{
-		if (!findSocket(_pollVec[i].fd, _sockVec).getRequest())
-		{	
-			//cout << "se crea request" << endl;
-			findSocket(_pollVec[i].fd, _sockVec).setRequest(new Request(*this, _servVec, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec)),
-																			findSocket(_pollVec[i].fd, _sockVec)));
-		}
+		if (!client.getRequest())
+			client.setRequest(new Request(*this, _servVec, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec)), findSocket(_pollVec[i].fd, _sockVec)));
 		bounceBuff(text, buff);
 		cout << "text leido: " << text << endl;
-		int ret = findSocket(_pollVec[i].fd, _sockVec).addToClient(text, findSocket(_pollVec[i].fd, _sockVec).getRequest()->getCgi(), POLLIN);
+		int ret = client.addToClient(text, client.getRequest()->getCgi(), POLLIN);
 		if (ret == DONE)
 		{
 			//cout << "DONE" << endl;
 			_pollVec[i].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
-			findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
+			client.getRequest()->otherInit();
 		}
 		else if (ret == DONE_ERROR)
 		{
 			//cout << "DONE ERROR" << endl;
 			close(_pollVec[i].fd);
-			_pollVec[findPoll(_pollVec, findSocket(_pollVec[i].fd, _sockVec))].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
-			findSocket(_pollVec[i].fd, _sockVec).getRequest()->otherInit();
+			_pollVec[findPoll(_pollVec, client)].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
+			client.getRequest()->otherInit();
 		}
 	}
 }
@@ -166,7 +162,7 @@ void	Cluster::readFrom(int i, unsigned int *size, int type)
 void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 {	
 	int ret;
-	Request &req = (*findSocket(_pollVec[i].fd, _sockVec).getRequest());
+	Request &req = (*client.getRequest());
 	//cout << "entra en write to, req:"  << req.makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());

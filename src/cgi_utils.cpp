@@ -170,9 +170,9 @@ bool    checkPut(std::string &path)
     return (false);
 }
 
-bool    checkPutFile(std::string &path)
+bool    previousDirIsGood(std::string &path)
 {
-    if (path[path.length() - 1] != '/' && checkGood(path.substr(0, path.find_last_of("/"))))
+    if (path[path.length() - 1] != '/' && pathIsGood(path.substr(0, path.find_last_of("/"))))
         return (true);
     return (false);
 }

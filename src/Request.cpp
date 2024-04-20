@@ -125,39 +125,6 @@ int	Request::parseChunked(std::string &textRead)
 	return (NOT_DONE);
 }
 
-void	Request::splitRequest(std::string buff)
-{
-	int rec = 0;
-	int finish = buff.find("\n");
-	if (buff[finish - 1] == '\r')
-		rec = 1;
-	setRequestLine(buff.substr(0, finish - rec));
-	buff = buff.substr(finish + 1, buff.length());
-	while (buff.substr(0, 2) != "\r\n")
-	{
-		try
-		{
-			rec = 0;
-			finish = buff.find("\n");
-			if (buff[finish - 1] == '\r')
-				rec = 1;
-			if (this->headers.setHeader(buff.substr(0, finish - rec)) == 1)
-				good = false;
-			buff = buff.substr(finish + 1, buff.length());
-		}
-		catch(const std::exception& e)
-		{}
-	}
-	try
-	{
-		this->body = buff.substr(2, buff.length()); // nos quedamos el cuerpo sin el /r/n previo.
-	}
-	catch(const std::exception& e)
-	{	}
-	if (this->headers.map.find("Host") == this->headers.map.end())
-		good = false;
-}
-
 void	Request::setRequestLine(std::string reqLine)
 {
 	this->request_line = reqLine;

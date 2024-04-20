@@ -17,7 +17,7 @@ class HeaderHTTP
 		std::map<std::string, std::string>	map; // map de headers
 
 		std::string							getHeader(std::string name); // devuelve valor del header
-		int									setHeader(std::string header); // introducir nuevo header (con nombre)
+		void								setHeader(std::string header); // introducir nuevo header (con nombre)
 
 		static std::vector<std::string>		split(const std::string& input, const std::string& delimiters);
 		void								printHeaders();

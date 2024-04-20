@@ -14,105 +14,35 @@ Response::~Response()
 
 int		Response::getResponseCode(Request &request, const Server *serv, const Location *loc)
 {
-	/*comprobamos el path del request y realizamos comprobaciones pertinentes*/
-	if (request.getHeader("Content-Length") != "not found")
-	{
-		if (str_to_int(request.getHeader("Content-Length")) > serv->getMaxBodySize())
-			return (413);
-	}
-	std::string path = getPath(request, serv, loc); // tambien parseamos una posible question query, para conducir a archivo cgi de manera correcta
-//	cout << "con path: " << path << " con method " << request.getMethod() << endl;
-	if (path == "none") // no hay root directives, solo daremos una pagina de webserv si se accede al '/', si no 404
-	{
-		if (!check_method(request.getMethod(), NULL, serv)) // bloqueamos toda peticion que no sea GET, 405
-			return (405);
-		/*Si la peticion es al root, damos pagina default, si no 404*/
-		if (request.getTarget() == "/")
-		{
-			setBody(readFileContents(request, "default/default.html"));
-			return (200);
-		}
-		else
-			return (404);
-	}
+	if (entityTooLarge(request, serv))
+		return (413);
+
+	std::string path = getPath(request, serv, loc);
+
+	if (path == "none")
+		return (noRoot(*this, request, serv));
 	else
 	{
-		if (!check_method(request.getMethod(), loc, serv)) // si metodo no permitido, 405
-		{
+		if (methodNotAllowed(request.getMethod(), loc, serv))
 			return (405);
-		}
-		if (loc && loc->getRedirection().length() > 0) // comprobar si hay directive return
+
+		if (loc && loc->getRedirection().length() > 0)
 			return (loc->getRedirectionNumber());
-		if (!checkGood(path))  // si el path que ha resultado no existe, comprobamos si es un put y se puede acceder a la carpeta previa
-		{
-			if (request.getMethod() == "PUT")
-			{
-				if (checkPutFile(path)) // si server puede acceder a la carpeta donde se quiere crear el archivo, hacemos put
-					return (cgi(*this, request, path, request.getMethod()));
-			}
-			else
-				return (404);
-		}
-		if (request.getMethod() == "GET" &&  checkFileOrDir(path) == "dir" && !checkTrailingSlash(path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
-		{	
-			request.setTrailSlashRedir(true);
-			return (301);
-		}
-		if (request.getMethod() == "DELETE")
-			return (cgi(*this, request, path, request.getMethod()));
-		if (request.getMethod() == "PUT")
-		{	
-			if (path[path.length() - 1] != '/')  // comprobamos que el put no tenga como target un directorio, entonces se devuelve 409
-				return (cgi(*this, request, path, request.getMethod()));
-			else
-				return (409);
-		}
+
+		if (!pathIsGood(path))
+			return (putOr404(*this, request, path));
+
+		if (needTrailSlashRedir(request, path))  // comprobamos si tiene o no trailing slash, nginx hace una redireccion 301 a URL con final slash
+			return (trailSlashRedir(request));
+
+		if (request.getMethod() == "DELETE" || request.getMethod() == "PUT")
+			return (putOrDel(*this, request, path));
+
 		if (checkFileOrDir(path) == "file")
-		{
-			if (checkCgi(request, path, loc)) // chequearemos si location tiene activado el cgi y para que extensiones
-				return (cgi(*this, request, path, request.getMethod()));
-			else
-			{
-				setBody(readFileContents(request, path)); //sino servimos el recurso de manera normal
-				return (200); 
-			}
-		}
+			return (cgiOr200(*this, request, path, loc));
+
 		else // si corresponde a un directorio, primero miramos que no haya un index file
-		{
-			if (serv->getVIndex().size() > 0 || (loc && loc->getIndex().size() > 0)) // si hay index directive
-			{
-				std::string index_file = findIndex(path, serv, loc); // localizamos si el camino lleva a un archivo
-				if (index_file != "")  // en caso afirmativo, se sirve
-				{
-					setBody(readFileContents(request, index_file));
-					return (200);
-				}
-				else // si no, damos un forbidden, como nginx
-					return (403);
-			}
-			if (findIndexHtml(path)) // sino, buscamos un archivo index.html para servir.
-			{
-				setBody(readFileContents(request, path + "index.html"));
-				return (200);
-			}
-			else // sino, comprobamos si tiene autoindex activado para mostrar listado directorio
-			{
-				if (!loc || !loc->getAutoindex()) // si no tiene autoindex (como solo lo puede tener un location, de momento), devolvemos 403 ya que no esta activado el directorylisting
-											// y no tenemos permiso para coger ningun archivo de directorio
-					return (403);
-				else
-				{
-					std::string content = generateDirectoryListing(path);
-					if (content == "Error 500") // por si da algun error interno el server.
-						return (500);
-					else
-					{
-						setBody(content);
-						return (200);
-					}
-				}
-			}		
-		}
+			return (indexDirectiveOrIndexOrAutoIndex(*this, request, path, serv, loc));
 	}
 }
 
@@ -155,7 +85,6 @@ void	Response::setBasicHeaders(int code, Request &request)
 
 void	Response::setResponse(int code, Request &request)
 {
-	//cout << "code: " << code << endl;
 	if (code == CGI)
 	{
 		setCode("42");
@@ -270,14 +199,12 @@ void	Response::setResponse(int code, Request &request)
 
 void	Response::makeDefault(int code, Request &request, Response &response, const std::string &file, const Server *serv)
 {
-	/*comprobariamos si serv tiene un error page establecido en conf file*/
 	std::string	content = "";
 	std::map<int, std::string>::const_iterator it = serv->getErrorPage().find(code);
 	if (it != serv->getErrorPage().end())
-	{	
-		cout << "entra en el if" << endl;
+	{
 		std::string path = serv->getRoot() + it->second;
-		if (checkGood(path))
+		if (pathIsGood(path))
 			content = readFileContents(request, path);
 	}
 	else
@@ -293,18 +220,10 @@ std::string Response::makeResponse()
 
 void	Response::parseCgi(std::string text)
 {
-	cout << "entra en parse cgi" << endl << text << endl;
 	if (text == "\n")
-	
-	{
 		waitingForBody = true;
-		cout << "ya es cuerpo" << endl;
-	}
 	else
-	{
 		setCgiHeader(text.substr(0, text.length() - 1));
-		cout << "set cgi header: " << text.substr(0, text.length() - 1) << endl;
-	}
 }
 
 void		Response::setStatusLine(std::string _status_line)

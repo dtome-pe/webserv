@@ -11,9 +11,9 @@ int	main(int argc, char *argv[])
 	Cluster		webserv;
 	
 	try {
-	webserv.parseConfig(argv[1]); // parseamos conf file y volcamos informacion en Cluster
-	webserv.setup();  // juntamos el antiguo create / start / init poll de ConfFile
-	webserv.run();	// basicamente es el loop del poll con la gestion de la peticion / envío respuesta
+	webserv.parseConfig(argv[1]);
+	webserv.setup();
+	webserv.run();
 	}
 	catch (std::exception &e)
 	{

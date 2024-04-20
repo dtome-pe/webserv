@@ -31,7 +31,7 @@ public:
 	void 							run();
 
 	int 							addClient(int i);
-	void 							readFrom(int i, unsigned int *size, int type);
+	void 							readFrom(int i, unsigned int *size, int type, Socket &client);
 	void							writeTo(int i, unsigned int size, Socket &client);
 	
 	int 							handleClient(Request &request);
