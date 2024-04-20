@@ -113,3 +113,26 @@ void            removeCgiFdFromPollAndClose(std::vector<pollfd> &pollVec, std::v
     close(req.getClient().getCgiFd());
     req.getClient().setCgiFd(-1);
 }
+
+void            killZombieProcess(std::vector<struct pidStruct> &pidVec, int i)
+{
+    close(pidVec[i].fd);
+    kill(pidVec[i].pid, SIGKILL);
+    pidVec.erase(pidVec.begin() + i);
+}
+
+void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<struct pidStruct> &pidVec, int i, 
+                                                            std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, unsigned int *size)
+{
+    for (unsigned int j = 0; j < pollVec.size(); j++)
+    {
+        if (pollVec[j].fd == pidVec[i].fd)
+            cluster.closeConnection(j, pollVec, sockVec, size);
+        else if (pollVec[j].fd == pidVec[i].client->getFd())
+            cluster.closeConnection(j, pollVec, sockVec, size);
+    }
+    close(pidVec[i].fd);
+    kill(pidVec[i].pid, SIGKILL);
+    waitpid(pidVec[i].pid, NULL, 0);
+    pidVec.erase(pidVec.begin() + i);
+}

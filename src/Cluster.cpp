@@ -193,33 +193,15 @@ void	Cluster::checkPids(unsigned int *size)
 			if (waitpid(_pidVec[i].pid, &status, WNOHANG) > 0) 
 			{
 				if (WIFEXITED(status))
-				{
-					close(_pidVec[i].fd);
-					kill(_pidVec[i].pid, SIGKILL);
-					cout << "pid with fd: " << _pidVec[i].fd << endl;
-					_pidVec.erase(_pidVec.begin() + i);
-				}
+					killZombieProcess(_pidVec, i);
 			}
 			else
 			{
 				if (timeEpoch() - _pidVec[i].time > CGI_TIMEOUT)
-				{	
-					cout << "Timeout!" << endl;
-					for (unsigned int j = 0; j < _pollVec.size(); j++)
-					{
-						if (_pollVec[j].fd == _pidVec[i].fd)
-							closeConnection(j, _pollVec, _sockVec, size);
-						else if (_pollVec[j].fd == _pidVec[i].client->getFd())
-							closeConnection(j, _pollVec, _sockVec, size);
-					}
-					close(_pidVec[i].fd);
-					kill(_pidVec[i].pid, SIGKILL);
-					waitpid(_pidVec[i].pid, NULL, 0);
-					_pidVec.erase(_pidVec.begin() + i);
-				}
+					killTimeoutProcessAndDisconnectClient(*this, _pidVec, i, _pollVec, _sockVec, size);
 			}
 		}
-		else							//si pid ya no existe, simplemente eliminamos nodo
+		else
 			_pidVec.erase(_pidVec.begin() + i);
 	}
 }
