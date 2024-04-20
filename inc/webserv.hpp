@@ -56,6 +56,9 @@ void            setResponse(Cluster &cluster, Socket &client, Request &req, int 
 int             sendResponseAndReturnCode(Socket &client, Request &req);
 void            clearClientAndSetPoll(Socket &client, std::vector<pollfd> &pollVec, int i);
 void            removeCgiFdFromPollAndClose(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, Request &req);
+void            killZombieProcess(std::vector<struct pidStruct> &pidVec, int i);
+void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<struct pidStruct> &pidVec, 
+																	int i, std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, unsigned int *size);
 
 /*response utils*/
 
