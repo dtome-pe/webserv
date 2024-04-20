@@ -34,8 +34,6 @@ public:
 	void 							readFrom(int i, unsigned int *size, int type, Socket &client);
 	void							writeTo(int i, unsigned int size, Socket &client);
 	
-	int 							handleClient(Request &request);
-	int 							handleRequest(Request &request, Response &response, const Server *serv, const Location *loc);
 	void 							closeConnection(int i, std::vector<pollfd> &_pollVec, std::vector<Socket> &_sockVec, unsigned int *size);
 
 	std::vector<Server> 			&getServerVector();

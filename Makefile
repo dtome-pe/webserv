@@ -1,8 +1,8 @@
 NAME = webserv
 
-FILES = main  Socket Server   \
-		Response  Request  HeaderHTTP  ConfFile utils cgi \
-		Location response_utils cgi_utils poll_utils Cluster MIME
+FILES = main  Socket SocketGetSet Server   \
+		Response ResponseUtils  Request RequestGetSet HeaderHTTP  ConfFile utils cgi \
+		Location response_utils cgiUtils pollUtils Cluster MIME addToClientUtils
 
 SRC = $(addprefix $(DIR_SRC), $(addsuffix .cpp, $(FILES)))
 FLAGS = -std=c++98 -Wall -Wextra -Werror -Iinc/
