@@ -42,6 +42,21 @@ typedef struct data
 	int fd_count;
 } t_data;
 
+/*Cluster utils*/
+
+void    		createSocketAndAddToSockVecIfDifferent(std::vector<Server> &servVec,  std::vector<Socket> &sockVec, int i);
+void 			startSocketAndAddToPollFd(std::vector<Socket> &sockVec, std::vector<pollfd> &pollVec, int i);
+void    		setSignals();
+int        		handleAcceptError();
+int     		createNonBlockingClientSocketAndAddToPollAndSock(struct sockaddr_in c_addr, std::vector<pollfd> &pollVec, int i, int c_fd, std::vector<Socket> &sockVec);
+void        	readFromPollhup(Socket &client, std::vector<pollfd> &pollVec);
+void        	readEnough(int ret, std::vector<pollfd> &pollVec, Socket &client, int i);
+void           	set400AndCloseConnection(Cluster &cluster, Socket &client, Request &req, int i, std::vector<pollfd> &pollVec,  std::vector<Socket> &sockVec, unsigned int *size);
+void            setResponse(Cluster &cluster, Socket &client, Request &req, int i, std::vector<pollfd> &pollVec,  std::vector<Socket> &sockVec, unsigned int *size);
+int             sendResponseAndReturnCode(Socket &client, Request &req);
+void            clearClientAndSetPoll(Socket &client, std::vector<pollfd> &pollVec, int i);
+void            removeCgiFdFromPollAndClose(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, Request &req);
+
 /*response utils*/
 
 std::string 	getPath(Request &request, const Server *serv, const Location *loc);
@@ -102,7 +117,7 @@ std::string 	bounceContent(int fd);
 std::string 	parseCgiHeader(Response &response, std::string &content);
 
 /*poll utils*/
-int 			receive(int new_socket, std::vector<unsigned char> &buff, std::vector<class Socket> &sock_vec);
+int 			receive(int new_socket, std::string &text, std::vector<class Socket> &sock_vec);
 bool 			checkIfListener(int poll_fd, std::vector<class Socket> &sock_vec);
 bool 			checkIfCgiFd(int socket, std::vector<class Socket> &sock_vec);
 bool 			checkIfCgiFd(int socket, std::vector<class Socket> &sock_vec);

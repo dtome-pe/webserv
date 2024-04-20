@@ -1,8 +1,9 @@
 #include <webserv.hpp>
 
-int	receive(int fd, std::vector<unsigned char> &buff, std::vector<class Socket>&sock_vec)
+int	receive(int fd, std::string &text, std::vector<class Socket>&sock_vec)
 {
 	int	result;
+	std::vector<unsigned char> buff(BUFF_SIZE);
 
 	if (checkIfCgiFd(fd, sock_vec))
 		result = read(fd, buff.data(), BUFF_SIZE);
@@ -10,7 +11,7 @@ int	receive(int fd, std::vector<unsigned char> &buff, std::vector<class Socket>&
 		result = recv(fd, buff.data(), BUFF_SIZE, 0);
 	if (result != -1)
 	{
-		buff.resize(result);
+		bounceBuff(text, buff);
 		return (result);
 	}
 	else
@@ -79,7 +80,6 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 	pollfd node;
 
 	node.fd = fd;
-	//cout << "fd added: " << fd << endl;
 	node.events = POLLIN;
 	pollVec.push_back(node);
 	if (!cgi)

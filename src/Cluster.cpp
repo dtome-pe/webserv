@@ -15,28 +15,14 @@ void Cluster::parseConfig(char *file)
 void Cluster::setup()
 {	
 	for (size_t i = 0; i < _servVec.size(); i++)
-	{
-		for (size_t j = 0; j < _servVec[i].host_port.size(); j++)
-		{
-			Socket s(_servVec[i].host_port[j], &_servVec[i]);		
-			if (!look_for_same(s, _sockVec))
-				_sockVec.push_back(s);
-		}
-	}
+		createSocketAndAddToSockVecIfDifferent(_servVec, _sockVec, i);
 	for (unsigned int i = 0; i < _sockVec.size(); i++)
-	{
-		_sockVec[i].start();
-		pollfd node;
-		node.fd = _sockVec[i].getFd();
-		node.events = POLLIN;
-		_pollVec.push_back(node);
-	}
+		startSocketAndAddToPollFd(_sockVec, _pollVec, i);
 }
 
 void	Cluster::run()
 {
-	signal(SIGINT, SIG_DFL);
-	signal(SIGPIPE, SIG_IGN);
+	setSignals();
 	while (true)
 	{
 		unsigned int size = _pollVec.size();
@@ -89,133 +75,55 @@ int		Cluster::addClient(int i)
 
 		c_fd = accept(_pollVec[i].fd, (struct sockaddr *) &c_addr, &addrlen);
 		if (c_fd == -1)
-		{	
-			if (errno != EAGAIN && errno != EWOULDBLOCK)
-			{
-				cout << "accept: " << strerror(errno) << endl;
-				return 1;
-			}
-			else
-				return 0;
-		}
+			return (handleAcceptError());
 		else
-		{
-			Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL);
-			client.pointTo(_pollVec[i].fd);
-			client.setFd(c_fd);
-			if (client.setNonBlocking(c_fd) == 1)
-			   return (1);
-			add_pollfd(_pollVec, _sockVec, client, c_fd, false);
-		}
+			return (createNonBlockingClientSocketAndAddToPollAndSock(c_addr, _pollVec, i, c_fd, _sockVec));
 	}
 }
 
 void	Cluster::readFrom(int i, unsigned int *size, int type, Socket &client)
 {
 	if (type == POLLHUP)
-	{
-		cout << "entra en pollhup" << endl;
-		client.addToClient("", client.getRequest()->getCgi(), POLLHUP);
-		_pollVec[findPoll(_pollVec, client)].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
-		client.getRequest()->otherInit();
-	}
+		readFromPollhup(client, _pollVec);
+	
 	int		nbytes;
-
 	std::string text = "";
-	std::vector<unsigned char> buff(BUFF_SIZE);
-	nbytes = receive(_pollVec[i].fd, buff, _sockVec);
-	cout << "nbytes leidos: " << nbytes << endl;
-	if (nbytes == -1)
-	{	
-		closeConnection(i, _pollVec, _sockVec, size);
-		return ;
-	}
-	else if (nbytes == 0) // si 0, se ha cerrado conexion, tambien quitamos a cliente de vectores.
-	{	
-		cout << "entra en 0 bytes" << endl;
-		closeConnection(i, _pollVec, _sockVec, size);
-		return ;
-	}
+	nbytes = receive(_pollVec[i].fd, text, _sockVec);
+	
+	if (nbytes == -1 || nbytes == 0)
+		return (closeConnection(i, _pollVec, _sockVec, size));
 	else
 	{
 		if (!client.getRequest())
 			client.setRequest(new Request(*this, _servVec, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec)), findSocket(_pollVec[i].fd, _sockVec)));
-		bounceBuff(text, buff);
-		cout << "text leido: " << text << endl;
 		int ret = client.addToClient(text, client.getRequest()->getCgi(), POLLIN);
-		if (ret == DONE)
-		{
-			//cout << "DONE" << endl;
-			_pollVec[i].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
-			client.getRequest()->otherInit();
-		}
-		else if (ret == DONE_ERROR)
-		{
-			//cout << "DONE ERROR" << endl;
-			close(_pollVec[i].fd);
-			_pollVec[findPoll(_pollVec, client)].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
-			client.getRequest()->otherInit();
-		}
+		if (ret == DONE || ret == DONE_ERROR)
+			readEnough(ret, _pollVec, client, i);
 	}
 }
 
 void	Cluster::writeTo(int i, unsigned int size, Socket &client)
-{	
-	int ret;
+{
 	Request &req = (*client.getRequest());
-	//cout << "entra en write to, req:"  << req.makeRequest() << endl;
+
 	if (!client.getResponse())
 		client.setResponse(new Response());
-	if (client.getResponse()->getCode() != "") // si ya hay un code es que ha habido algun error previo
-		client.getResponse()->setResponse(str_to_int(client.getResponse()->getCode()), req);
-	else
-	{
-		if (req.getCgi())
-			client.getResponse()->setResponse(cgi((*client.getResponse()), req, "", "output"), req);
-		else
-		{
-			if (!req.good)   // comprobamos si ha habido algun fallo en el parseo para devolver error 400 y se cierra conexion
-			{
-				client.getResponse()->setResponse(400, req);
-				closeConnection(i, _pollVec, _sockVec, &size);
-			}
-			/*si no es un metodo reconocido, devolvemos 501*/
-			else if (req.getMethod() != "GET" && req.getMethod() != "PUT" && req.getMethod() != "DELETE" && req.getMethod() != "POST")
-				client.getResponse()->setResponse(501, req);
-			else
-				/*iniciamos el flow para gestionar la peticion y ya seteamos respuesta segun el codigo*/
-				client.getResponse()->setResponse(client.getResponse()->getResponseCode(req, req.getServer(), req.getLocation()), req);
-		}	
-	}
+	setResponse(*this, client, req, i, _pollVec, _sockVec, &size);
+
+	int ret;
 	if (str_to_int(client.getResponse()->getCode()) == CGI)
 		ret = CGI;
 	else
-	{
-		std::string response = client.getResponse()->makeResponse(); // hacemos respuesta con los valores del clase Response
-		send(req.getClient().getFd(), response.c_str(), response.length(), 0);
-		//cout << "response sent: " << endl;
-		ret = str_to_int(client.getResponse()->getCode()); // devolvemos codigo de respuesta para contemplar casos como el de 100 continue
-	}
-	_pollVec[i].events = POLLIN;
-	client.setResponse(NULL);
-	client.setRequest(NULL);
-	/*si hemos respondido con continue o cgi, ponemos al socket de
-	cliente continue true y copiamos headers, porque lo siguiente que enviara sera el cuerpo
-	directamente, sin headers.*/
+		ret = sendResponseAndReturnCode(client, req);
+
+	clearClientAndSetPoll(client, _pollVec, i);
+
 	if (ret == CONTINUE || ret == CGI) 
-		findSocket(_pollVec[i].fd, _sockVec).bouncePrevious(req, ret);
-	if (ret == CGI) // se ha iniciado proceso cgi
-	{
-		//cout << "proceso cgi" << endl;
-		add_pollfd(_pollVec, _sockVec, req.getClient(), req.getClient().getCgiFd(), true); // anadimos proceso cgi al pollfd
-		return ;
-	}
-	if (req.getCgi()) // ya se ha gestionado el retorno del cgi en la respuesta dada
-	{
-		remove_pollfd(_pollVec, _sockVec, req.getClient().getCgiFd()); // quitamos el cgi fd del poll y lo cerramos
-		close(req.getClient().getCgiFd());
-		req.getClient().setCgiFd(-1);
-	}
+		client.bouncePrevious(req, ret);
+	if (ret == CGI) // se inicia proceso cgi
+		return (add_pollfd(_pollVec, _sockVec, req.getClient(), req.getClient().getCgiFd(), true));
+	if (req.getCgi()) // nos ha llegado el output del cgi
+		removeCgiFdFromPollAndClose(_pollVec, _sockVec, req);
 	if (!req.getKeepAlive())
 		closeConnection(i, _pollVec, _sockVec, &size);
 }
@@ -280,7 +188,7 @@ void	Cluster::checkPids(unsigned int *size)
 	
 	for (unsigned int i = 0; i < _pidVec.size(); i++)
 	{
-		if (0 == kill(_pidVec[i].pid, 0)) // si pid esta activo, comprobamos timeout
+		if (0 == kill(_pidVec[i].pid, 0))
 		{
 			if (waitpid(_pidVec[i].pid, &status, WNOHANG) > 0) 
 			{
