@@ -60,7 +60,7 @@ class Request
 		void				setHeaders(HeaderHTTP headers);
 		void				setBody(std::string _body);
 
-		void				parseRequest(std::string text, bool cgi);
+		void				parseRequest(std::string text);
 		int					parseChunked(std::string &textRead);
 		
 		std::string 		getMethod();

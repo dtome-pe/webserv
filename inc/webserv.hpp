@@ -71,6 +71,15 @@ int 			putOrDel(Response &response, Request &request, std::string &path);
 int 			cgiOr200(Response &response, Request &request, std::string &path, const Location *loc);;
 int				indexDirectiveOrIndexOrAutoIndex(Response &response, Request &request, std::string &path, const Server *serv, const Location *loc);
 
+/*addToClient utils*/
+
+int 			donePollhup(Socket &client, std::string &textRead);
+int 			doneNoBody(Socket &client);
+int 			contentLengthRequestDone(Socket &client, Request *request, std::string &textRead);
+int 			contentLengthCgiOutputDone(Socket &client, Response *response, std::string &textRead, int *flag);
+void 			parseRequestTillBody(Socket &client, std::string &textRead);
+int 			parseCgiOutputTillBody(Socket &client, std::string &textRead, std::string text, int *flag);
+
 /*cgi*/
 
 bool 			checkCgi(Request &request, std::string &path, const Location *loc);

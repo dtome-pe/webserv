@@ -19,16 +19,16 @@ void Cluster::setup()
 		for (size_t j = 0; j < _servVec[i].host_port.size(); j++)
 		{
 			Socket s(_servVec[i].host_port[j], &_servVec[i]);		
-			if (!look_for_same(s, _sockVec))	// buscamos socket creado con misma direccion:puerto
+			if (!look_for_same(s, _sockVec))
 				_sockVec.push_back(s);
 		}
 	}
 	for (unsigned int i = 0; i < _sockVec.size(); i++)
 	{
-		_sockVec[i].start(); // se crean, se hace bind, se hace listen. cada socket.
+		_sockVec[i].start();
 		pollfd node;
 		node.fd = _sockVec[i].getFd();
-		node.events = POLLIN; // esto es lo que determina que estamos interesados en eventos de lectura, al ser los sockets listeners
+		node.events = POLLIN;
 		_pollVec.push_back(node);
 	}
 }

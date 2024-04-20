@@ -14,31 +14,6 @@ static char* strdup_cpp98(const char* str)
     return (newStr);
 }
 
-/* static void	parseMultipart(std::vector<std::string>&env, std::string body, std::string boundary)
-{
-	(void) env;
-
-	cout << "body: " << body << endl;
-
-	std::istringstream iss(body);
-
-	int n = 0;
-	std::string line;
-	std::getline(iss, line);
-	while (line != "--" + boundary + "--")
-	{
-		if (line == "--" + boundary)
-		{
-			cout << "boundary found" << endl;
-			std::getline(iss, line);
-			env.push_back("FILENAME_" + int_to_str(n + 1) + "=" +  line.substr(line.find("filename=") + 10, line.length() - 1));
-			n++;
-		}
-		std::getline(iss, line);
-	}
-	cout << "sale de aqui" << endl;
-} */
-
 char* const*	setEnvp(Request &request, std::string &path, std::string &method)
 {	
     if (method == "DELETE")
