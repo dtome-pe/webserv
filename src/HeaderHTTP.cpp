@@ -23,22 +23,13 @@ HeaderHTTP &HeaderHTTP::operator=(const HeaderHTTP &header)
 	return (*this);
 }
 
-int		HeaderHTTP::setHeader(std::string _header)
+void		HeaderHTTP::setHeader(std::string _header)
 {	
 	vec.push_back(_header);
 	int n = _header.find(':');
 	std::string name = _header.substr(0, n);
 	std::string value = _header.substr(n + 2, _header.length());
-	if (name == "Host")
-	{
-		if (this->map.find(name) != this->map.end())
-		{
-			return (1);
-		}
-	}
-	this->map[name] = value;
-	return (0);
-	
+	this->map[name] = value;	
 }
 
 std::string	HeaderHTTP::getHeader(std::string name)
@@ -62,11 +53,13 @@ std::string	HeaderHTTP::makeHeader()
 	return (text);
 }
 
-std::vector<std::string> HeaderHTTP::split(const std::string& input, const std::string& delimiters) {
+std::vector<std::string> HeaderHTTP::split(const std::string& input, const std::string& delimiters) 
+{
     std::vector<std::string> tokens;
     std::size_t startPos = 0;
 
-    while (true) {
+    while (true) 
+	{
         std::size_t foundPos = input.find_first_of(delimiters, startPos);
         
         if (foundPos != std::string::npos) {

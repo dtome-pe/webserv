@@ -62,7 +62,6 @@ class Request
 
 		void				parseRequest(std::string text, bool cgi);
 		int					parseChunked(std::string &textRead);
-		void				splitRequest(std::string buff);
 		
 		std::string 		getMethod();
 		std::string 		getTarget();

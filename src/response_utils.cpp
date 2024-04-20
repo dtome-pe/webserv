@@ -1,8 +1,7 @@
 #include<webserv.hpp>
 
-bool check_method(std::string method, const Location *loc, const Server *serv)
-{	
-	(void) serv;
+bool 			methodNotAllowed(std::string method, const Location *loc, const Server *serv)
+{
 	int idx;
 
 	if (method == "GET")
@@ -14,19 +13,19 @@ bool check_method(std::string method, const Location *loc, const Server *serv)
 	else if (method == "PUT")
 		idx = 3;
 	else
-		return (true);
+		return (false);
 	if (loc)
 	{
 		if (loc->getMethods()[idx] == 0)
-			return (false);
-		return (true);
+			return (true);
+		return (false);
 	}
 	if (serv->getMethods()[idx] == 0)
-		return (false);
-	return (true);
+		return (true);
+	return (false);
 }
 
-std::string removeDoubleSlashes(const std::string& input) 
+std::string 	removeDoubleSlashes(const std::string& input) 
 {
     std::string result;
     result.reserve(input.length());
@@ -46,7 +45,7 @@ std::string removeDoubleSlashes(const std::string& input)
     return result;
 }
 
-std::string getPath(Request &request, const Server *serv, const Location *loc)
+std::string 	getPath(Request &request, const Server *serv, const Location *loc)
 {	
 	std::string path;
 
@@ -67,11 +66,10 @@ std::string getPath(Request &request, const Server *serv, const Location *loc)
 		request.setPath(path.substr(0, path.find('?')));
 		return (path.substr(0, path.find('?')));
 	}
-	cout << "sale en none" << endl;
 	return ("none"); 
 }
 
-std::string readFileContents(Request &request,const std::string& filename) 
+std::string 	readFileContents(Request &request,const std::string& filename) 
 {
     std::ifstream file(filename.c_str(), std::ios::in | std::ios::binary);
     if (!file) {
@@ -85,7 +83,7 @@ std::string readFileContents(Request &request,const std::string& filename)
     return content.str();
 }
 
-std::string getLengthAsString(std::string &content)
+std::string 	getLengthAsString(std::string &content)
 {
 	std::stringstream ss;
     ss << content.length();
@@ -94,13 +92,13 @@ std::string getLengthAsString(std::string &content)
 	return (lengthAsString);
 }
 
-bool	checkGood(const std::string &path)
+bool			pathIsGood(const std::string &path)
 {
 	struct stat fileInfo;
     return stat(path.c_str(), &fileInfo) == 0;
 }
 
-std::string checkFileOrDir(const std::string &path)
+std::string 	checkFileOrDir(const std::string &path)
 {
 	struct stat fileInfo;
 
@@ -114,7 +112,7 @@ std::string checkFileOrDir(const std::string &path)
 		return ("");
 }
 
-bool findIndexHtml(std::string &path) 
+bool 			findIndexHtml(std::string &path) 
 {
     DIR* dir = opendir(path.c_str());
 
@@ -134,7 +132,7 @@ bool findIndexHtml(std::string &path)
     return (false);
 }
 
-std::string formatFileSize(off_t size) 
+std::string 	formatFileSize(off_t size) 
 {
     const char* units[] = {"B", "KB", "MB", "GB", "TB"};
     int unitIndex = 0;
@@ -150,7 +148,7 @@ std::string formatFileSize(off_t size)
     return formattedSize.str();
 }
 
-std::string generateDirectoryListing(const std::string& path) 
+std::string 	generateDirectoryListing(const std::string& path) 
 {
     DIR* dir = opendir(path.c_str());
 
@@ -201,7 +199,7 @@ std::string generateDirectoryListing(const std::string& path)
     }
 }
 
-bool checkTrailingSlash(std::string &path)
+bool 			thereIsTrailingSlash(std::string &path)
 {
 	if (path[path.length() - 1] == '/')
 		return true;
@@ -209,7 +207,7 @@ bool checkTrailingSlash(std::string &path)
 		return false;
 }
 
-std::string checkReturn(const Location *loc)
+std::string 	checkReturn(const Location *loc)
 {	
 	
 	if (loc)
@@ -220,7 +218,7 @@ std::string checkReturn(const Location *loc)
 	return ("");
 }
 
-bool checkDefaultPath()
+bool 			checkDefaultPath()
 {
 	const char *env_path = std::getenv("DEFAULT_DIR");
 	if (env_path)
@@ -229,7 +227,7 @@ bool checkDefaultPath()
 		return (false);
 }
 
-std::string getDefaultFile(const std::string &file)
+std::string 	getDefaultFile(const std::string &file)
 {
 	std::string default_path;
 
@@ -239,7 +237,7 @@ std::string getDefaultFile(const std::string &file)
 }
 
 
-std::string findIndex(std::string &path, const Server *serv, const Location *loc)
+std::string 	findIndex(std::string &path, const Server *serv, const Location *loc)
 {	
 	std::string index_file = "";
 
@@ -248,7 +246,7 @@ std::string findIndex(std::string &path, const Server *serv, const Location *loc
 		std::vector<std::string>indexVector = loc->getIndex();
 		for (std::vector<std::string>::iterator it = indexVector.begin(); it != indexVector.end(); it++)
 		{
-			if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
+			if (pathIsGood(path + *it) && checkFileOrDir(path + *it) == "file")
 			{
 				index_file = path + *it;
 				return (index_file);
@@ -258,7 +256,7 @@ std::string findIndex(std::string &path, const Server *serv, const Location *loc
 	std::vector<std::string>indexVector = serv->getVIndex();
 	for (std::vector<std::string>::const_iterator it = indexVector.begin(); it != indexVector.end(); it++)
 	{
-		if (checkGood(path + *it) && checkFileOrDir(path + *it) == "file")
+		if (pathIsGood(path + *it) && checkFileOrDir(path + *it) == "file")
 		{
 			index_file = path + *it;
 			return (index_file);
@@ -267,7 +265,8 @@ std::string findIndex(std::string &path, const Server *serv, const Location *loc
 	return (index_file);
 }
 
-bool checkCgi(Request &request, std::string &path, const Location *loc) {
+bool 			checkCgi(Request &request, std::string &path, const Location *loc) 
+{
     if (loc) {
         const std::map<std::string, std::string>& cgiMap = loc->getCGI();
         if (!cgiMap.empty()) {
@@ -286,3 +285,116 @@ bool checkCgi(Request &request, std::string &path, const Location *loc) {
     return false;
 }
 
+bool 			entityTooLarge(Request &request, const Server *serv)
+{
+	if (request.getHeader("Content-Length") != "not found")
+	{
+		if (str_to_int(request.getHeader("Content-Length")) > serv->getMaxBodySize())
+			return (true);
+	}
+	return (false);
+}
+
+int				noRoot(Response &response, Request &request, const Server *serv)
+{
+	if (methodNotAllowed(request.getMethod(), NULL, serv))
+		return (405);
+	if (request.getTarget() == "/")
+	{
+		response.setBody(readFileContents(request, "default/default.html"));
+		return (200);
+	}
+	else
+		return (404);
+}
+
+int				putOr404(Response &response, Request &request, std::string &path)
+{
+	if (request.getMethod() == "PUT")
+	{
+		if (previousDirIsGood(path))
+			return (cgi(response, request, path, request.getMethod()));
+		else
+			return (404);
+	}
+	else
+		return (404);
+}
+
+bool			needTrailSlashRedir(Request &request, std::string &path)
+{
+	if (request.getMethod() == "GET" && checkFileOrDir(path) == "dir" && !thereIsTrailingSlash(path))
+		return (true);
+	return (false);
+}
+
+int				trailSlashRedir(Request &request)
+{
+	request.setTrailSlashRedir(true);
+	return (301);
+}
+
+int 			putOrDel(Response &response, Request &request, std::string &path)
+{
+	if (request.getMethod() == "DELETE")
+		return (cgi(response, request, path, request.getMethod()));
+		
+	if (path[path.length() - 1] != '/')  // comprobamos que el put no tenga como target un directorio, entonces se devuelve 409
+		return (cgi(response, request, path, request.getMethod()));
+	else
+		return (409);	
+}
+
+int 			cgiOr200(Response &response, Request &request, std::string &path, const Location *loc)
+{
+	if (checkCgi(request, path, loc)) // chequearemos si location tiene activado el cgi y para que extensiones
+		return (cgi(response, request, path, request.getMethod()));
+	else
+	{
+		response.setBody(readFileContents(request, path)); //sino servimos el recurso de manera normal
+		return (200); 
+	}	
+}
+
+static bool		thereIsIndexDirective(const Server *serv, const Location *loc)
+{
+	if (serv->getVIndex().size() > 0 || (loc && loc->getIndex().size() > 0))
+		return (true);
+	return (false);
+}
+
+int				indexDirectiveOrIndexOrAutoIndex(Response &response, Request &request, std::string &path, const Server *serv, const Location *loc)
+{
+	if (thereIsIndexDirective(serv, loc))
+	{
+		std::string index_file = findIndex(path, serv, loc);
+		if (index_file != "")
+		{
+			response.setBody(readFileContents(request, index_file));
+			return (200);
+		}
+		else
+			return (403);
+	}
+	if (findIndexHtml(path))
+	{
+		response.setBody(readFileContents(request, path + "index.html"));
+		return (200);
+	}
+	else
+	{
+		if (!loc || !loc->getAutoindex()) 
+			return (403);
+		else
+		{
+			std::string content = generateDirectoryListing(path);
+			if (content == "Error 500")
+				return (500);
+			else
+			{
+				response.setBody(content);
+				return (200);
+			}
+		}
+	}			
+}
