@@ -1,7 +1,8 @@
 #include<webserv.hpp>
 
-int donePollhup(Socket &client, std::string &textRead)
-{
+int doneNothing(Socket &client, std::string &textRead)
+{	
+	cout << "entra en doneNothing" << endl;
     client.getResponse()->setBody(textRead);
     client.setTextRead("");
     client.getResponse()->waitingForBody = false;

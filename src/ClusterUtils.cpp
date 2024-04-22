@@ -44,9 +44,10 @@ int         handleAcceptError()
         return 0;
 }
 
-void        readFromPollhup(Socket &client, std::vector<pollfd> &pollVec)
+void        readNothing(Socket &client, std::vector<pollfd> &pollVec)
 {
-    client.addToClient("", client.getRequest()->getCgi(), POLLHUP);
+	cout << "entra en readNothing" << endl;
+    client.addToClient("", client.getRequest()->getCgi(), 0);
     pollVec[findPoll(pollVec, client)].events = POLLIN | POLLOUT;
     client.getRequest()->otherInit();   
 }
