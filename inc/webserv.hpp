@@ -49,7 +49,7 @@ void 			startSocketAndAddToPollFd(std::vector<Socket> &sockVec, std::vector<poll
 void    		setSignals();
 int        		handleAcceptError();
 int     		createNonBlockingClientSocketAndAddToPollAndSock(struct sockaddr_in c_addr, std::vector<pollfd> &pollVec, int i, int c_fd, std::vector<Socket> &sockVec);
-void        	readFromPollhup(Socket &client, std::vector<pollfd> &pollVec);
+void        	readNothing(Socket &client, std::vector<pollfd> &pollVec);
 void        	readEnough(int ret, std::vector<pollfd> &pollVec, Socket &client, int i);
 void           	set400AndCloseConnection(Cluster &cluster, Socket &client, Request &req, int i, std::vector<pollfd> &pollVec,  std::vector<Socket> &sockVec, unsigned int *size);
 void            setResponse(Cluster &cluster, Socket &client, Request &req, int i, std::vector<pollfd> &pollVec,  std::vector<Socket> &sockVec, unsigned int *size);
@@ -91,7 +91,7 @@ int				indexDirectiveOrIndexOrAutoIndex(Response &response, Request &request, st
 
 /*addToClient utils*/
 
-int 			donePollhup(Socket &client, std::string &textRead);
+int 			doneNothing(Socket &client, std::string &textRead);
 int 			doneNoBody(Socket &client);
 int 			contentLengthRequestDone(Socket &client, Request *request, std::string &textRead);
 int 			contentLengthCgiOutputDone(Socket &client, Response *response, std::string &textRead, int *flag);
@@ -103,7 +103,6 @@ int 			parseCgiOutputTillBody(Socket &client, std::string &textRead, std::string
 bool 			checkCgi(Request &request, std::string &path, const Location *loc);
 int 			cgi(Response &response, Request &request, std::string path, std::string method);
 bool			checkPut(std::string &path);
-bool 			checkPutFile(std::string &path);
 
 char *const 	*setEnvp(Request &request, std::string &path, std::string &method);
 char *const 	*setArgv(Request &request, std::string &path, std::string &method);
