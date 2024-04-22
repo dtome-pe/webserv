@@ -5,7 +5,7 @@ Cluster::Cluster()
 
 }
 
-void Cluster::parseConfig(char *file)
+void Cluster::parseConfig(std::string file)
 {
 	_conf.parse_config(*this, file);
 	_conf.print_servers();
