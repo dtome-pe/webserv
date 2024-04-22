@@ -72,7 +72,7 @@ class Socket
 		bool			getCgi();
 		int				getCgiFd();
 
-		std::string		getTextRead();
+		std::string		&getTextRead();
 
 		bool			getReadAll();
 

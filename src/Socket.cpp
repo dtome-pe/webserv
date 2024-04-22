@@ -113,10 +113,10 @@ int	Socket::addToClient(std::string text, bool cgi, int type)
 	appendTextRead(text);
 	static int 	flag;
 
-	if (cgi && type == POLLHUP)
-		return (donePollhup(*this, _textRead));
+	if (cgi && type == 0)
+		return (doneNothing(*this, _textRead));
 
-	if (!cgi)
+	if (!_request->getCgi())
 	{
 		parseRequestTillBody(*this, _textRead);
 		if (getRequest()->getWaitingForBody())
@@ -132,6 +132,7 @@ int	Socket::addToClient(std::string text, bool cgi, int type)
 	}
 	else
 	{
+		cout << "entramos en parse cgi" << endl;
 		if (!getResponse())
 			setResponse(new Response());
 		int ret = parseCgiOutputTillBody(*this, _textRead, text, &flag);

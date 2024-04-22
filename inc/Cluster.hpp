@@ -31,7 +31,7 @@ public:
 	void 							run();
 
 	int 							addClient(int i);
-	void 							readFrom(int i, unsigned int *size, int type, Socket &client);
+	void 							readFrom(int i, unsigned int *size, Socket &client);
 	void							writeTo(int i, unsigned int size, Socket &client);
 	
 	void 							closeConnection(int i, std::vector<pollfd> &_pollVec, std::vector<Socket> &_sockVec, unsigned int *size);
