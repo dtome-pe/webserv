@@ -5,6 +5,7 @@ import cgi
 
 try:
     form = cgi.FieldStorage(keep_blank_values=True)
+    fileContents = form['file'].file.read().decode('utf-8')
 
     print ("Content-Type: text/html; charset=UTF-8")
 
@@ -18,7 +19,7 @@ try:
     <body>
     <h1>File content is:</h1>
     <pre> ''')
-    print (form['file'].file.read().decode('utf-8'))
+    print (fileContents)
     print ('''<pre>
     </body>
     </html>''')
