@@ -36,7 +36,7 @@ void	Cluster::run()
 		{
 			if (_pollVec[i].revents == 0)
 				continue ;
-			if (_pollVec[i].revents & POLLIN)
+			if (_pollVec[i].revents & POLLIN || _pollVec[i].revents & POLLHUP)
 			{
 				if (checkIfListener(_pollVec[i].fd, _sockVec))
 				{
