@@ -3,6 +3,8 @@
 int doneNothing(Socket &client, std::string &textRead)
 {	
 	cout << "entra en doneNothing" << endl;
+	cout << "textRead: " << textRead << endl;
+	cout << "textRead length: " << textRead.size() << endl;
     client.getResponse()->setBody(textRead);
     client.setTextRead("");
     client.getResponse()->waitingForBody = false;
@@ -67,6 +69,7 @@ int parseCgiOutputTillBody(Socket &client, std::string &textRead, std::string te
 {
     size_t  i = 0;
 
+	cout << "textRead: " << textRead << " length: " << textRead.length() << endl;
     while (i < textRead.length())
     {
         if (!client.getResponse()->waitingForBody)

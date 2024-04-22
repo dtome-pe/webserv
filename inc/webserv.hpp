@@ -126,7 +126,7 @@ bool 			checkIfCgiFd(int socket, std::vector<class Socket> &sock_vec);
 Socket 			&findSocket(int socket_to_find, std::vector<Socket> &sock_vec);
 Socket 			&findListener(std::vector<Socket> &sock_vec, Socket &client);
 int				findPoll(std::vector<pollfd>&pollVec, Socket &sock);
-string &		bounceBuff(string &text, vector<unsigned char> &buff);
+string &		bounceBuff(string &text, vector<unsigned char> &buff, size_t nbytes);
 void 			add_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, Socket &client, int fd, bool cgi);
 void 			remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, int fd);
 
