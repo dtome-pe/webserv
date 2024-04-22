@@ -40,8 +40,8 @@ void ConfFile::checkLine(std::string line)
 		return ;
 	else if (line[0] == '}' && line[1] != '\0')
 		throw std::runtime_error(line + " => invalid line");
-	if (semicolon == std::string::npos && curly == std::string::npos)
-		throw std::runtime_error(line + " => semicolon or curly brace missing.");
+//	if (semicolon == std::string::npos && curly == std::string::npos)
+//		throw std::runtime_error(line + " => semicolon or curly brace missing.");
 	if (semicolon != std::string::npos && curly != std::string::npos)
 		throw std::runtime_error(line + " => invalid line");
 	else
@@ -219,8 +219,8 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 	{
 		pos = line.find("/");
 		fpos = line.find(" {");
-		if (pos == std::string::npos || fpos == std::string::npos)
-			throw std::runtime_error("invalid configuration file. Semicolon or curly brace missing");
+	//	if (pos == std::string::npos || fpos == std::string::npos)
+	//		throw std::runtime_error("invalid configuration file. Semicolon or curly brace missing");
 		res = line.substr(pos, fpos - pos);
 		trimSpaces(res);
 		loc.setLocation(res);
@@ -228,8 +228,8 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 	else
 	{
 		fpos = line.find(";");
-		if (fpos == std::string::npos)
-			throw std::logic_error("invalid configuration file. Semicolon or curly brace missing");
+	//	if (fpos == std::string::npos)
+	//		throw std::logic_error("invalid configuration file. Semicolon or curly brace missing");
 		if (line.find("autoindex ") != std::string::npos)
 		{
 			pos = line.find("autoindex ");
@@ -293,8 +293,8 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 			trimSpaces(path);
 			loc.setCGI(execute, path);
 		}
-		else
-			throw std::logic_error(line + " => invalid line or curly brace missing");
+	//	else
+	//		throw std::logic_error(line + " => invalid line or curly brace missing");
 	}
 }
 

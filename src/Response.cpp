@@ -202,10 +202,16 @@ void	Response::makeDefault(int code, Request &request, Response &response, const
 	std::string	content = "";
 	std::map<int, std::string>::const_iterator it = serv->getErrorPage().find(code);
 	if (it != serv->getErrorPage().end())
-	{
+	{	
+		cout << it->second << endl;
 		std::string path = serv->getRoot() + it->second;
 		if (pathIsGood(path))
+		{	
+			cout << "path is good" << endl;
 			content = readFileContents(request, path);
+		}
+		else
+			content = readFileContents(request, "default" + file);
 	}
 	else
 		 content = readFileContents(request, "default" + file);

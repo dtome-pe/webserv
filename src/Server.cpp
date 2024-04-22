@@ -137,6 +137,10 @@ void	Server::setErrorPage(std::string error_page)
 	int key = std::atoi(error_page.substr(0, pos).c_str());
 	size_t fpos = error_page.find(";");
 	error_page = error_page.substr(pos + 1, fpos);
+	error_page.erase(0, error_page.find_first_not_of(" \t"));
+	error_page.erase(error_page.find_last_not_of(" \t") + 1);
+	if (error_page[0] != '/')
+		error_page = '/' + error_page;
 	merror_page[key] = error_page;
 }
 
