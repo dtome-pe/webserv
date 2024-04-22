@@ -115,6 +115,11 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 		ret = CGI;
 	else
 		ret = sendResponseAndReturnCode(client, req);
+	if (ret == 0 || ret == -1)
+	{
+		closeConnection(i, _pollVec, _sockVec, &size);
+		return ;
+	}
 
 	clearClientAndSetPoll(client, _pollVec, i);
 
