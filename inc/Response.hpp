@@ -19,6 +19,7 @@ class Response
 		HeaderHTTP		headers;
 		HeaderHTTP		cgiHeaders;
 		std::string 	body;
+		bool			autoindex;
 
 		bool			waitingForBody;
 
