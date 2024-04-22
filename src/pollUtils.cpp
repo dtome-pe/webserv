@@ -9,7 +9,7 @@ int	receive(int fd, std::string &text, std::vector<class Socket>&sock_vec)
 		result = read(fd, buff.data(), BUFF_SIZE);
 	else
 		result = recv(fd, buff.data(), BUFF_SIZE, 0);
-	if (result != -1)
+	if (result != -1 && result != 0)
 	{
 		bounceBuff(text, buff);
 		return (result);

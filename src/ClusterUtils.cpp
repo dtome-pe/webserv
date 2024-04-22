@@ -95,8 +95,12 @@ void            setResponse(Cluster &cluster, Socket &client, Request &req, int 
 
 int             sendResponseAndReturnCode(Socket &client, Request &req)
 {
+	int result = 0;
+
     std::string response = client.getResponse()->makeResponse();
-	send(req.getClient().getFd(), response.c_str(), response.length(), 0);
+	result = send(req.getClient().getFd(), response.c_str(), response.length(), 0);
+	if (result != -1 && result != 0)
+		return (result);
 	return (str_to_int(client.getResponse()->getCode()));   
 }
 
