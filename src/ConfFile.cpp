@@ -92,7 +92,8 @@ void	ConfFile::parse_config(Cluster &cluster, std::string file)
 	std::string result;
 	int servers;
 
-	in.open(file, std::ios::in);
+	cout << "file: " << file << endl;
+	in.open(file.c_str(), std::ios::in);
  	if (!in.is_open())
 		throw std::runtime_error("File could not be found or opened.");
 	while (std::getline(in, line))
