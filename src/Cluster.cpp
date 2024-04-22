@@ -81,21 +81,25 @@ void	Cluster::readFrom(int i, unsigned int *size, Socket &client)
 	int		nbytes;
 	std::string text = "";
 	nbytes = receive(_pollVec[i].fd, text, _sockVec);
-	
-	if (nbytes == -1)
-		return (closeConnection(i, _pollVec, _sockVec, size));
-	else if (nbytes == 0)
+	//cout << "nbytes leidos: " << nbytes << endl;
+	if (nbytes == 0 && client.getRequest() && client.getRequest()->getCgi())
 	{	
 		readNothing(client, _pollVec);
 		return (closeConnection(i, _pollVec, _sockVec, size));
 	}	
+	else if (nbytes == -1 || nbytes == 0)
+		return (closeConnection(i, _pollVec, _sockVec, size));
 	else
 	{
 		if (!client.getRequest())
 			client.setRequest(new Request(*this, _servVec, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec)), findSocket(_pollVec[i].fd, _sockVec)));
 		int ret = client.addToClient(text, client.getRequest()->getCgi(), POLLIN);
 		if (ret == DONE || ret == DONE_ERROR)
+		{
+			//cout << "entra en DONE" << endl;
 			readEnough(ret, _pollVec, client, i);
+			client.getTextRead().clear();
+		}
 	}
 }
 
@@ -103,7 +107,7 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 {
 	Request &req = (*client.getRequest());
 
-	cout << "req en write to: " << req.makeRequest() << endl;
+	//cout << "req en write to: " << req.makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	setResponse(*this, client, req, i, _pollVec, _sockVec, &size);

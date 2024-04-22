@@ -110,7 +110,6 @@ int Socket::listen_s()
 
 int	Socket::addToClient(std::string text, bool cgi, int type)
 {
-	cout << "add to client. text: " << text << endl;
 	appendTextRead(text);
 	static int 	flag;
 

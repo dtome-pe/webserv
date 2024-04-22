@@ -11,7 +11,7 @@ int	receive(int fd, std::string &text, std::vector<class Socket>&sock_vec)
 		result = recv(fd, buff.data(), BUFF_SIZE, 0);
 	if (result != -1)
 	{
-		bounceBuff(text, buff);
+		bounceBuff(text, buff, result);
 		return (result);
 	}
 	else
@@ -68,9 +68,9 @@ Socket &findListener(std::vector<Socket>&sock_vec, Socket &client)
 	return (sock_vec[0]);	
 }
 
-string &bounceBuff(string &text, vector<unsigned char>&buff)
+string &bounceBuff(string &text, vector<unsigned char>&buff, size_t nbytes)
 {
-	for (size_t i = 0; i < buff.size(); i++)
+	for (size_t i = 0; i < nbytes; i++)
 		text += buff[i];
 	return (text);
 }
