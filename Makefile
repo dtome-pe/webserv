@@ -18,7 +18,7 @@ $(DIR_OBJ):
 	mkdir -p $@
 
 $(NAME): $(OBJ)
-	c++ $(FLAGS)  $(OBJ) -o $(NAME)
+	c++ $(FLAGS)  $(OBJ) -o $(NAME) -fsanitize=address
 
 $(DIR_OBJ)%.o: $(DIR_SRC)%.cpp Makefile 
 	c++ $(FLAGS) $(DEPFLAGS) -c $< -o $@

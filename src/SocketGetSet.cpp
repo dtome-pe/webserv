@@ -40,7 +40,7 @@ int 		Socket::getCgiFd()
 	return (_cgiFd);
 }
 
-std::string Socket::getTextRead()
+std::string &Socket::getTextRead()
 {
 	return (_textRead);
 }

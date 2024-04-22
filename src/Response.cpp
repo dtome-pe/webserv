@@ -57,9 +57,15 @@ void	Response::setBasicHeaders(int code, Request &request)
 		if (getHeader("Content-Type") == "not found") // si no esta seteado, (por cgi), se pone setea.
 			setHeader("Content-Type: " + MIME::getMIMEType(request.getExtension()));
 		if (getCgiHeader("Content-Length") != "not found")
+		{
+			cout << "entra 1" << endl;
 			setHeader("Content-Length: " + getCgiHeader("Content-Length"));
-		if (getHeader("Content-Length") == "not found")
+		}
+		if (getHeader("Content-Length") == "not found" && body.length() > 0)
+		{
+			cout << "entra2" << endl;
 			setHeader("Content-Length: " + getLengthAsString(body));
+		}
 	}
 	if (body == "" && code == 200)
 	{

@@ -47,18 +47,13 @@ void	Cluster::run()
 				}
 				else
 				{
-					cout << "Read from. fd es: " << _pollVec[i].fd  << endl;
-					readFrom(i, &size, POLLIN, findSocket(_pollVec[i].fd, _sockVec));
+					cout << "Pollin. fd es: " << _pollVec[i].fd  << endl;
+					readFrom(i, &size, findSocket(_pollVec[i].fd, _sockVec));
 				}
-			}
-			else if (_pollVec[i].revents & POLLHUP)
-			{
-					cout << "Pollhup. fd es: " << _pollVec[i].fd << endl;
-					readFrom(i, &size, POLLHUP, findSocket(_pollVec[i].fd, _sockVec));	
 			}
 			else if (_pollVec[i].revents & POLLOUT)
 			{
-				cout << "Write to. fd es: " << _pollVec[i].fd  << endl;
+				cout << "Pollout. fd es: " << _pollVec[i].fd  << endl;
 				writeTo(i, size, findSocket(_pollVec[i].fd, _sockVec));
 			}
 		}
@@ -81,16 +76,18 @@ int		Cluster::addClient(int i)
 	}
 }
 
-void	Cluster::readFrom(int i, unsigned int *size, int type, Socket &client)
-{
-	if (type == POLLHUP)
-		readFromPollhup(client, _pollVec);
-	
+void	Cluster::readFrom(int i, unsigned int *size, Socket &client)
+{	
 	int		nbytes;
 	std::string text = "";
 	nbytes = receive(_pollVec[i].fd, text, _sockVec);
-	
-	if (nbytes == -1 || nbytes == 0)
+	//cout << "nbytes leidos: " << nbytes << endl;
+	if (nbytes == 0 && client.getRequest() && client.getRequest()->getCgi())
+	{	
+		readNothing(client, _pollVec);
+		return (closeConnection(i, _pollVec, _sockVec, size));
+	}	
+	else if (nbytes == -1 || nbytes == 0)
 		return (closeConnection(i, _pollVec, _sockVec, size));
 	else
 	{
@@ -98,7 +95,11 @@ void	Cluster::readFrom(int i, unsigned int *size, int type, Socket &client)
 			client.setRequest(new Request(*this, _servVec, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec)), findSocket(_pollVec[i].fd, _sockVec)));
 		int ret = client.addToClient(text, client.getRequest()->getCgi(), POLLIN);
 		if (ret == DONE || ret == DONE_ERROR)
+		{
+			//cout << "entra en DONE" << endl;
 			readEnough(ret, _pollVec, client, i);
+			client.getTextRead().clear();
+		}
 	}
 }
 
@@ -106,6 +107,7 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 {
 	Request &req = (*client.getRequest());
 
+	//cout << "req en write to: " << req.makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	setResponse(*this, client, req, i, _pollVec, _sockVec, &size);
@@ -126,7 +128,10 @@ void	Cluster::writeTo(int i, unsigned int size, Socket &client)
 	if (ret == CONTINUE || ret == CGI) 
 		client.bouncePrevious(req, ret);
 	if (ret == CGI) // se inicia proceso cgi
+	{
+		cout << "proceso cgi" << endl;
 		return (add_pollfd(_pollVec, _sockVec, req.getClient(), req.getClient().getCgiFd(), true));
+	}
 	if (req.getCgi()) // nos ha llegado el output del cgi
 		removeCgiFdFromPollAndClose(_pollVec, _sockVec, req);
 	if (!req.getKeepAlive())
