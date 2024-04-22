@@ -84,7 +84,7 @@ void ConfFile::copyInfo(Cluster &cluster)
 	cluster.getPollVector() = this->getPollVector();
 }
 
-void	ConfFile::parse_config(Cluster &cluster, char *file)
+void	ConfFile::parse_config(Cluster &cluster, std::string file)
 {
 	std::ifstream in;
 	std::string line;
