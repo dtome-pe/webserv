@@ -392,6 +392,7 @@ int				indexDirectiveOrIndexOrAutoIndex(Response &response, Request &request, st
 				return (500);
 			else
 			{
+				response.autoindex = true;
 				response.setBody(content);
 				return (200);
 			}
