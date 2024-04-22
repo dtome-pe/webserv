@@ -9,16 +9,17 @@ cgitb.enable()
 
 try:
     form = cgi.FieldStorage(keep_blank_values=True)
-
-    print("Content-Type: text/html")
-    print()
-
+    if os.environ['UPLOAD_DIR'] == "none":
+        print("Status: 403 Forbidden")
+        sys.exit()
     if form['file'].filename:
         uploadDir = os.environ['UPLOAD_DIR'] + "/" + form['file'].filename
         f = open(uploadDir, "wb")
         fileContents = form['file'].file.read()
         f.write(fileContents)
         f.close()
+        print("Content-Type: text/html")
+        print()
         print (f'''<!DOCTYPE html>
         <html>
         <head>

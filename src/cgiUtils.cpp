@@ -61,7 +61,8 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
     env.push_back("SERVER_SOFTWARE=Webserv");
     if (request.getUploadStore() != "")
         env.push_back("UPLOAD_DIR=" + request.getUploadStore());
-
+    else
+        env.push_back("UPLOAD_DIR=none");
     if (method == "PUT")
     {
         env.push_back("FILENAME=" + path.substr(path.find_last_of("/"), path.length()));
