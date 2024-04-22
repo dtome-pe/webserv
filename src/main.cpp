@@ -2,18 +2,22 @@
 
 int	main(int argc, char *argv[])
 {	
-	if (argc != 2)
+	Cluster		webserv;
+	std::string	file;
+
+	if (argc > 2)
 	{
 		print_error("Wrong number of arguments.");
 		return (0);
 	}
-
-	Cluster		webserv;
-	
+	if (argc < 2)
+		file = "conf/default.conf";
+	else
+		file = argv[1];
 	try {
-	webserv.parseConfig(argv[1]);
-	webserv.setup();
-	webserv.run();
+		webserv.parseConfig(file);
+		webserv.setup();
+		webserv.run();
 	}
 	catch (std::exception &e)
 	{

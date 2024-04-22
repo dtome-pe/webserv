@@ -20,7 +20,7 @@ class ConfFile
 		ConfFile(std::string _file);
 		~ConfFile();
 		void	trimSpaces(std::string& str);
-		void	parse_config(Cluster &cluster, char *file); 
+		void	parse_config(Cluster &cluster, std::string file); 
 		void	parse_location(std::string line, Location &loc);
 		int		parse_element(std::string& content, int i);
 		int		countServers(std::string content);
