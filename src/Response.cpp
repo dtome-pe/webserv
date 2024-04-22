@@ -61,7 +61,7 @@ void	Response::setBasicHeaders(int code, Request &request)
 				setHeader("Content-Type: " + MIME::getMIMEType("html"));
 			else
 				setHeader("Content-Type: " + MIME::getMIMEType(request.getExtension()));
-		} 
+		}
 		if (getCgiHeader("Content-Length") != "not found")
 		{
 			cout << "entra 1" << endl;
