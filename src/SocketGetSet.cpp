@@ -60,6 +60,16 @@ Response	*Socket::getResponse()
 	return (_response);
 }
 
+pollfd		*Socket::getPoll()
+{
+	return (_poll);
+}
+
+pollfd		*Socket::getCgiPoll()
+{
+	return (_cgiPoll);
+}
+
 
 void Socket::setHost(std::string host)
 {
@@ -134,4 +144,14 @@ void	Socket::setResponse(Response *response)
 void	Socket::setBodyType(int type)
 {
 	_bodyType = type;
+}
+
+void	Socket::setPoll(pollfd *node)
+{
+	_poll = node;
+}
+
+void	Socket::setCgiPoll(pollfd *node)
+{
+	_cgiPoll = node;
 }
