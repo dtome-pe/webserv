@@ -1,8 +1,8 @@
 #ifndef REQUEST_HPP
 # define REQUEST_HPP
 
-#include<HeaderHTTP.hpp>
-#include "lib.hpp"
+# include<HeaderHTTP.hpp>
+# include "lib.hpp"
 
 class Socket;
 class Server;
@@ -94,6 +94,8 @@ class Request
 
 		Socket				&getClient();
 		Cluster				&getCluster();
+
+		Socket				&getListener();
 
 		bool				getWaitingForBody();
 

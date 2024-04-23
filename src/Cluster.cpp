@@ -25,14 +25,16 @@ void	Cluster::run()
 	setSignals();
 	while (true)
 	{
-		unsigned int size = _pollVec.size();
-		checkPids(&size);
-		int poll_count = poll(&_pollVec[0], size, POLL_TIMEOUT);
+		
+		checkPids();
+		remove_pollfd(_pollVec, _sockVec);
+		int poll_count = poll(&_pollVec[0], _pollVec.size(), POLL_TIMEOUT);
 		if (poll_count == -1)
 			throw std::runtime_error("poll error");
 		if (poll_count == 0)
 			continue ;
-		for (unsigned int i = 0; i < size; i++)
+		cout << "poll size: " << _pollVec.size() << endl;
+		for (unsigned int i = 0; i < _pollVec.size(); i++)
 		{
 			if (_pollVec[i].revents == 0)
 				continue ;
@@ -40,22 +42,15 @@ void	Cluster::run()
 			{
 				if (checkIfListener(_pollVec[i].fd, _sockVec))
 				{
-					cout << "Add client. fd es: " << _pollVec[i].fd << endl;
 					if (addClient(i) == 1)
 						throw std::runtime_error("couldn't set the non-blocking mode on the file descriptor.");
 					break ;
 				}
 				else
-				{
-					cout << "Pollin. fd es: " << _pollVec[i].fd  << endl;
-					readFrom(i, &size, findSocket(_pollVec[i].fd, _sockVec));
-				}
+					readFrom(i, findSocket(_pollVec[i].fd, _sockVec));
 			}
 			else if (_pollVec[i].revents & POLLOUT)
-			{
-				cout << "Pollout. fd es: " << _pollVec[i].fd  << endl;
-				writeTo(i, size, findSocket(_pollVec[i].fd, _sockVec));
-			}
+				writeTo(i, findSocket(_pollVec[i].fd, _sockVec));
 		}
 	}	
 }
@@ -72,12 +67,17 @@ int		Cluster::addClient(int i)
 		if (c_fd == -1)
 			return (handleAcceptError());
 		else
-			return (createNonBlockingClientSocketAndAddToPollAndSock(c_addr, _pollVec, i, c_fd, _sockVec));
+			createNonBlockingClientSocketAndAddToPollAndSock(c_addr, _pollVec, i, c_fd, _sockVec);
 	}
 }
 
-void	Cluster::readFrom(int i, unsigned int *size, Socket &client)
+void	Cluster::readFrom(unsigned int i, Socket &client)
 {	
+	cout << "i: " << i << " Pollin. fd es: " << _pollVec[i].fd
+	 << " client fd: " << client.getFd() << " has request: " << client.getRequest();
+	if (client.getRequest())
+		cout << " and its listener is: " << client.getRequest()->getListener().getFd();
+	cout << endl;
 	int		nbytes;
 	std::string text = "";
 	nbytes = receive(_pollVec[i].fd, text, _sockVec);
@@ -85,67 +85,70 @@ void	Cluster::readFrom(int i, unsigned int *size, Socket &client)
 	if (nbytes == 0 && client.getRequest() && client.getRequest()->getCgi())
 	{	
 		readNothing(client, _pollVec);
-		return (closeConnection(i, _pollVec, _sockVec, size));
+		return (closeConnection(i, _pollVec, _sockVec));
 	}	
 	else if (nbytes == -1 || nbytes == 0)
-		return (closeConnection(i, _pollVec, _sockVec, size));
+		return (closeConnection(i, _pollVec, _sockVec));
 	else
 	{
 		if (!client.getRequest())
-			client.setRequest(new Request(*this, _servVec, findListener(_sockVec, findSocket(_pollVec[i].fd, _sockVec)), findSocket(_pollVec[i].fd, _sockVec)));
+			client.setRequest(new Request(*this, _servVec, findListener(_sockVec, client), client));
 		int ret = client.addToClient(text, client.getRequest()->getCgi(), POLLIN);
 		if (ret == DONE || ret == DONE_ERROR)
 		{
-			//cout << "entra en DONE" << endl;
+			cout << "DONE. fd: " << _pollVec[i].fd << endl;
 			readEnough(ret, _pollVec, client, i);
 			client.getTextRead().clear();
 		}
 	}
 }
 
-void	Cluster::writeTo(int i, unsigned int size, Socket &client)
+void	Cluster::writeTo(unsigned int i, Socket &client)
 {
-	Request &req = (*client.getRequest());
+	cout << "i: " << i  << "Pollout. pollfd es: " << _pollVec[i].fd << "client fd: " << client.getFd() << endl;
 
 	//cout << "req en write to: " << req.makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
-	setResponse(*this, client, req, i, _pollVec, _sockVec, &size);
+	setResponse(*this, client, *client.getRequest(), i);
 
 	int ret;
 	if (str_to_int(client.getResponse()->getCode()) == CGI)
 		ret = CGI;
 	else
-		ret = sendResponseAndReturnCode(client, req);
+		ret = sendResponseAndReturnCode(client);
 	if (ret == 0 || ret == -1)
 	{
-		closeConnection(i, _pollVec, _sockVec, &size);
+		cout << "error send" << endl;
+		closeConnection(i, _pollVec, _sockVec);
 		return ;
 	}
 
-	clearClientAndSetPoll(client, _pollVec, i);
-
 	if (ret == CONTINUE || ret == CGI) 
-		client.bouncePrevious(req, ret);
+		client.bouncePrevious(*client.getRequest(), ret);
 	if (ret == CGI) // se inicia proceso cgi
 	{
-		cout << "proceso cgi" << endl;
-		return (add_pollfd(_pollVec, _sockVec, req.getClient(), req.getClient().getCgiFd(), true));
+		return (add_pollfd(_pollVec, _sockVec, client, client.getCgiFd(), true));
 	}
-	if (req.getCgi()) // nos ha llegado el output del cgi
-		removeCgiFdFromPollAndClose(_pollVec, _sockVec, req);
-	if (!req.getKeepAlive())
-		closeConnection(i, _pollVec, _sockVec, &size);
+	if ((*client.getRequest()).getCgi()) // nos ha llegado el output del cgi
+		closeCgiFd(i, _pollVec, client);
+	if ((*client.getRequest()).getKeepAlive() == false)
+		closeConnection(i, _pollVec, _sockVec);
+	deleteRequestAndResponse(client.getRequest(), client.getResponse());
+	//clearClientAndSetPoll(client, _pollVec, i);
 }
 
-void	Cluster::closeConnection(int i, std::vector<pollfd>&_pollVec,
-								std::vector<Socket>&_sockVec, unsigned int *size)
+void	Cluster::closeConnection(unsigned int i, std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec)
 {
-	cout << _pollVec[i].fd << " closed connection" << endl;
-	close(_pollVec[i].fd);
-	remove_pollfd(_pollVec, _sockVec, _pollVec[i].fd);
-	_pollVec[i].fd = -1;
-	(*size)--;
+	cout << pollVec[i].fd << " closed connection" << endl;
+	for (unsigned int j = 0; j < sockVec.size(); j++)
+	{
+		if (sockVec[j].getFd() == pollVec[i].fd)
+			sockVec[j].setFd(-1);
+
+	}
+	close(pollVec[i].fd);
+	pollVec[i].fd = -1;
 }
 
 std::vector<Server>& Cluster::getServerVector()
@@ -161,6 +164,11 @@ std::vector<Socket>& Cluster::getSocketVector()
 std::vector<pollfd>& Cluster::getPollVector()
 {
 	return (_pollVec);
+}
+
+std::vector<pidStruct>& Cluster::getPidVector()
+{
+	return (_pidVec);
 }
 
 void Cluster::printVectors() 
@@ -192,7 +200,7 @@ void Cluster::printVectors()
 	}
 }
 
-void	Cluster::checkPids(unsigned int *size)
+void	Cluster::checkPids()
 {
 	int		status;
 	
@@ -208,7 +216,7 @@ void	Cluster::checkPids(unsigned int *size)
 			else
 			{
 				if (timeEpoch() - _pidVec[i].time > CGI_TIMEOUT)
-					killTimeoutProcessAndDisconnectClient(*this, _pidVec, i, _pollVec, _sockVec, size);
+					killTimeoutProcessAndDisconnectClient(*this, _pollVec, _pidVec, _sockVec, i);
 			}
 		}
 		else

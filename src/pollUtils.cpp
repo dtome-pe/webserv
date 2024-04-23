@@ -81,29 +81,31 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 
 	node.fd = fd;
 	node.events = POLLIN;
+	client.setPoll(&node);
 	pollVec.push_back(node);
 	if (!cgi)
 		sockVec.push_back(client);
 }
 
-void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec, int fd)
-{
-	for (unsigned int i = 0; i < pollVec.size(); i++)
-	{
-		if (pollVec[i].fd == fd)
-		{
-			pollVec.erase(pollVec.begin() + i);
-			break ;
+void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec)
+{	
+	vector<pollfd>::iterator it = pollVec.begin();
+
+	while(it != pollVec.end()) {
+
+		if(it->fd == -1) {
+			it = pollVec.erase(it);
 		}
+		else ++it;
 	}
-	for (unsigned int i = 0; i < sockVec.size(); i++)
-	{
-		if (sockVec[i].getFd() == fd)
-		{
-			close(sockVec[i].getFd());
-			sockVec[i].setFd(-1);
-			sockVec.erase(sockVec.begin() + i);
-			break ;
+
+	vector<Socket>::iterator it2 = sockVec.begin();
+
+	while(it2 != sockVec.end()) {
+
+		if(it2->getFd() == -1) {
+			it2 = sockVec.erase(it2);
 		}
+		else ++it2;
 	}
 }

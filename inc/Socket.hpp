@@ -34,6 +34,9 @@ class Socket
 		Request				*_request;
 		Response			*_response;
 
+		pollfd				*_poll;
+		pollfd				*_cgiPoll;
+
 	
 	public:
 
@@ -85,6 +88,9 @@ class Socket
 		void			setHost(std::string host);
 		void			setFd(int fd);
 
+		pollfd			*getPoll();
+		pollfd			*getCgiPoll();
+
 		void			bouncePrevious(Request &request, int type);
 
 		void			setPreviousRequestLine(std::string text);
@@ -93,6 +99,9 @@ class Socket
 		void			setContinue(bool c);
 		void			setCgi(bool cgi);
 		void			setCgiFd(int fd);
+
+		void			setPoll(pollfd *node);
+		void			setCgiPoll(pollfd *node);
 
 		void			setRequest(Request *request);
 		void			setResponse(Response *response);

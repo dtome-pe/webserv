@@ -63,15 +63,9 @@ void	Response::setBasicHeaders(int code, Request &request)
 				setHeader("Content-Type: " + MIME::getMIMEType(request.getExtension()));
 		}
 		if (getCgiHeader("Content-Length") != "not found")
-		{
-			cout << "entra 1" << endl;
 			setHeader("Content-Length: " + getCgiHeader("Content-Length"));
-		}
 		if (getHeader("Content-Length") == "not found" && body.length() > 0)
-		{
-			cout << "entra2" << endl;
 			setHeader("Content-Length: " + getLengthAsString(body));
-		}
 	}
 	if (body == "" && code == 200)
 	{
@@ -92,7 +86,8 @@ void	Response::setBasicHeaders(int code, Request &request)
 	std::string lastMod = getLastModified(request.getPath());
 	if (lastMod != "error" && request.getMethod() == "GET" && !request.getCgi())
 		setHeader("Last-Modified: " + lastMod);
-	setHeader("Connection: keep-alive");
+	if (request.getKeepAlive())
+		setHeader("Connection: keep-alive");
 }
 
 void	Response::setResponse(int code, Request &request)
