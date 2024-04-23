@@ -5,3 +5,4 @@ conf/
 .gitignore
 upload_files
 a.txt
+log
