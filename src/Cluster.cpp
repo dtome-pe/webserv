@@ -138,8 +138,8 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 		closeCgiFd(i, _pollVec, client);
 	if ((*client.getRequest()).getKeepAlive() == false)
 		closeConnection(i, _pollVec, _sockVec);
-	clearClientAndSetPoll(client, _pollVec, i);
 	deleteRequestAndResponse(client.getRequest(), client.getResponse());
+	clearClientAndSetPoll(client, _pollVec, i);
 }
 
 void	Cluster::closeConnection(unsigned int i, std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec)
