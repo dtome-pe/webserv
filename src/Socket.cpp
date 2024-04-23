@@ -9,6 +9,7 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 	_readAll = false;
 	_request = NULL;
 	_response = NULL;
+	_ip = "";
 	if (s_ptr) // listener
 	{
 		/*trocemos host y port para meterlas en funcion get_addr_info*/
@@ -152,7 +153,10 @@ void Socket::pointTo(int fd)
 int Socket::setNonBlocking(int fd)
 {
 	if (fcntl(fd, F_SETFL, O_NONBLOCK, FD_CLOEXEC) == -1)
+	{	
+		cout << "error fcntl" << endl;
 		return (1);
+	}
 	return (0);
 }
 
