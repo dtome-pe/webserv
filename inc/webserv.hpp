@@ -21,6 +21,8 @@ using namespace std;
 
 class Server;
 
+struct pidStruct;
+
 typedef struct socket_list
 {
 	Socket *sock;
@@ -56,8 +58,8 @@ void            setResponse(Cluster &cluster, Socket &client, Request &req, unsi
 int             sendResponseAndReturnCode(Socket &client);
 void            clearClientAndSetPoll(Socket &client, std::vector<pollfd> &pollVec, int i);
 void            closeCgiFd(unsigned int i, std::vector<pollfd> &pollVec, Socket &client);
-void            killZombieProcess(std::vector<struct pidStruct> &pidVec, int i);
-void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<pollfd> &pollVec, std::vector<pidStruct> &pidVec, std::vector<Socket> &sockVec, int i);
+void            killZombieProcess(std::vector<pidStruct>::iterator &it, std::vector<struct pidStruct> &pidVec);
+void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<pollfd> &pollVec, std::vector<pidStruct> &pidVec, std::vector<Socket> &sockVec, std::vector<pidStruct>::iterator &it);
 void    		deleteRequestAndResponse(Request *request, Response *response);
 
 /*response utils*/

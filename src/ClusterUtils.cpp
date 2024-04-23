@@ -120,26 +120,26 @@ void            closeCgiFd(unsigned int i, std::vector<pollfd> &pollVec, Socket 
     pollVec[i].fd = -1;
 }
 
-void            killZombieProcess(std::vector<struct pidStruct> &pidVec, int i)
+void            killZombieProcess(std::vector<pidStruct>::iterator &it, std::vector<pidStruct> &pidVec)
 {
-    close(pidVec[i].fd);
-    kill(pidVec[i].pid, SIGKILL);
-    pidVec.erase(pidVec.begin() + i);
+    close(it->fd);
+    kill(it->pid, SIGKILL);
+    it = pidVec.erase(it);
 }
 
-void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<pollfd> &pollVec, std::vector<pidStruct> &pidVec, std::vector<Socket> &sockVec, int i)
+void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<pollfd> &pollVec, std::vector<pidStruct> &pidVec, std::vector<Socket> &sockVec, std::vector<pidStruct>::iterator &it)
 {
     for (unsigned int j = 0; j < pollVec.size(); j++)
     {
-        if (pollVec[j].fd == pidVec[i].fd)
+        if (pollVec[j].fd == it->fd)
             cluster.closeConnection(j, pollVec, sockVec);
-        else if (cluster.getPollVector()[j].fd == pidVec[i].client->getFd())
+        else if (pollVec[j].fd == it->client->getFd())
             cluster.closeConnection(j, pollVec, sockVec);
     }
-    close(pidVec[i].fd);
-    kill(pidVec[i].pid, SIGKILL);
-    waitpid(pidVec[i].pid, NULL, 0);
-    pidVec.erase(pidVec.begin() + i);
+    close(it->fd);
+    kill(it->pid, SIGKILL);
+    waitpid(it->pid, NULL, 0);
+    it = pidVec.erase(it);
 }
 
 void    deleteRequestAndResponse(Request *request, Response *response)

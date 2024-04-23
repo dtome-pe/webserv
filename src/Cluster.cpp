@@ -106,7 +106,7 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 {
 	cout << "i: " << i  << "Pollout. pollfd es: " << _pollVec[i].fd << "client fd: " << client.getFd() << endl;
 
-	cout << "req en write to: " << client.getRequest()->makeRequest() << endl;
+	//cout << "req en write to: " << client.getRequest()->makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	setResponse(*this, client, *client.getRequest(), i);
@@ -203,23 +203,25 @@ void	Cluster::checkPids()
 {
 	int		status;
 	
-	for (unsigned int i = 0; i < _pidVec.size(); i++)
+	std::vector<pidStruct>::iterator it = _pidVec.begin();
+
+	while (it != _pidVec.end())
 	{
-		if (0 == kill(_pidVec[i].pid, 0))
+		if (0 == kill(it->pid, 0))
 		{
-			if (waitpid(_pidVec[i].pid, &status, WNOHANG) > 0) 
+			if (waitpid(it->pid, &status, WNOHANG) > 0) 
 			{
 				if (WIFEXITED(status))
-					killZombieProcess(_pidVec, i);
+					killZombieProcess(it, _pidVec);
 			}
 			else
 			{
-				if (timeEpoch() - _pidVec[i].time > CGI_TIMEOUT)
-					killTimeoutProcessAndDisconnectClient(*this, _pollVec, _pidVec, _sockVec, i);
+				if (timeEpoch() - it->time > CGI_TIMEOUT)
+					killTimeoutProcessAndDisconnectClient(*this, _pollVec, _pidVec, _sockVec, it);
 			}
 		}
 		else
-			_pidVec.erase(_pidVec.begin() + i);
+			it = _pidVec.erase(it);
 	}
 }
 
