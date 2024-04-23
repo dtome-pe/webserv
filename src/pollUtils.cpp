@@ -90,11 +90,13 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec)
 {	
 	vector<pollfd>::iterator it = pollVec.begin();
+	int count;
 
 	while(it != pollVec.end()) {
 
 		if(it->fd == -1) {
 			it = pollVec.erase(it);
+			count++;
 		}
 		else ++it;
 	}
@@ -108,4 +110,6 @@ void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec)
 		}
 		else ++it2;
 	}
+
+	cout << "erased " << count << " polls/sockets" << endl;
 }
