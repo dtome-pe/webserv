@@ -295,7 +295,10 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 			trimSpaces(execute);
 			std::string path = res.substr(pos, fpos);
 			trimSpaces(path);
-			loc.setCGI(execute, path);
+			if (execute == ".py")
+				loc.setCGI(execute, path);
+			else
+				throw std::runtime_error(line + " => only .py is allowed for cgi");
 		}
 		else
 			throw std::logic_error(line + " => invalid line or curly brace missing");
