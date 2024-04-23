@@ -28,6 +28,7 @@ void        setSignals()
 int         createNonBlockingClientSocketAndAddToPollAndSock(struct sockaddr_in c_addr, std::vector<pollfd> &pollVec, int i, int c_fd, std::vector<Socket> &sockVec)
 {
     Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL);
+    cout << "i: " << i << " client " << c_fd << " with ip: " << ip_to_str(&c_addr) << ":" << port_to_str(&c_addr) << " added. It points to fd " << pollVec[i].fd << endl;
     client.pointTo(pollVec[i].fd);
     client.setFd(c_fd);
     if (client.setNonBlocking(c_fd) == 1)
@@ -62,19 +63,19 @@ void        readEnough(int ret, std::vector<pollfd> &pollVec, Socket &client, in
     else if (ret == DONE_ERROR)
     {
         close(pollVec[i].fd);
-        pollVec[findPoll(pollVec, client)].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
+        client.getPoll()->events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
         client.getRequest()->otherInit();
     }
 }
 
-void           set400AndCloseConnection(Cluster &cluster, Socket &client, Request &req, int i, std::vector<pollfd> &pollVec,  std::vector<Socket> &sockVec, unsigned int *size)
+void           set400AndCloseConnection(Cluster &cluster, Socket &client, Request &req, unsigned int i)
 {
     client.getResponse()->setResponse(400, req);
-    cluster.closeConnection(i, pollVec, sockVec, size);
+    cluster.closeConnection(i, cluster.getPollVector(), cluster.getSocketVector());
 
 }
 
-void            setResponse(Cluster &cluster, Socket &client, Request &req, int i, std::vector<pollfd> &pollVec,  std::vector<Socket> &sockVec, unsigned int *size)
+void            setResponse(Cluster &cluster, Socket &client, Request &req, unsigned int i)
 {
     if (client.getResponse()->getCode() != "")
 		client.getResponse()->setResponse(str_to_int(client.getResponse()->getCode()), req);
@@ -85,7 +86,7 @@ void            setResponse(Cluster &cluster, Socket &client, Request &req, int 
 		else
 		{
 			if (!req.good)
-				set400AndCloseConnection(cluster, client, req, i, pollVec, sockVec, size);
+				set400AndCloseConnection(cluster, client, req, i);
 			else if (req.getMethod() != "GET" && req.getMethod() != "PUT" && req.getMethod() != "DELETE" && req.getMethod() != "POST")
 				client.getResponse()->setResponse(501, req);
 			else
@@ -94,12 +95,12 @@ void            setResponse(Cluster &cluster, Socket &client, Request &req, int 
 	}
 }
 
-int             sendResponseAndReturnCode(Socket &client, Request &req)
+int             sendResponseAndReturnCode(Socket &client)
 {
 	int result = 0;
 
     std::string response = client.getResponse()->makeResponse();
-	result = send(req.getClient().getFd(), response.c_str(), response.length(), 0);
+	result = send(client.getFd(), response.c_str(), response.length(), 0);
 	if (result != -1 && result != 0)
 		return (result);
 	return (str_to_int(client.getResponse()->getCode()));   
@@ -112,11 +113,11 @@ void            clearClientAndSetPoll(Socket &client, std::vector<pollfd> &pollV
 	client.setRequest(NULL);
 }
 
-void            removeCgiFdFromPollAndClose(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, Request &req)
+void            closeCgiFd(unsigned int i, std::vector<pollfd> &pollVec, Socket &client)
 {
-    remove_pollfd(pollVec, sockVec, req.getClient().getCgiFd());
-    close(req.getClient().getCgiFd());
-    req.getClient().setCgiFd(-1);
+    close(client.getCgiFd());
+    client.setCgiFd(-1);
+    pollVec[i].fd = -1;
 }
 
 void            killZombieProcess(std::vector<struct pidStruct> &pidVec, int i)
@@ -126,18 +127,23 @@ void            killZombieProcess(std::vector<struct pidStruct> &pidVec, int i)
     pidVec.erase(pidVec.begin() + i);
 }
 
-void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<struct pidStruct> &pidVec, int i, 
-                                                            std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, unsigned int *size)
+void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<pollfd> &pollVec, std::vector<pidStruct> &pidVec, std::vector<Socket> &sockVec, int i)
 {
     for (unsigned int j = 0; j < pollVec.size(); j++)
     {
         if (pollVec[j].fd == pidVec[i].fd)
-            cluster.closeConnection(j, pollVec, sockVec, size);
-        else if (pollVec[j].fd == pidVec[i].client->getFd())
-            cluster.closeConnection(j, pollVec, sockVec, size);
+            cluster.closeConnection(j, pollVec, sockVec);
+        else if (cluster.getPollVector()[j].fd == pidVec[i].client->getFd())
+            cluster.closeConnection(j, pollVec, sockVec);
     }
     close(pidVec[i].fd);
     kill(pidVec[i].pid, SIGKILL);
     waitpid(pidVec[i].pid, NULL, 0);
     pidVec.erase(pidVec.begin() + i);
+}
+
+void    deleteRequestAndResponse(Request *request, Response *response)
+{
+    delete request;
+    delete response;
 }
