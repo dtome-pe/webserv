@@ -51,14 +51,14 @@ int        		handleAcceptError();
 int     		createNonBlockingClientSocketAndAddToPollAndSock(struct sockaddr_in c_addr, std::vector<pollfd> &pollVec, int i, int c_fd, std::vector<Socket> &sockVec);
 void        	readNothing(Socket &client, std::vector<pollfd> &pollVec);
 void        	readEnough(int ret, std::vector<pollfd> &pollVec, Socket &client, int i);
-void           	set400AndCloseConnection(Cluster &cluster, Socket &client, Request &req, int i, std::vector<pollfd> &pollVec,  std::vector<Socket> &sockVec, unsigned int *size);
-void            setResponse(Cluster &cluster, Socket &client, Request &req, int i, std::vector<pollfd> &pollVec,  std::vector<Socket> &sockVec, unsigned int *size);
-int             sendResponseAndReturnCode(Socket &client, Request &req);
+void           	set400AndCloseConnection(Cluster &cluster, Socket &client, Request &req, unsigned int i);
+void            setResponse(Cluster &cluster, Socket &client, Request &req, unsigned int i);
+int             sendResponseAndReturnCode(Socket &client);
 void            clearClientAndSetPoll(Socket &client, std::vector<pollfd> &pollVec, int i);
-void            removeCgiFdFromPollAndClose(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, Request &req);
+void            closeCgiFd(unsigned int i, std::vector<pollfd> &pollVec, Socket &client);
 void            killZombieProcess(std::vector<struct pidStruct> &pidVec, int i);
-void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<struct pidStruct> &pidVec, 
-																	int i, std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, unsigned int *size);
+void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<pollfd> &pollVec, std::vector<pidStruct> &pidVec, std::vector<Socket> &sockVec, int i);
+void    		deleteRequestAndResponse(Request *request, Response *response);
 
 /*response utils*/
 
@@ -128,7 +128,7 @@ Socket 			&findListener(std::vector<Socket> &sock_vec, Socket &client);
 int				findPoll(std::vector<pollfd>&pollVec, Socket &sock);
 string &		bounceBuff(string &text, vector<unsigned char> &buff, size_t nbytes);
 void 			add_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, Socket &client, int fd, bool cgi);
-void 			remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec, int fd);
+void 			remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket> &sockVec);
 
 /*check GET path*/
 

@@ -204,3 +204,8 @@ Cluster		&Request::getCluster()
 {
 	return (cluster);
 }
+
+Socket		&Request::getListener()
+{
+	return (listener);
+}

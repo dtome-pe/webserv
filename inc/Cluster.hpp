@@ -31,19 +31,20 @@ public:
 	void 							run();
 
 	int 							addClient(int i);
-	void 							readFrom(int i, unsigned int *size, Socket &client);
-	void							writeTo(int i, unsigned int size, Socket &client);
+	void 							readFrom(unsigned int i, Socket &client);
+	void							writeTo(unsigned int i, Socket &client);
 	
-	void 							closeConnection(int i, std::vector<pollfd> &_pollVec, std::vector<Socket> &_sockVec, unsigned int *size);
+	void 							closeConnection(unsigned int i, std::vector<pollfd> &_pollVec, std::vector<Socket>&_sockVec);
 
 	std::vector<Server> 			&getServerVector();
 	std::vector<Socket> 			&getSocketVector();
 	std::vector<pollfd> 			&getPollVector();
+	std::vector<pidStruct>			&getPidVector();
 
 	void printVectors();
 
 	/*time out utils*/
-	void 							checkPids(unsigned int *size);
+	void 							checkPids();
 	void 							setPid(pid_t pid, unsigned int fd, Socket &client);
 };
 
