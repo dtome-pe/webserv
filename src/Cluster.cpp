@@ -33,7 +33,6 @@ void	Cluster::run()
 			throw std::runtime_error("poll error");
 		if (poll_count == 0)
 			continue ;
-		cout << "poll size: " << _pollVec.size() << endl;
 		for (unsigned int i = 0; i < _pollVec.size(); i++)
 		{
 			if (_pollVec[i].revents == 0)
@@ -107,7 +106,7 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 {
 	cout << "i: " << i  << "Pollout. pollfd es: " << _pollVec[i].fd << "client fd: " << client.getFd() << endl;
 
-	//cout << "req en write to: " << req.makeRequest() << endl;
+	cout << "req en write to: " << client.getRequest()->makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	setResponse(*this, client, *client.getRequest(), i);
@@ -134,8 +133,8 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 		closeCgiFd(i, _pollVec, client);
 	if ((*client.getRequest()).getKeepAlive() == false)
 		closeConnection(i, _pollVec, _sockVec);
+	clearClientAndSetPoll(client, _pollVec, i);
 	deleteRequestAndResponse(client.getRequest(), client.getResponse());
-	//clearClientAndSetPoll(client, _pollVec, i);
 }
 
 void	Cluster::closeConnection(unsigned int i, std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec)
