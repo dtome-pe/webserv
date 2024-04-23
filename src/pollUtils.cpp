@@ -81,7 +81,6 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 
 	node.fd = fd;
 	node.events = POLLIN;
-	client.setPoll(&node);
 	pollVec.push_back(node);
 	if (!cgi)
 		sockVec.push_back(client);
@@ -90,7 +89,7 @@ void	add_pollfd(std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec, Socket
 void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec)
 {	
 	vector<pollfd>::iterator it = pollVec.begin();
-	int count;
+	int count = 0;
 
 	while(it != pollVec.end()) {
 
@@ -110,6 +109,4 @@ void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec)
 		}
 		else ++it2;
 	}
-
-	cout << "erased " << count << " polls/sockets" << endl;
 }

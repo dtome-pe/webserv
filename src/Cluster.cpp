@@ -18,6 +18,10 @@ void Cluster::setup()
 		createSocketAndAddToSockVecIfDifferent(_servVec, _sockVec, i);
 	for (unsigned int i = 0; i < _sockVec.size(); i++)
 		startSocketAndAddToPollFd(_sockVec, _pollVec, i);
+	_sockVec.reserve(10000);
+	_pollVec.reserve(10000);
+	_pidVec.reserve(10000);
+	_servVec.reserve(200);
 }
 
 void	Cluster::run()
@@ -33,6 +37,7 @@ void	Cluster::run()
 			throw std::runtime_error("poll error");
 		if (poll_count == 0)
 			continue ;
+		cout << "poll: " << poll_count << endl;
 		for (unsigned int i = 0; i < _pollVec.size(); i++)
 		{
 			if (_pollVec[i].revents == 0)
@@ -72,11 +77,11 @@ int		Cluster::addClient(int i)
 
 void	Cluster::readFrom(unsigned int i, Socket &client)
 {	
-	cout << "i: " << i << " Pollin. fd es: " << _pollVec[i].fd
-	 << " client fd: " << client.getFd() << " has request: " << client.getRequest();
+	cout << "i: " << i << " Pollin. fd es: " << _pollVec[i].fd << endl;
+/* 	 << " client fd: " << client.getFd() << " has request: " << client.getRequest();
 	if (client.getRequest())
-		cout << " and its listener is: " << client.getRequest()->getListener().getFd();
-	cout << endl;
+		cout << " and its listener is: " << client.getRequest()->getListener().getFd(); */
+	//cout << endl;
 	int		nbytes;
 	std::string text = "";
 	nbytes = receive(_pollVec[i].fd, text, _sockVec);
@@ -90,12 +95,12 @@ void	Cluster::readFrom(unsigned int i, Socket &client)
 		return (closeConnection(i, _pollVec, _sockVec));
 	else
 	{
-		if (!client.getRequest())
+		if (client.getRequest() == NULL)
 			client.setRequest(new Request(*this, _servVec, findListener(_sockVec, client), client));
 		int ret = client.addToClient(text, client.getRequest()->getCgi(), POLLIN);
 		if (ret == DONE || ret == DONE_ERROR)
 		{
-			cout << "DONE. fd: " << _pollVec[i].fd << endl;
+			//cout << "DONE. fd: " << _pollVec[i].fd << endl;
 			readEnough(ret, _pollVec, client, i);
 			client.getTextRead().clear();
 		}
@@ -143,7 +148,10 @@ void	Cluster::closeConnection(unsigned int i, std::vector<pollfd>&pollVec, std::
 	for (unsigned int j = 0; j < sockVec.size(); j++)
 	{
 		if (sockVec[j].getFd() == pollVec[i].fd)
+		{
 			sockVec[j].setFd(-1);
+			break ;
+		}
 
 	}
 	close(pollVec[i].fd);
