@@ -36,6 +36,8 @@ public:
 	
 	void 							closeConnection(unsigned int i, std::vector<pollfd> &_pollVec, std::vector<Socket>&_sockVec);
 
+	void							reserveVectors();
+
 	std::vector<Server> 			&getServerVector();
 	std::vector<Socket> 			&getSocketVector();
 	std::vector<pollfd> 			&getPollVector();

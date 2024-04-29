@@ -18,10 +18,7 @@ void Cluster::setup()
 		createSocketAndAddToSockVecIfDifferent(_servVec, _sockVec, i);
 	for (unsigned int i = 0; i < _sockVec.size(); i++)
 		startSocketAndAddToPollFd(_sockVec, _pollVec, i);
-	_sockVec.reserve(10000);
-	_pollVec.reserve(10000);
-	_pidVec.reserve(10000);
-	_servVec.reserve(200);
+	reserveVectors();
 }
 
 void	Cluster::run()
@@ -29,7 +26,6 @@ void	Cluster::run()
 	setSignals();
 	while (true)
 	{
-		
 		checkPids();
 		remove_pollfd(_pollVec, _sockVec);
 		int poll_count = poll(&_pollVec[0], _pollVec.size(), POLL_TIMEOUT);
@@ -78,10 +74,6 @@ int		Cluster::addClient(int i)
 void	Cluster::readFrom(unsigned int i, Socket &client)
 {	
 	cout << "i: " << i << " Pollin. fd es: " << _pollVec[i].fd << endl;
-/* 	 << " client fd: " << client.getFd() << " has request: " << client.getRequest();
-	if (client.getRequest())
-		cout << " and its listener is: " << client.getRequest()->getListener().getFd(); */
-	//cout << endl;
 	int		nbytes;
 	std::string text = "";
 	nbytes = receive(_pollVec[i].fd, text, _sockVec);
@@ -100,7 +92,6 @@ void	Cluster::readFrom(unsigned int i, Socket &client)
 		int ret = client.addToClient(text, client.getRequest()->getCgi(), POLLIN);
 		if (ret == DONE || ret == DONE_ERROR)
 		{
-			//cout << "DONE. fd: " << _pollVec[i].fd << endl;
 			readEnough(ret, _pollVec, client, i);
 			client.getTextRead().clear();
 		}
@@ -205,6 +196,14 @@ void Cluster::printVectors()
 	{
 		std::cout << i << " socket fd: " << _pollVec[i].fd << std::endl;
 	}
+}
+
+void    Cluster::reserveVectors()
+{
+	_sockVec.reserve(10000);
+	_pollVec.reserve(10000);
+	_pidVec.reserve(10000);
+	_servVec.reserve(200);
 }
 
 void	Cluster::checkPids()
