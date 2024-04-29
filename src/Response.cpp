@@ -188,6 +188,12 @@ void	Response::setResponse(int code, Request &request)
 			makeDefault(413, request, *this, "/413.html", request.getServer());
 			break;
 		}
+		case 414:
+		{
+			setStatusLine("HTTP/1.1 414 Request-URI Too Long");
+			makeDefault(413, request, *this, "/414.html", request.getServer());
+			break;
+		}
 		case 500:
 		{
 			setStatusLine("HTTP/1.1 500 Internal Server Error");

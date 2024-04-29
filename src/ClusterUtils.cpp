@@ -75,6 +75,24 @@ void           set400AndCloseConnection(Cluster &cluster, Socket &client, Reques
 
 }
 
+static bool     unallowedCharacterInRequestURI(std::string uri)
+{
+        const std::string unallowedChars = "\x00\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F"
+                                        "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F\x7F"
+                                        "\"<>^`{|}";
+        
+        for (size_t i = 0; i < uri.length(); ++i) {
+        char ch = uri[i];
+
+        for (size_t j = 0; j < sizeof(unallowedChars) - 1; ++j) {
+            if (ch == unallowedChars[j]) {
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 void            setResponse(Cluster &cluster, Socket &client, Request &req, unsigned int i)
 {
     if (client.getResponse()->getCode() != "")
@@ -89,6 +107,14 @@ void            setResponse(Cluster &cluster, Socket &client, Request &req, unsi
 				set400AndCloseConnection(cluster, client, req, i);
 			else if (req.getMethod() != "GET" && req.getMethod() != "PUT" && req.getMethod() != "DELETE" && req.getMethod() != "POST")
 				client.getResponse()->setResponse(501, req);
+            else if (req.getHeader("Transfer-Encoding") != "not found" && req.getHeader("Transfer-Encoding") != "chunked")
+                client.getResponse()->setResponse(501, req);
+            else if (unallowedCharacterInRequestURI(req.getTarget()))
+                client.getResponse()->setResponse(400, req);
+            else if (req.getTarget().length() > 2048)
+                client.getResponse()->setResponse(414, req);
+            else if (req.getHeader("Transfer-Encoding") == "not found" && req.getHeader("Content-Length") == "not found" && req.getMethod() == "POST")
+                client.getResponse()->setResponse(400, req);
 			else
 				client.getResponse()->setResponse(client.getResponse()->getResponseCode(req, req.getServer(), req.getLocation()), req);
 		}	

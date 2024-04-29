@@ -27,6 +27,7 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 		la conexion recibida*/
 		serv->setIpPort(_ip, _port);
 		listener = 1;
+		cout << _ip << endl;
 	}
 	else
 	{
