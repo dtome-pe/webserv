@@ -115,9 +115,11 @@ void            setResponse(Cluster &cluster, Socket &client, Request &req, unsi
                 client.getResponse()->setResponse(414, req);
             else if (req.getHeader("Transfer-Encoding") == "not found" && req.getHeader("Content-Length") == "not found" && req.getMethod() == "POST")
                 client.getResponse()->setResponse(400, req);
+            else if (entityTooLarge(req, req.getServer()))
+                client.getResponse()->setResponse(413, req);
 			else
 				client.getResponse()->setResponse(client.getResponse()->getResponseCode(req, req.getServer(), req.getLocation()), req);
-		}	
+		}
 	}
 }
 

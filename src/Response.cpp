@@ -15,9 +15,6 @@ Response::~Response()
 
 int		Response::getResponseCode(Request &request, const Server *serv, const Location *loc)
 {
-	if (entityTooLarge(request, serv))
-		return (413);
-
 	std::string path = getPath(request, serv, loc);
 
 	if (path == "none")
