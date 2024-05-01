@@ -70,6 +70,17 @@ pollfd		*Socket::getCgiPoll()
 	return (_cgiPoll);
 }
 
+bool		Socket::getTimeout()
+{
+	return (_timeout);
+}
+
+void		Socket::setTimeout(bool timeout)
+{
+	_timeout = timeout;
+}
+
+
 
 void Socket::setHost(std::string host)
 {

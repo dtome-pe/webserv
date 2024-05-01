@@ -113,6 +113,11 @@ void            setResponse(Cluster &cluster, Socket &client, Request &req, unsi
 		{
 			if (!req.good)
 				set400AndCloseConnection(cluster, client, req, i);
+            else if (client.getTimeout())
+            {
+                client.getResponse()->setResponse(500, req);
+                client.setTimeout(false);
+            }
 			else if (req.getMethod() != "GET" && req.getMethod() != "PUT" && req.getMethod() != "DELETE" && req.getMethod() != "POST")
 				client.getResponse()->setResponse(501, req);
             else if (req.getHeader("Transfer-Encoding") != "not found" && req.getHeader("Transfer-Encoding") != "chunked")
@@ -171,7 +176,11 @@ void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vec
         if (pollVec[j].fd == it->fd)
             cluster.closeConnection(j, pollVec, sockVec);
         else if (pollVec[j].fd == it->client->getFd())
-            cluster.closeConnection(j, pollVec, sockVec);
+        {
+            it->client->setTimeout(true);
+            it->client->setCgi(false);
+            pollVec[findPoll(pollVec, *(it->client))].events = POLLIN | POLLOUT;
+        }
     }
     close(it->fd);
     kill(it->pid, SIGKILL);

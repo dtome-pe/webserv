@@ -110,6 +110,11 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 	cout << "i: " << i  << " Pollout. pollfd es: " << _pollVec[i].fd << ". client fd: " << client.getFd() << endl;
 
 	//cout << "req en write to:  " << client.getRequest()->makeRequest() << endl;
+	if (!client.getRequest())
+	{
+		client.setRequest(new Request(*this, _servVec, findListener(_sockVec, client), client));
+		client.getRequest()->otherInit();
+	}
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	setResponse(*this, client, *client.getRequest(), i);
@@ -140,7 +145,7 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 	}
 	if ((*client.getRequest()).getCgi()) // nos ha llegado el output del cgi
 		closeCgiFd(i, _pollVec, client);
-	if ((*client.getRequest()).getKeepAlive() == false)
+	if ((*client.getRequest()).getKeepAlive() == false || client.getTimeout())
 		closeConnection(i, _pollVec, _sockVec);
 	deleteRequestAndResponse(client.getRequest(), client.getResponse());
 	clearClientAndSetPoll(client, _pollVec, i);

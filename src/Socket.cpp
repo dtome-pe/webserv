@@ -11,6 +11,7 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 	_response = NULL;
 	_ip = "";
 	s_addr = NULL;
+	_timeout = false;
 	if (s_ptr)
 	{
 		_host = host_port.substr(0, host_port.find(":"));
@@ -23,7 +24,6 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 		serv = s_ptr;
 		serv->setIpPort(_ip, _port);
 		listener = 1;
-		cout << _ip << endl;
 	}
 	else
 	{

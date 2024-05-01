@@ -28,6 +28,7 @@ class Socket
 
 		std::string			_textRead;
 		bool				_readAll;
+		bool				_timeout;
 
 		int					_bodyType;
 
@@ -82,6 +83,8 @@ class Socket
 		Request			*getRequest();
 		Response		*getResponse();
 
+		bool			getTimeout();
+
 		//setters
 		void			setPort(std::string port);
 		void			setIp(std::string ip);
@@ -112,7 +115,9 @@ class Socket
 		void			setBodyType(int type);
 
 		void			appendTextRead(std::string text);
-		void			setTextRead(std::string text);
+		void			setTextRead(std::string text);\
+
+		void			setTimeout(bool timeout);
 };
 
 #endif
