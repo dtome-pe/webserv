@@ -1,12 +1,17 @@
 #include <webserv.hpp>
 
-void        createSocketAndAddToSockVecIfDifferent(std::vector<Server> &servVec,  std::vector<Socket> &sockVec, int i)
+void     createSocketAndAddToSockVecIfDifferent(std::vector<Server> &servVec,  std::vector<Socket> &sockVec, int i)
 {
     for (size_t j = 0; j < servVec[i].host_port.size(); j++)
 	{
         Socket s(servVec[i].host_port[j], &servVec[i]);		
         if (!look_for_same(s, sockVec))
             sockVec.push_back(s);
+        else
+        {
+            freeaddrinfo(s.s_addr);
+            throw std::runtime_error("Same ip:port pair found more than once");
+        }
     }
 }
 

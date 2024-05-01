@@ -267,8 +267,6 @@ void	Cluster::setPid(pid_t pid, unsigned int fd, Socket &client)
 
 void	Cluster::clean()
 {
-	cout << "entra en clean" << endl;
-
 	for (unsigned int i = 0; i < _sockVec.size(); i++)
 	{
 		freeaddrinfo(_sockVec[i].s_addr);

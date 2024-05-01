@@ -18,6 +18,7 @@ int	main(int argc, char *argv[])
 		webserv.parseConfig(file);
 		webserv.setup();
 		webserv.run();
+		webserv.clean();
 	}
 	catch (std::exception &e)
 	{
