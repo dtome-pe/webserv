@@ -102,7 +102,7 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 {
 	cout << "i: " << i  << "Pollout. pollfd es: " << _pollVec[i].fd << "client fd: " << client.getFd() << endl;
 
-	//cout << "req en write to: " << client.getRequest()->makeRequest() << endl;
+	cout << "req en write to: target es" << client.getRequest()->getTarget() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	setResponse(*this, client, *client.getRequest(), i);
