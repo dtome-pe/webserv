@@ -13,7 +13,15 @@ try:
         print("Status: 403 Forbidden")
         sys.exit()
     if form['file'].filename:
-        uploadDir = os.environ['UPLOAD_DIR'] + "/" + form['file'].filename
+
+        filename = form['file'].filename
+        base_name, ext = os.path.splitext(filename)
+        index = 1
+        while os.path.exists(os.path.join(os.environ['UPLOAD_DIR'], filename)):
+            filename = f"{base_name} ({index}){ext}"
+            index += 1
+
+        uploadDir = os.environ['UPLOAD_DIR'] + "/" + filename
         f = open(uploadDir, "wb")
         fileContents = form['file'].file.read()
         f.write(fileContents)
