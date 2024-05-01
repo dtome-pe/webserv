@@ -10,21 +10,17 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 	_request = NULL;
 	_response = NULL;
 	_ip = "";
-	if (s_ptr) // listener
+	s_addr = NULL;
+	if (s_ptr)
 	{
-		/*trocemos host y port para meterlas en funcion get_addr_info*/
 		_host = host_port.substr(0, host_port.find(":"));
 		_port = host_port.substr(host_port.find(":") + 1, host_port.length());
 
 		if (this->get_addr_info(&s_addr, _host.c_str(), _port.c_str()) == 1)
-		   throw std::runtime_error("Error obtaining address information for the specified host and port.");	// obtenemos datos y se resuelve dominio y se introduce ip y puerto.
-		struct sockaddr_in *addr = (sockaddr_in *)s_addr->ai_addr;	// se castea para poder obtener ip
-		_ip = ip_to_str(addr);										// volcamos ip de network byte order a string, para luego chequear sockets duplicados
-							   // y posteriormente pasar informacion a server correspondiente
-		serv = s_ptr; // apuntamos a server correspondiente
-		/*en este momento le seteamos en el vector ip_port al server que ha generado este socket, la ip
-		ya resuelta y puerto, para en find_serv_block poder buscar que server la toca gestionar
-		la conexion recibida*/
+		   throw std::runtime_error("Error obtaining address information for the specified host and port.");
+		struct sockaddr_in *addr = (sockaddr_in *)s_addr->ai_addr;
+		_ip = ip_to_str(addr);										
+		serv = s_ptr;
 		serv->setIpPort(_ip, _port);
 		listener = 1;
 		cout << _ip << endl;
@@ -46,6 +42,7 @@ void Socket::start()
 	if (listen_s() == 1)
 		throw std::runtime_error("error setting up the socket to listen for incoming connections.");
 	freeaddrinfo(s_addr);
+	s_addr = NULL;
 }
 
 int Socket::get_addr_info(struct addrinfo **s_addr, const char *host, const char *port)

@@ -242,3 +242,11 @@ void	Cluster::setPid(pid_t pid, unsigned int fd, Socket &client)
 
 	_pidVec.push_back(node);
 }
+
+void	Cluster::clean()
+{
+	for (unsigned int i = 0; i < _sockVec.size(); i++)
+	{
+		freeaddrinfo(_sockVec[i].s_addr);
+	}	
+}

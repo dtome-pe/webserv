@@ -29,6 +29,7 @@ public:
 	void 							parseConfig(std::string	file);
 	void 							setup();
 	void 							run();
+	void							clean();
 
 	int 							addClient(int i);
 	void 							readFrom(unsigned int i, Socket &client);
