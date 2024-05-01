@@ -1,5 +1,7 @@
 #include "../inc/Cluster.hpp"
 
+int stop = 0;
+
 Cluster::Cluster()
 {
 
@@ -29,6 +31,8 @@ void	Cluster::run()
 		checkPids();
 		remove_pollfd(_pollVec, _sockVec);
 		int poll_count = poll(&_pollVec[0], _pollVec.size(), POLL_TIMEOUT);
+		if (stop == 1)
+			return ;
 		if (poll_count == -1)
 			throw std::runtime_error("poll error");
 		if (poll_count == 0)
@@ -245,8 +249,13 @@ void	Cluster::setPid(pid_t pid, unsigned int fd, Socket &client)
 
 void	Cluster::clean()
 {
+	cout << "entra en clean" << endl;
+
 	for (unsigned int i = 0; i < _sockVec.size(); i++)
 	{
 		freeaddrinfo(_sockVec[i].s_addr);
-	}	
+		delete _sockVec[i].getResponse();
+		delete _sockVec[i].getRequest();
+	}
+
 }

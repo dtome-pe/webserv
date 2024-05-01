@@ -19,9 +19,16 @@ void        startSocketAndAddToPollFd(std::vector<Socket> &sockVec, std::vector<
 	pollVec.push_back(node);
 }
 
+void        sigIntHandler(int sig)
+{
+    if (sig == SIGINT)
+        stop = 1;
+}
+
 void        setSignals()
 {
-    signal(SIGINT, SIG_DFL);
+    signal(SIGINT, SIG_IGN);
+    signal(SIGINT, sigIntHandler);
 	signal(SIGPIPE, SIG_IGN);   
 }
 

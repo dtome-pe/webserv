@@ -4,7 +4,7 @@
 #include <webserv.hpp>
 
 #define CGI_TIMEOUT 5
-#define POLL_TIMEOUT 1000
+#define POLL_TIMEOUT 5
 
 struct pidStruct
 {

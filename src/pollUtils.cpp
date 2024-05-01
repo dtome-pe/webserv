@@ -91,9 +91,11 @@ void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec)
 	vector<pollfd>::iterator it = pollVec.begin();
 	int count = 0;
 
-	while(it != pollVec.end()) {
+	while(it != pollVec.end()) 
+	{
 
-		if(it->fd == -1) {
+		if(it->fd == -1) 
+		{
 			it = pollVec.erase(it);
 			count++;
 		}
@@ -102,9 +104,13 @@ void	remove_pollfd(std::vector<pollfd> &pollVec, std::vector<Socket>&sockVec)
 
 	vector<Socket>::iterator it2 = sockVec.begin();
 
-	while(it2 != sockVec.end()) {
+	while(it2 != sockVec.end()) 
+	{
 
-		if(it2->getFd() == -1) {
+		if(it2->getFd() == -1) 
+		{
+			delete it2->getRequest();
+			delete it2->getResponse();
 			it2 = sockVec.erase(it2);
 		}
 		else ++it2;

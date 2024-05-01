@@ -23,6 +23,8 @@ class Server;
 
 struct pidStruct;
 
+extern int	stop;
+
 typedef struct socket_list
 {
 	Socket *sock;
