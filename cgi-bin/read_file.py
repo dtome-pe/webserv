@@ -2,6 +2,9 @@
 import os
 import sys
 import cgi
+import cgitb
+
+cgitb.enable()
 
 try:
     form = cgi.FieldStorage(keep_blank_values=True)

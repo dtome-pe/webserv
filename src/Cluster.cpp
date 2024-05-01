@@ -31,14 +31,17 @@ void	Cluster::run()
 		checkPids();
 		remove_pollfd(_pollVec, _sockVec);
 		int poll_count = poll(&_pollVec[0], _pollVec.size(), POLL_TIMEOUT);
-		if (stop == 1)
-			return ;
 		if (poll_count == -1)
-			throw std::runtime_error("poll error");
+		{
+			if (errno == EINTR)
+				return ;
+			else
+				throw std::runtime_error("poll error");
+		}
 		if (poll_count == 0)
 			continue ;
-		cout << "poll: " << poll_count << endl;
-		for (unsigned int i = 0; i < _pollVec.size(); i++)
+		size_t size = _pollVec.size();
+		for (unsigned int i = 0; i < size; i++)
 		{
 			if (_pollVec[i].revents == 0)
 				continue ;
@@ -104,9 +107,9 @@ void	Cluster::readFrom(unsigned int i, Socket &client)
 
 void	Cluster::writeTo(unsigned int i, Socket &client)
 {
-	cout << "i: " << i  << "Pollout. pollfd es: " << _pollVec[i].fd << "client fd: " << client.getFd() << endl;
+	cout << "i: " << i  << " Pollout. pollfd es: " << _pollVec[i].fd << ". client fd: " << client.getFd() << endl;
 
-	cout << "req en write to: target es" << client.getRequest()->getTarget() << endl;
+	//cout << "req en write to:  " << client.getRequest()->makeRequest() << endl;
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	setResponse(*this, client, *client.getRequest(), i);
@@ -115,7 +118,10 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 	if (str_to_int(client.getResponse()->getCode()) == CGI)
 		ret = CGI;
 	else
+	{
 		ret = sendResponseAndReturnCode(client);
+		cout << "response sent: " << endl;
+	}
 	if (ret == 0 || ret == -1)
 	{
 		cout << "error send" << endl;
@@ -127,6 +133,9 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 		client.bouncePrevious(*client.getRequest(), ret);
 	if (ret == CGI) // se inicia proceso cgi
 	{
+		cout << "proceso cgi" << endl;
+		deleteRequestAndResponse(client.getRequest(), client.getResponse());
+		clearClientAndSetPoll(client, _pollVec, i);
 		return (add_pollfd(_pollVec, _sockVec, client, client.getCgiFd(), true));
 	}
 	if ((*client.getRequest()).getCgi()) // nos ha llegado el output del cgi
@@ -223,13 +232,17 @@ void	Cluster::checkPids()
 			if (waitpid(it->pid, &status, WNOHANG) > 0) 
 			{
 				if (WIFEXITED(status))
+				{	
 					killZombieProcess(it, _pidVec);
+				}
 			}
-			else
+			else 
 			{
 				if (timeEpoch() - it->time > CGI_TIMEOUT)
+				{
 					killTimeoutProcessAndDisconnectClient(*this, _pollVec, _pidVec, _sockVec, it);
-			}
+				}
+			}		
 		}
 		else
 			it = _pidVec.erase(it);

@@ -158,13 +158,14 @@ void            closeCgiFd(unsigned int i, std::vector<pollfd> &pollVec, Socket 
 
 void            killZombieProcess(std::vector<pidStruct>::iterator &it, std::vector<pidStruct> &pidVec)
 {
-    close(it->fd);
     kill(it->pid, SIGKILL);
+    waitpid(it->pid, NULL, 0);
     it = pidVec.erase(it);
 }
 
 void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<pollfd> &pollVec, std::vector<pidStruct> &pidVec, std::vector<Socket> &sockVec, std::vector<pidStruct>::iterator &it)
 {
+    cout << "entra en killTimeout" << endl;
     for (unsigned int j = 0; j < pollVec.size(); j++)
     {
         if (pollVec[j].fd == it->fd)
@@ -175,7 +176,7 @@ void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vec
     close(it->fd);
     kill(it->pid, SIGKILL);
     waitpid(it->pid, NULL, 0);
-    it = pidVec.erase(it);
+    it = pidVec.erase(it);  
 }
 
 void    deleteRequestAndResponse(Request *request, Response *response)
