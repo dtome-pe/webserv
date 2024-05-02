@@ -4,7 +4,7 @@ int stop = 0;
 
 Cluster::Cluster()
 {
-
+	reserveVectors();
 }
 
 void Cluster::parseConfig(std::string file)
@@ -20,7 +20,6 @@ void Cluster::setup()
 		createSocketAndAddToSockVecIfDifferent(_servVec, _sockVec, i);
 	for (unsigned int i = 0; i < _sockVec.size(); i++)
 		startSocketAndAddToPollFd(_sockVec, _pollVec, i);
-	reserveVectors();
 }
 
 void	Cluster::run()
@@ -101,6 +100,7 @@ void	Cluster::readFrom(unsigned int i, Socket &client)
 		{
 			readEnough(ret, _pollVec, client, i);
 			client.getTextRead().clear();
+			client.setReadAll(false);
 		}
 	}
 }
@@ -111,10 +111,7 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 
 	//cout << "req en write to:  " << client.getRequest()->makeRequest() << endl;
 	if (!client.getRequest())
-	{
 		client.setRequest(new Request(*this, _servVec, findListener(_sockVec, client), client));
-		client.getRequest()->otherInit();
-	}
 	if (!client.getResponse())
 		client.setResponse(new Response());
 	setResponse(*this, client, *client.getRequest(), i);
@@ -145,7 +142,7 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 	}
 	if ((*client.getRequest()).getCgi()) // nos ha llegado el output del cgi
 		closeCgiFd(i, _pollVec, client);
-	if ((*client.getRequest()).getKeepAlive() == false || client.getTimeout())
+	if ((*client.getRequest()).getHeader("Connection") == "close" || client.getTimeout())
 		closeConnection(i, _pollVec, _sockVec);
 	deleteRequestAndResponse(client.getRequest(), client.getResponse());
 	clearClientAndSetPoll(client, _pollVec, i);
@@ -218,10 +215,10 @@ void Cluster::printVectors()
 
 void    Cluster::reserveVectors()
 {
-	_sockVec.reserve(10000);
-	_pollVec.reserve(10000);
-	_pidVec.reserve(10000);
-	_servVec.reserve(200);
+	_sockVec.reserve(20000);
+	_pollVec.reserve(20000);
+	_pidVec.reserve(20000);
+	_servVec.reserve(2000);
 }
 
 void	Cluster::checkPids()

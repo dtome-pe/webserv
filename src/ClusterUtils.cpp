@@ -10,7 +10,7 @@ void     createSocketAndAddToSockVecIfDifferent(std::vector<Server> &servVec,  s
         else
         {
             freeaddrinfo(s.s_addr);
-            throw std::runtime_error("Same ip:port pair found more than once");
+            throw std::runtime_error("Duplicate listen");
         }
     }
 }
@@ -26,8 +26,7 @@ void        startSocketAndAddToPollFd(std::vector<Socket> &sockVec, std::vector<
 
 void        sigIntHandler(int sig)
 {
-    if (sig == SIGINT)
-        stop = 1;
+    (void) sig;
 }
 
 void        setSignals()
@@ -61,22 +60,17 @@ void        readNothing(Socket &client, std::vector<pollfd> &pollVec)
 {
 	cout << "entra en readNothing" << endl;
     client.addToClient("", client.getRequest()->getCgi(), 0);
-    pollVec[findPoll(pollVec, client)].events = POLLIN | POLLOUT;
-    client.getRequest()->otherInit();   
+    pollVec[findPoll(pollVec, client)].events = POLLIN | POLLOUT; 
 }
 
 void        readEnough(int ret, std::vector<pollfd> &pollVec, Socket &client, int i)
 {
     if (ret == DONE)
-    {
-        pollVec[i].events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
-        client.getRequest()->otherInit();
-    }
+        pollVec[i].events = POLLIN | POLLOUT;
     else if (ret == DONE_ERROR)
     {
         close(pollVec[i].fd);
-        client.getPoll()->events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
-        client.getRequest()->otherInit();
+        client.getPoll()->events = POLLIN | POLLOUT;
     }
 }
 

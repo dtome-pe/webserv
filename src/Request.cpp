@@ -16,7 +16,6 @@ Request::Request(Cluster &cluster, const std::vector<class Server> &server, Sock
 	uploadStore = "";
 	request_line = "";
 	waitingForBody = false;
-
 	if (client.getContinue() || client.getCgi())   
 	{
 		cout << "entra en get continue | cgi" << endl;										
@@ -34,20 +33,11 @@ Request::Request(Cluster &cluster, const std::vector<class Server> &server, Sock
 		client.setPreviousRequestLine("");
 		client.getPreviousHeaders().clear();
 	}
-}
-
-void Request::otherInit()
-{
 	setIpPortHost(listener);
-	if (getHeader("Connection") == "close") // cambiamos keepAlive si explicitamente se solicita la finalizacion de la conexion
-		keepAlive = false;
-	/*determinamos block server y location relevantes para request*/
 	setServer(server);
 	setLocation(getServer());
-	if (loc && loc->getUploadStore() != "")   // seteamos uploadStore si toca
+	if (loc && loc->getUploadStore() != "")
 		setUploadStore(loc->getUploadStore());
-	client.setTextRead(""); // limpiamos buffer
-	client.setReadAll(false);
 }
 
 Request::~Request()
