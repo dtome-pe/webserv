@@ -52,6 +52,8 @@ class Request
 	public:
 		Request(Cluster &cluster, const std::vector<class Server> &server, Socket &listener, Socket &client);
 		~Request();
+		
+		void				otherInit();
 
 		void				setRequestLine(std::string _request_line);
 		void				setHeader(std::string _header);

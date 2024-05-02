@@ -16,6 +16,7 @@ Request::Request(Cluster &cluster, const std::vector<class Server> &server, Sock
 	uploadStore = "";
 	request_line = "";
 	waitingForBody = false;
+
 	if (client.getContinue() || client.getCgi())   
 	{
 		cout << "entra en get continue | cgi" << endl;										
@@ -33,6 +34,10 @@ Request::Request(Cluster &cluster, const std::vector<class Server> &server, Sock
 		client.setPreviousRequestLine("");
 		client.getPreviousHeaders().clear();
 	}
+}
+
+void Request::otherInit()
+{
 	setIpPortHost(listener);
 	setServer(server);
 	setLocation(getServer());

@@ -23,7 +23,7 @@ int		Response::getResponseCode(Request &request, const Server *serv, const Locat
 	{
 		if (methodNotAllowed(request.getMethod(), loc, serv))
 			return (405);
-
+			
 		if (loc && loc->getRedirection().length() > 0)
 			return (loc->getRedirectionNumber());
 

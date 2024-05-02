@@ -2,6 +2,7 @@
 
 int	cgi(Response &response, Request &request, std::string path, std::string method)
 {
+	cout << "entra en cgi" << endl;
 	if (method != "output") // no es la respuesta de un proceso de cgi
 	{
 		if (method == "PUT" && request.getUploadStore() == "") 
@@ -32,7 +33,6 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 			close(pipe_from_child[0]);
 			char* const* argv = setArgv(request, path, method);
 			char * const* envp = setEnvp(request, path, method);
-
 			if (dup2(pipe_to_child[0], STDIN_FILENO) == -1 || dup2(pipe_from_child[1], STDOUT_FILENO) == -1)
 				cout << "Status: 500 Internal Server Error" << endl;
 			close(pipe_to_child[0]);
@@ -40,7 +40,7 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 			if (request.getMethod() == "PUT" || request.getMethod() == "DELETE")
 				execve("/usr/bin/python3", argv, envp);
 			else
-				execve(request.getCgiBinary().c_str(), argv, envp); // POST - GET CGI
+				execve(request.getCgiBinary().c_str(), argv, envp);
 			cout << "Status: 500 Internal Server Error\r\n" << endl;
 			return (0);
 		}

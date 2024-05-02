@@ -60,17 +60,22 @@ void        readNothing(Socket &client, std::vector<pollfd> &pollVec)
 {
 	cout << "entra en readNothing" << endl;
     client.addToClient("", client.getRequest()->getCgi(), 0);
-    pollVec[findPoll(pollVec, client)].events = POLLIN | POLLOUT; 
+    pollVec[findPoll(pollVec, client)].events = POLLIN | POLLOUT;
+    client.getRequest()->otherInit();
 }
 
 void        readEnough(int ret, std::vector<pollfd> &pollVec, Socket &client, int i)
 {
     if (ret == DONE)
+    {
         pollVec[i].events = POLLIN | POLLOUT;
+        client.getRequest()->otherInit();
+    }
     else if (ret == DONE_ERROR)
     {
         close(pollVec[i].fd);
-        client.getPoll()->events = POLLIN | POLLOUT;
+        client.getPoll()->events = POLLIN | POLLOUT; // vamos anadiendo a request, si request ha acabado, pondriamos fd en pollout
+        client.getRequest()->otherInit();
     }
 }
 
