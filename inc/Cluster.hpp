@@ -25,7 +25,7 @@ private:
 
 public:
 	Cluster();
-
+	~Cluster();
 	void 							parseConfig(std::string	file);
 	void 							setup();
 	void 							run();

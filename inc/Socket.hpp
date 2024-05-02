@@ -39,7 +39,6 @@ class Socket
 
 	
 	public:
-
 		class Server 			*serv;
 		Socket(std::string host_port, Server *s_ptr);
 
@@ -50,7 +49,7 @@ class Socket
 		socklen_t 			sock_addrlen;
 		
 		
-		void			start();
+		int			start();
 
 		int				get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
 		int				create_s(struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen);

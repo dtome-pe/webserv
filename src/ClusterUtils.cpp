@@ -4,7 +4,7 @@ void        createSocketAndAddToSockVecIfDifferent(std::vector<Server> &servVec,
 {
     for (size_t j = 0; j < servVec[i].host_port.size(); j++)
 	{
-        Socket s(servVec[i].host_port[j], &servVec[i]);		
+        Socket s(servVec[i].host_port[j], &servVec[i]);
         if (!look_for_same(s, sockVec))
             sockVec.push_back(s);
     }

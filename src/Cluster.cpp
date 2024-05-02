@@ -5,6 +5,11 @@ Cluster::Cluster()
 
 }
 
+Cluster::~Cluster()
+{
+
+}
+
 void Cluster::parseConfig(std::string file)
 {
 	_conf.parse_config(*this, file);

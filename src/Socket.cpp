@@ -37,15 +37,18 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 	}
 }
 
-void Socket::start()
+int Socket::start()
 {
 	if (create_s(s_addr, sock_addr, sock_addrlen) == 1)
 	   throw std::runtime_error("error creating socket");
 	if (bind_s(s_addr) == 1)
+	{
 		throw std::runtime_error("error executing the bind.");
+	}
 	if (listen_s() == 1)
 		throw std::runtime_error("error setting up the socket to listen for incoming connections.");
 	freeaddrinfo(s_addr);
+	return (0);
 }
 
 int Socket::get_addr_info(struct addrinfo **s_addr, const char *host, const char *port)
