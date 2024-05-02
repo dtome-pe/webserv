@@ -351,7 +351,12 @@ int		ConfFile::parse_element(std::string &content, int i)
 			else if (line.find("listen ") != std::string::npos)
 				findIp(Serv, &line[line.find("listen ")]); 
 			else if (line.find("server_name ") != std::string::npos)
-				Serv.addVServerName(findInfo(line, "server_name"));
+			{
+				std::string servNames = line.substr(12, line.length() - 13);
+				std::vector<std::string> servNamesV = splitString(servNames);
+				for (size_t i = 0; i < servNamesV.size(); i++)
+					Serv.addVServerName(servNamesV[i]);
+			}
 			else if (line.find("error_page ") != std::string::npos)
 				Serv.setErrorPage(findInfo(line, "error_page "));
 			else if (line.find("root ") != std::string::npos)

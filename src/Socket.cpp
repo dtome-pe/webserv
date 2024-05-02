@@ -1,6 +1,6 @@
 #include <webserv.hpp>
 
-Socket::Socket(std::string host_port, Server *s_ptr)
+Socket::Socket(std::string host_port, Server *s_ptr, int serverId)
 {
 	_cgiFd = -1;
 	_cgi = false;
@@ -24,6 +24,7 @@ Socket::Socket(std::string host_port, Server *s_ptr)
 		serv = s_ptr;
 		serv->setIpPort(_ip, _port);
 		listener = 1;
+		_serverId = serverId;
 	}
 	else
 	{

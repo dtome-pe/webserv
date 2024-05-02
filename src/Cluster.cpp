@@ -79,11 +79,10 @@ int		Cluster::addClient(int i)
 
 void	Cluster::readFrom(unsigned int i, Socket &client)
 {	
-	cout << "i: " << i << " Pollin. fd es: " << _pollVec[i].fd << endl;
+	//cout << "i: " << i << " Pollin. fd es: " << _pollVec[i].fd << endl;
 	int		nbytes;
 	std::string text = "";
 	nbytes = receive(_pollVec[i].fd, text, _sockVec);
-	//cout << "nbytes leidos: " << nbytes << endl;
 	if (nbytes == 0 && client.getRequest() && client.getRequest()->getCgi())
 	{	
 		readNothing(client, _pollVec);
@@ -107,8 +106,7 @@ void	Cluster::readFrom(unsigned int i, Socket &client)
 
 void	Cluster::writeTo(unsigned int i, Socket &client)
 {
-	cout << "i: " << i  << " Pollout. pollfd es: " << _pollVec[i].fd << ". client fd: " << client.getFd() << endl;
-
+	//cout << "i: " << i  << " Pollout. pollfd es: " << _pollVec[i].fd << ". client fd: " << client.getFd() << endl;
 	if (!client.getRequest())
 	{
 		client.setRequest(new Request(*this, _servVec, findListener(_sockVec, client), client));
@@ -124,11 +122,11 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 	else
 	{
 		ret = sendResponseAndReturnCode(client);
-		cout << "response sent: " << endl;
+		//cout << "response sent: " << endl;
 	}
 	if (ret == 0 || ret == -1)
 	{
-		cout << "error send" << endl;
+		//cout << "error send" << endl;
 		closeConnection(i, _pollVec, _sockVec);
 		return ;
 	}
@@ -137,7 +135,7 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 		client.bouncePrevious(*client.getRequest(), ret);
 	if (ret == CGI)
 	{
-		cout << "proceso cgi" << endl;
+		//cout << "proceso cgi" << endl;
 		deleteRequestAndResponse(client.getRequest(), client.getResponse());
 		clearClientAndSetPoll(client, _pollVec, i);
 		return (add_pollfd(_pollVec, _sockVec, client, client.getCgiFd(), true));
@@ -152,7 +150,7 @@ void	Cluster::writeTo(unsigned int i, Socket &client)
 
 void	Cluster::closeConnection(unsigned int i, std::vector<pollfd>&pollVec, std::vector<Socket>&sockVec)
 {
-	cout << pollVec[i].fd << " closed connection" << endl;
+	//cout << pollVec[i].fd << " closed connection" << endl;
 	for (unsigned int j = 0; j < sockVec.size(); j++)
 	{
 		if (sockVec[j].getFd() == pollVec[i].fd)

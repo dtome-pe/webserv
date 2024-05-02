@@ -4,10 +4,13 @@ void     createSocketAndAddToSockVecIfDifferent(std::vector<Server> &servVec,  s
 {
     for (size_t j = 0; j < servVec[i].host_port.size(); j++)
 	{
-        Socket s(servVec[i].host_port[j], &servVec[i]);		
-        if (!look_for_same(s, sockVec))
+        Socket s(servVec[i].host_port[j], &servVec[i], i);
+        int ret = lookForSame(s, sockVec);	
+        if (ret == DIFFERENT)
             sockVec.push_back(s);
-        else
+        else if (ret == SAME_BUT_DIFFERENT_SERVER)
+            continue ;
+        else if (ret == LISTEN_DUPLICATE)
         {
             freeaddrinfo(s.s_addr);
             throw std::runtime_error("Duplicate listen");
@@ -38,8 +41,8 @@ void        setSignals()
 
 int         createNonBlockingClientSocketAndAddToPollAndSock(struct sockaddr_in c_addr, std::vector<pollfd> &pollVec, int i, int c_fd, std::vector<Socket> &sockVec)
 {
-    Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL);
-    cout << "i: " << i << " client " << c_fd << " with ip: " << ip_to_str(&c_addr) << ":" << port_to_str(&c_addr) << " added. It points to fd " << pollVec[i].fd << endl;
+    Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL, 0);
+   // cout << "i: " << i << " client " << c_fd << " with ip: " << ip_to_str(&c_addr) << ":" << port_to_str(&c_addr) << " added. It points to fd " << pollVec[i].fd << endl;
     client.pointTo(pollVec[i].fd);
     client.setFd(c_fd);
     if (client.setNonBlocking(c_fd) == 1)
@@ -58,7 +61,6 @@ int         handleAcceptError()
 
 void        readNothing(Socket &client, std::vector<pollfd> &pollVec)
 {
-	cout << "entra en readNothing" << endl;
     client.addToClient("", client.getRequest()->getCgi(), 0);
     pollVec[findPoll(pollVec, client)].events = POLLIN | POLLOUT;
     client.getRequest()->otherInit();

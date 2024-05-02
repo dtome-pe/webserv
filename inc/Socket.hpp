@@ -38,11 +38,13 @@ class Socket
 		pollfd				*_poll;
 		pollfd				*_cgiPoll;
 
+		int					_serverId;
+
 	
 	public:
 
 		class Server 			*serv;
-		Socket(std::string host_port, Server *s_ptr);
+		Socket(std::string host_port, Server *s_ptr, int serverId);
 
 		int					pointingTo;
 		int					listener;
@@ -84,6 +86,8 @@ class Socket
 		Response		*getResponse();
 
 		bool			getTimeout();
+
+		int				getServerId();
 
 		//setters
 		void			setPort(std::string port);

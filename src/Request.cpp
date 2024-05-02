@@ -120,10 +120,9 @@ void	Request::setRequestLine(std::string reqLine)
 	this->version = split[2];
 }
 
-static const Server *ip_port(const std::vector<class Server> &serv, Request &request)
+static const Server *findServer(const std::vector<class Server> &serv, Request &request)
 {
-	const Server *	ret = NULL;
-
+	std::string		serverName = request.getHeader("Host").substr(0, request.getHeader("Host").find(":"));
 	for(size_t i = 0; i < serv.size(); i++)  
 	{	
 		for (size_t j = 0; j < serv[i].ip_port.size(); j++)
@@ -131,32 +130,13 @@ static const Server *ip_port(const std::vector<class Server> &serv, Request &req
 			if ((request.getIp() == serv[i].getIp(serv[i].ip_port[j]) ||
 					serv[i].getIp(serv[i].ip_port[j]) == "") && request.getPort() == serv[i].getPort(serv[i].ip_port[j]))
 			{
-				if (!ret)
+				for (size_t l = 0; l < serv[i].getVServerName().size(); l++)
 				{
-					ret = &serv[i];
-					break ;
+					if (serverName == serv[i].getVServerName()[l])
+					{
+						return (&serv[i]);
+					}	
 				}
-				if (ret)
-					return (NULL);
-			}
-		}
-	}
-	return (ret);
-}
-
-static const Server *serverName(const std::vector<class Server> &serv, Request &request)
-{
-	const Server *ret;
-
-	for(size_t i = 0; i < serv.size(); i++)  
-	{	
-		const std::vector<std::string> &serv_name = serv[i].getVServerName();
-		for (size_t j = 0; j < serv_name.size(); j++)
-		{
-			if (serv_name[j] == request.getHost())
-			{	
-				ret = &serv[i];
-				return (ret);
 			}
 		}
 	}
@@ -184,15 +164,11 @@ void Request::setServer(const std::vector<class Server> &server)
 {	
 	const Server *block;
 
-	block = ip_port(server, *this);
+	block = findServer(server, *this);
 	if (!block)
 	{
-		block = serverName(server, *this);
-		if (!block)
-		{
-			serv = getFirstBlock(server, *this);
-			return ;
-		}
+		serv = getFirstBlock(server, *this);
+		return ;
 	}
 	serv = block;
 }

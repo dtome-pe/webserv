@@ -19,6 +19,10 @@ using namespace std;
 
 #define BUFF_SIZE 100
 
+#define LISTEN_DUPLICATE 0
+#define SAME_BUT_DIFFERENT_SERVER 1
+#define DIFFERENT 2
+
 class Server;
 
 struct pidStruct;
@@ -149,7 +153,7 @@ unsigned int 	str_to_int(std::string str);
 std::string 	getCurrentTime();
 std::string 	getLastModified(std::string path);
 uint64_t 		timeEpoch();
-bool 			look_for_same(Socket &sock, std::vector<Socket> &sock_vec);
+int 			lookForSame(Socket &sock, std::vector<Socket> &sock_vec);
 uint64_t		hexStringToDecimalUint(const std::string& hexDigit);
 
 #endif
