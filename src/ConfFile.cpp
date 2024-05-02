@@ -92,7 +92,6 @@ void	ConfFile::parse_config(Cluster &cluster, std::string file)
 	std::string result;
 	int servers;
 
-	cout << "file: " << file << endl;
 	in.open(file.c_str(), std::ios::in);
  	if (!in.is_open())
 		throw std::runtime_error("File could not be found or opened.");
@@ -296,7 +295,12 @@ void	ConfFile::parse_location(std::string line, Location& loc)
 			std::string path = res.substr(pos, fpos);
 			trimSpaces(path);
 			if (execute == ".py")
-				loc.setCGI(execute, path);
+			{	
+				if (path == "/usr/bin/python3")
+					loc.setCGI(execute, path);
+				else
+					throw std::runtime_error("Please type a valid python binary");
+			}	
 			else
 				throw std::runtime_error(line + " => only .py is allowed for cgi");
 		}
