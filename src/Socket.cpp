@@ -14,13 +14,10 @@ Socket::Socket(std::string host_port, Server *s_ptr, int serverId)
 	_timeout = false;
 	if (s_ptr)
 	{
-		_host = host_port.substr(0, host_port.find(":"));
+		_ip = host_port.substr(0, host_port.find(":"));
 		_port = host_port.substr(host_port.find(":") + 1, host_port.length());
-
-		if (this->get_addr_info(&s_addr, _host.c_str(), _port.c_str()) == 1)
-		   throw std::runtime_error("Error obtaining address information for the specified host and port.");
-		struct sockaddr_in *addr = (sockaddr_in *)s_addr->ai_addr;
-		_ip = ip_to_str(addr);										
+		if (this->get_addr_info(&s_addr, _port.c_str()) == 1)
+		   throw std::runtime_error("Error obtaining address information for the specified host and port.");							
 		serv = s_ptr;
 		serv->setIpPort(_ip, _port);
 		listener = 1;
@@ -46,7 +43,7 @@ void Socket::start()
 	s_addr = NULL;
 }
 
-int Socket::get_addr_info(struct addrinfo **s_addr, const char *host, const char *port)
+int Socket::get_addr_info(struct addrinfo **s_addr, const char *port)
 {
 	int status;
 	struct addrinfo hints;
@@ -55,7 +52,7 @@ int Socket::get_addr_info(struct addrinfo **s_addr, const char *host, const char
 	hints.ai_family = AF_INET;
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE;
-	status = getaddrinfo(host, port, &hints, s_addr);
+	status = getaddrinfo(NULL, port, &hints, s_addr);
 	if (status != 0)
 		return (1);
 	return (0);
@@ -92,6 +89,7 @@ int Socket::bind_s(struct addrinfo *s_addr)
 	}
 	if (bind(_fd, (const sockaddr *)addr, s_addr->ai_addrlen) < 0)
 	{
+		cout << strerror(errno) << endl;
 		close(_fd);
 		return (1);
 	}

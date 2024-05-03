@@ -55,7 +55,7 @@ class Socket
 		
 		void			start();
 
-		int				get_addr_info(struct addrinfo **s_addr, const char *host, const char *port);
+		int				get_addr_info(struct addrinfo **s_addr, const char *port);
 		int				create_s(struct addrinfo *s_addr, struct sockaddr_in sock_addr, socklen_t sock_addrlen);
 		int 			bind_s(struct addrinfo *s_addr);
 		int 			listen_s();
