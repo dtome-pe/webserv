@@ -18,8 +18,7 @@ Request::Request(Cluster &cluster, const std::vector<class Server> &server, Sock
 	waitingForBody = false;
 
 	if (client.getContinue() || client.getCgi())   
-	{
-		cout << "entra en get continue | cgi" << endl;										
+	{										
 		setRequestLine(client.getPreviousRequestLine());
 		setHeaders(client.getPreviousHeaders());
 		if (client.getCgi())

@@ -2,7 +2,6 @@
 
 int	cgi(Response &response, Request &request, std::string path, std::string method)
 {
-	cout << "entra en cgi" << endl;
 	if (method != "output") // no es la respuesta de un proceso de cgi
 	{
 		if (method == "PUT" && request.getUploadStore() == "") 
@@ -57,7 +56,6 @@ int	cgi(Response &response, Request &request, std::string path, std::string meth
 	}
 	else
 	{
-		cout << "entra en cgi output" << endl;
 		close(request.getClient().getCgiFd());
 		if (response.getCgiHeader("Status") != "not found")
 			return (str_to_int(response.getCgiHeader("Status").substr(0, response.getHeader("Status").find(" "))));

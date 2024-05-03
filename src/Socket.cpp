@@ -132,7 +132,6 @@ int	Socket::addToClient(std::string text, bool cgi, int type)
 	}
 	else
 	{
-		cout << "entramos en parse cgi" << endl;
 		if (!getResponse())
 			setResponse(new Response());
 		int ret = parseCgiOutputTillBody(*this, _textRead, text, &flag);

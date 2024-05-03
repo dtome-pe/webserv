@@ -18,7 +18,7 @@ try:
         base_name, ext = os.path.splitext(filename)
         index = 1
         while os.path.exists(os.path.join(os.environ['UPLOAD_DIR'], filename)):
-            filename = f"{base_name} ({index}){ext}"
+            filename = f"{base_name}({index}){ext}"
             index += 1
 
         uploadDir = os.environ['UPLOAD_DIR'] + "/" + filename
