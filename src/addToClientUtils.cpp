@@ -66,7 +66,6 @@ int parseCgiOutputTillBody(Socket &client, std::string &textRead, std::string te
 {
     size_t  i = 0;
 
-	//cout << "textRead: " << textRead << " length: " << textRead.length() << endl;
     while (i < textRead.length())
     {
         if (!client.getResponse()->waitingForBody)
@@ -75,7 +74,7 @@ int parseCgiOutputTillBody(Socket &client, std::string &textRead, std::string te
             {
                 if (!*flag)
                 {
-                    if (!checkIfHeader(text)) // si la primera linea del output no es ninguno de los tres headers esenciales, damos 500. nos aseguramos de que haya algun header.
+                    if (!checkIfHeader(text))
                     {
                         client.getResponse()->setCode("500");
                         return (DONE_ERROR);

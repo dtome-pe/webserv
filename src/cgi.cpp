@@ -2,7 +2,7 @@
 
 int	cgi(Response &response, Request &request, std::string path, std::string method)
 {
-	if (method != "output") // no es la respuesta de un proceso de cgi
+	if (method != "output")
 	{
 		if (method == "PUT" && request.getUploadStore() == "") 
 			return (403);

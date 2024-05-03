@@ -45,7 +45,6 @@ void        setSignals()
 int         createNonBlockingClientSocketAndAddToPollAndSock(struct sockaddr_in c_addr, std::vector<pollfd> &pollVec, int i, int c_fd, std::vector<Socket> &sockVec)
 {
     Socket client(ip_to_str(&c_addr) + port_to_str(&c_addr), NULL, 0);
-   // cout << "i: " << i << " client " << c_fd << " with ip: " << ip_to_str(&c_addr) << ":" << port_to_str(&c_addr) << " added. It points to fd " << pollVec[i].fd << endl;
     client.pointTo(pollVec[i].fd);
     client.setFd(c_fd);
     if (client.setNonBlocking(c_fd) == 1)
@@ -179,7 +178,6 @@ void            killZombieProcess(std::vector<pidStruct>::iterator &it, std::vec
 
 void            killTimeoutProcessAndDisconnectClient(Cluster &cluster, std::vector<pollfd> &pollVec, std::vector<pidStruct> &pidVec, std::vector<Socket> &sockVec, std::vector<pidStruct>::iterator &it)
 {
-    cout << "entra en killTimeout" << endl;
     for (unsigned int j = 0; j < pollVec.size(); j++)
     {
         if (pollVec[j].fd == it->fd)

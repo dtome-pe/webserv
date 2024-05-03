@@ -18,10 +18,10 @@ $(DIR_OBJ):
 	mkdir -p $@
 
 $(NAME): $(OBJ)
-	c++ $(FLAGS)  $(OBJ) -o $(NAME)
+	c++ $(FLAGS)  $(OBJ) -o $(NAME) -g -fsanitize=address
 
 $(DIR_OBJ)%.o: $(DIR_SRC)%.cpp Makefile 
-	c++ $(FLAGS) $(DEPFLAGS) -c $< -o $@
+	c++ $(FLAGS) $(DEPFLAGS) -c $< -o $@ -fsanitize=address
 
 clean:
 	rm -fr $(DIR_OBJ)

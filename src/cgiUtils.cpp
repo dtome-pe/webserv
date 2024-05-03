@@ -75,7 +75,6 @@ char* const*	setEnvp(Request &request, std::string &path, std::string &method)
 
     for (size_t i = 0; i < env.size(); ++i)
     {
-        //cout << env[i] << endl;
         envp[i] = strdup_cpp98(env[i].c_str());
     }
 	envp[env.size()] = NULL;
@@ -121,7 +120,7 @@ std::string bounceContent(int fd)
 	std::string content;
 	while ((bytesRead = read(fd, buffer, sizeof(buffer))) > 0)
 		content.append(buffer,bytesRead);
-    close(fd);  // Close read end in the parent
+    close(fd);
 	return (content);
 }
 
