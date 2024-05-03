@@ -9,7 +9,10 @@ void     createSocketAndAddToSockVecIfDifferent(std::vector<Server> &servVec,  s
         if (ret == DIFFERENT)
             sockVec.push_back(s);
         else if (ret == SAME_BUT_DIFFERENT_SERVER)
+        {   
+            freeaddrinfo(s.s_addr);
             continue ;
+        }
         else if (ret == LISTEN_DUPLICATE)
         {
             freeaddrinfo(s.s_addr);
