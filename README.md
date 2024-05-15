@@ -45,7 +45,7 @@ Will make a GET request to the root of the server, and will receive an index pag
 
 ## Resources
 
-This guide was really easy to follow and even fun. I highly recommend it as a first read:
+This guide was really fun and easy to follow through. I highly recommend it as a first read:
 
 [Beej's Guide To Network Programming](https://beej.us/guide/bgnet/html/split/)
 
