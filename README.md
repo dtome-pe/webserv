@@ -1,9 +1,3 @@
-# Webserv
-
-A C++ simple web server from scratch.
-
-## Description
-
 This program parses a configuration file, similar to that in Nginx, sets up and binds the listening sockets, accepts incoming connections, handles each single I/O interaction with the client flow through a poll implementation and can receive and serve GET, DELETE and POST HTTP requests.
 
 ## Installation
